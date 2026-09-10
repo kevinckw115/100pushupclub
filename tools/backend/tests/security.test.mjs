@@ -10,7 +10,8 @@ test('real JWT bootstrap, owner isolation, grants/RLS, suspension and alias race
   await db.connect();
   const users = [];
   try {
-    const a = await account(config), b = await account(config); users.push(a, b);
+    const a = await account(config); users.push(a);
+    const b = await account(config); users.push(b);
     const operation = randomUUID();
     const first = await request(config, '/rest/v1/rpc/bootstrap_profile', { token: a.token, body: { operation_id: operation } });
     assert.equal(first.status, 200, 'authenticated bootstrap succeeds');
@@ -37,6 +38,13 @@ test('real JWT bootstrap, owner isolation, grants/RLS, suspension and alias race
     }
     const atomic = await db.query('select (select count(*) from app_private.profiles where user_id=$1)::int profiles, (select count(*) from app_private.account_sync_state where user_id=$1)::int sync, (select count(*) from app_private.operation_receipts where user_id=$1)::int receipts', [a.id]);
     assert.deepEqual(atomic.rows[0], { profiles: 1, sync: 1, receipts: 1 });
+    const checkin = randomUUID();
+    await db.query("insert into app_private.checkins(id,user_id,quantity,occurred_at,recorded_timezone,local_date,source,version,revision) values($1,$2,20,'2026-09-10T12:00:00Z','UTC','2026-09-10','native',1,1)", [checkin,a.id]);
+    for (const value of [0,1000]) await assert.rejects(db.query('update app_private.checkins set quantity=$1 where id=$2', [value,checkin]), error => error.code === '23514');
+    await assert.rejects(db.query("update app_private.checkins set recorded_timezone='not/a/zone' where id=$1", [checkin]), error => error.code === '22023');
+    await assert.rejects(db.query('update app_private.checkins set user_id=$1 where id=$2', [b.id,checkin]), error => error.code === '22023');
+    await db.query('update app_private.checkins set deleted_at=now() where id=$1', [checkin]);
+    await assert.rejects(db.query('update app_private.checkins set deleted_at=null where id=$1', [checkin]), error => error.code === '22023');
     for (const role of ['anon','authenticated']) {
       await db.query('begin');
       await db.query('set local role ' + role); // Fixed test role names, not user input.
@@ -53,6 +61,18 @@ test('real JWT bootstrap, owner isolation, grants/RLS, suspension and alias race
     assert.equal((await request(config, '/rest/v1/rpc/get_profile', { token: a.token, body: {} })).status, 403);
     assert.equal((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: a.token, body: { operation_id: operation } })).status, 403);
     await db.query("update app_private.profiles set account_status='active' where user_id=$1", [a.id]);
+    await db.query("insert into app_private.deletion_jobs(user_id,status) values($1,'pending')", [a.id]);
+    assert.equal((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: a.token, body: { operation_id: operation } })).status, 403);
+    await db.query('delete from app_private.deletion_jobs where user_id=$1', [a.id]);
+
+    const rollbackUser = await account(config); users.push(rollbackUser);
+    await db.query("create function app_private.test_fail_receipt() returns trigger language plpgsql set search_path='' as $$ begin raise exception 'TEST_RECEIPT_FAILURE'; end $$; create trigger test_fail_receipt before insert on app_private.operation_receipts for each row execute function app_private.test_fail_receipt();");
+    try {
+      const failed = await request(config, '/rest/v1/rpc/bootstrap_profile', { token: rollbackUser.token, body: { operation_id: randomUUID() } });
+      assert.ok(failed.status >= 400);
+      const absent = await db.query('select (select count(*) from app_private.profiles where user_id=$1)::int profiles, (select count(*) from app_private.account_sync_state where user_id=$1)::int sync', [rollbackUser.id]);
+      assert.deepEqual(absent.rows[0], { profiles: 0, sync: 0 });
+    } finally { await db.query('drop trigger test_fail_receipt on app_private.operation_receipts; drop function app_private.test_fail_receipt();'); }
 
     const left = new pg.Client({ connectionString: config.db }), right = new pg.Client({ connectionString: config.db });
     await Promise.all([left.connect(), right.connect()]);

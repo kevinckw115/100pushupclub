@@ -18,7 +18,7 @@
       "evidence": [
         "tracking/evidence/T01.md"
       ],
-      "blocker": "Native target unavailable; local Hermes bytecode executable blocked with spawn EPERM. Python package check requires Python.",
+      "blocker": "Native target unavailable. Full Hermes export and Python package validation passed in GitHub Actions; local Windows executable restrictions remain.",
       "acceptance_ids": []
     },
     {

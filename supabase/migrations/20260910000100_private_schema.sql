@@ -122,7 +122,8 @@ begin
   if not exists (select 1 from auth.users where id=actor and not coalesce(is_anonymous,false) and email_confirmed_at is not null) then
     raise exception using errcode='42501', message='ACCOUNT_UNAVAILABLE';
   end if;
-  if exists (select 1 from app_private.profiles where user_id=actor and account_status <> 'active') then
+  if exists (select 1 from app_private.profiles where user_id=actor and account_status <> 'active')
+     or exists (select 1 from app_private.deletion_jobs where user_id=actor) then
     raise exception using errcode='42501', message='ACCOUNT_UNAVAILABLE';
   end if;
   return actor;
