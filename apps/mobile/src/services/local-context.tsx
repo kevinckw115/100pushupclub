@@ -7,6 +7,7 @@ import { migrate } from '../data/local/migrations';
 import { LocalRepository } from '../data/local/repository';
 import type { Partition } from '../data/local/repository';
 import { localDate } from '../domain/checkin';
+import { watchDay } from '../domain/calendar';
 import { AppScreen, Header, Notice } from '../components/ui';
 
 export const deviceTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -44,8 +45,13 @@ export function LocalProvider({ children }: PropsWithChildren) {
     setRevision(previous => previous + 1);
   }, [repo]);
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => { if (state === 'active') refresh(); });
-    return () => subscription.remove();
+    const start = () => watchDay({ now: () => new Date(), timezone: deviceTimezone, onChange: refresh, schedule: (callback, delay) => setTimeout(callback, delay), cancel: handle => clearTimeout(handle as ReturnType<typeof setTimeout>) });
+    let stop = AppState.currentState === 'active' ? start() : undefined;
+    const subscription = AppState.addEventListener('change', state => {
+      stop?.(); stop = undefined;
+      if (state === 'active') { refresh(); stop = start(); }
+    });
+    return () => { stop?.(); subscription.remove(); };
   }, [refresh]);
   return <Context.Provider value={{ repo, ready: repo !== null, error, partition, revision, date, refresh }}>{children}</Context.Provider>;
 }

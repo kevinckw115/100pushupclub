@@ -1,0 +1,36 @@
+import { chromium, expect } from '@playwright/test';
+const browser = await chromium.launch({ channel: 'chrome', headless: true });
+try {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', timezoneId: 'America/Los_Angeles' });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.clock.install({ time: new Date('2026-09-11T06:59:50Z') });
+  await page.clock.setFixedTime(new Date('2026-09-11T06:59:50Z'));
+  await page.goto('http://127.0.0.1:8081');
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
+  await page.getByRole('button', { name: 'Log pushups', exact: true }).click();
+  await page.getByLabel('Pushup quantity').fill('5');
+  await page.getByTestId('save-checkin').click();
+  await expect(page.getByRole('img', { name: '5 pushups today, goal 100.' })).toBeVisible();
+  await page.clock.setFixedTime(new Date('2026-09-11T07:00:00Z'));
+  await page.clock.runFor(10001);
+  await expect(page.getByRole('img', { name: '0 pushups today, goal 100.' })).toBeVisible();
+  await page.getByRole('tab', { name: 'You', exact: true }).click();
+  await expect(page.getByText('1 active day · 0 days at 100 in this period')).toBeVisible();
+  await page.getByRole('button', { name: /^2026-09-10/ }).click();
+  await expect(page.getByRole('button', { name: 'Log pushups', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: /^5 pushups/ }).click();
+  await page.getByLabel('Pushup quantity').fill('100');
+  await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+  await page.getByRole('button', { name: 'Back to history', exact: true }).click();
+  await expect(page.getByText('1 active day · 1 day at 100 in this period')).toBeVisible();
+  await page.screenshot({ path: '../../tracking/evidence/t06-history-web.png' });
+  await page.getByRole('button', { name: 'Older 30 days', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^2026-08-12/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to latest 30 days', exact: true }).click();
+  await page.getByRole('tab', { name: 'Today', exact: true }).click();
+  await expect(page.getByRole('img', { name: '0 pushups today, goal 100.' })).toBeVisible();
+  expect(errors).toEqual([]);
+  console.log('PASS: midnight UI refresh, preserved prior day, past edit updates metrics, bounded history pages, no backdating action.');
+} finally { await browser.close(); }

@@ -93,9 +93,11 @@
       "depends_on": [
         "T05"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T06.md"
+      ],
+      "blocker": "Native foreground/midnight and travel behavior not device-verified.",
       "acceptance_ids": [
         "A07",
         "A08",

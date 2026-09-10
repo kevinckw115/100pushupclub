@@ -1,4 +1,5 @@
 import { instant, localDate, quantity, uuid } from '../../domain/checkin.ts';
+import { calendarDate, shiftDate } from '../../domain/calendar.ts';
 import type { SqlDriver } from './driver.ts';
 
 export interface LocalCheckin {
@@ -95,6 +96,14 @@ export class LocalRepository {
 
   total(partitionId: string, date: string): string {
     return this.db.all<{ total: string }>('SELECT CAST(COALESCE(SUM(quantity),0) AS TEXT) AS total FROM local_checkins WHERE partition_id=? AND local_date=? AND deleted=0', partitionId, date)[0].total;
+  }
+
+  history(partitionId: string, endingDate: string): { date: string; total: string }[] {
+    calendarDate(endingDate);
+    const start = shiftDate(endingDate, -29);
+    const rows = this.db.all<{ date: string; total: string }>('SELECT local_date AS date, CAST(SUM(quantity) AS TEXT) AS total FROM local_checkins WHERE partition_id=? AND local_date BETWEEN ? AND ? AND deleted=0 GROUP BY local_date ORDER BY local_date DESC LIMIT 30', partitionId, start, endingDate);
+    const totals = new Map(rows.map(row => [row.date, row.total]));
+    return Array.from({ length: 30 }, (_, index) => { const date = shiftDate(endingDate, -index); return { date, total: totals.get(date) ?? '0' }; });
   }
 
   preference(scope: string, key: string): string | null {

@@ -176,3 +176,22 @@ test('in-flight undo retains exact request and queues a dependent deletion', () 
     assert.equal(f.repo.total(account, '2026-09-10'), '0');
   } finally { f.cleanup(); }
 });
+
+test('history pages include rest days; record pagination preserves timestamp ties', () => {
+  const f = fixture();
+  try {
+    const guest = f.repo.startGuest(now);
+    for (let n = 0; n < 101; n++) f.repo.create(guest.id, input(1));
+    const first = f.repo.day(guest.id, '2026-09-10');
+    const last = first.at(-1)!;
+    const second = f.repo.day(guest.id, '2026-09-10', { time: last.occurred_at, id: last.id });
+    assert.equal(first.length, 100); assert.equal(second.length, 1);
+    assert.equal(new Set([...first, ...second].map(row => row.id)).size, 101);
+    const history = f.repo.history(guest.id, '2026-09-10');
+    assert.equal(history.length, 30); assert.equal(history[0].total, '101');
+    assert.equal(history[1].total, '0'); assert.equal(history.at(-1)?.date, '2026-08-12');
+    assert.equal(f.repo.history(guest.id, '2026-08-11')[0].total, '0');
+    f.repo.delete(guest.id, first[0].id); f.repo.edit(guest.id, first[1].id, 10);
+    assert.equal(f.repo.history(guest.id, '2026-09-10')[0].total, '109');
+  } finally { f.cleanup(); }
+});

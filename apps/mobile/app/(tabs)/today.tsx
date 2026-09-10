@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
-import { AppScreen, Header, Copy, ProgressRing, Section, Notice, Row, Button } from '../../src/components/ui';
+import { AppScreen, Header, Copy, ProgressRing, Notice, Button } from '../../src/components/ui';
 import { useLocal } from '../../src/services/local-context';
 import { CheckinEditor } from '../../src/features/logging/CheckinEditor';
 import type { LocalCheckin } from '../../src/data/local/repository';
 import { theme } from '../../src/theme/theme';
+import { CheckinList } from '../../src/features/history/CheckinList';
 
 export default function Today() {
   const { repo, partition, date, refresh } = useLocal();
@@ -20,7 +21,6 @@ export default function Today() {
   }, [toast]);
   if (!repo || !partition) return null;
   const total = repo.total(partition.id, date);
-  const rows = repo.day(partition.id, date);
   const remaining = BigInt(total) < 100n ? 100n - BigInt(total) : 0n;
   const saved = (record: LocalCheckin, created: boolean) => {
     const message = record.deleted ? 'Check-in deleted.' : created ? `${record.quantity} added.` : 'Check-in updated.';
@@ -42,9 +42,7 @@ export default function Today() {
     {toast && <Notice>{toast.message}</Notice>}
     {toast?.undoId && <Button label="Undo" secondary onPress={undo} />}
     {undoError && <Notice error>Could not undo. Open the check-in to try deleting it again.</Notice>}
-    <Section title="Your check-ins">
-      {rows.length ? rows.map(row => <Row key={row.id} title={`${row.quantity} pushups`} detail={new Date(row.occurred_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} onPress={() => setEditor(row)} />) : <Copy>Start with a few.</Copy>}
-    </Section>
+    <CheckinList key={date} date={date} onEdit={setEditor} />
     <Notice>{partition.kind === 'guest' ? 'Saved on this phone. Your check-ins are private.' : 'Your personal check-ins'}</Notice>
     {editor && <CheckinEditor record={editor === 'new' ? undefined : editor} onClose={() => setEditor(null)} onSaved={saved} />}
   </AppScreen>;

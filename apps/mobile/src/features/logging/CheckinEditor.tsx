@@ -39,7 +39,7 @@ export function CheckinEditor({ record, onClose, onSaved }: { record?: LocalChec
     if (repo && partition) projected = String(BigInt(repo.total(partition.id, record?.local_date ?? date)) - BigInt(record?.quantity ?? 0) + BigInt(quantity(value)));
   } catch { /* Invalid drafts are explained on save, without replacing the input. */ }
   return <BottomSheet visible title={record ? 'Edit check-in' : 'Log pushups'} onClose={close}>
-    {record && <Copy variant="caption">Recorded {new Date(record.occurred_at).toLocaleString()} · {record.recorded_timezone}</Copy>}
+    {record && <Copy variant="caption">Recorded {new Date(record.occurred_at).toLocaleString(undefined, { timeZone: record.recorded_timezone })} · {record.recorded_timezone}</Copy>}
     <QuantityInput value={value} disabled={saving} onChange={next => { setValue(next); setConfirmation(null); setError(null); }} />
     {projected !== null && <Copy>{projected} pushups {record && record.local_date !== date ? `on ${record.local_date}` : 'today'} after saving.</Copy>}
     {error && <Notice error>{error}</Notice>}

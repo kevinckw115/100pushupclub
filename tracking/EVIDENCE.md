@@ -34,3 +34,7 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T05
 
 [Logging evidence](evidence/T05.md): 11 real integration checks and browser save/edit/delete/Undo/failure flow passed; one-line SDK web bridge fix verified through fresh install. Native checks not run.
+
+## T06
+
+[History evidence](evidence/T06.md): clock, SQLite pagination and browser midnight/history flow passed; native lifecycle pending.
