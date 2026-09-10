@@ -56,11 +56,13 @@ export interface OwnCheckin {
   public_region_id: string | null;
 }
 export interface MutationAccepted {
+  request_id: UUID;
   record: OwnCheckin;
   revision: DecimalString;
   effective_public: boolean;
 }
 export interface PullPage {
+  request_id: UUID;
   changes: OwnCheckin[];
   next_revision: DecimalString;
   has_more: boolean;
@@ -94,7 +96,15 @@ export interface CircleToday {
 }
 export type OutboxStatus = 'pending' | 'sending' | 'acknowledged' | 'conflict' | 'rejected';
 export type SyncErrorCode =
+  | 'INVALID_REQUEST' | 'INVALID_TIMESTAMP' | 'SERVER_RETRY'
   | 'INVALID_QUANTITY' | 'INVALID_TIMEZONE' | 'INVALID_LOCAL_DATE' | 'CLOCK_AHEAD'
   | 'UNAUTHENTICATED' | 'ACCOUNT_UNAVAILABLE' | 'NOT_FOUND_OR_FORBIDDEN'
   | 'VERSION_CONFLICT' | 'ENTITY_EXISTS' | 'IDEMPOTENCY_KEY_REUSED'
   | 'RATE_LIMITED' | 'INVALID_CURSOR';
+
+export interface SyncErrorResponse {
+  code: SyncErrorCode; message: string; retryable: boolean; request_id: UUID;
+  current_record?: OwnCheckin;
+}
+export interface MutationRPCInput { envelope: CheckinMutation }
+export interface PullRPCInput { after_revision: DecimalString; limit?: number }

@@ -26,6 +26,8 @@ Do not commit a receipt separately from its change. Version-conflict results may
 
 ## Client worker
 
+The PostgreSQL transport calls `mutate_checkin` with `{envelope: mutation}` and `pull_changes` with `{after_revision, limit}`. Accepted mutation/pull envelopes include request_id. Checked RPC errors return the common JSON error body with an HTTP error status; SERVER_RETRY preserves the exact request for retry. Gateway/authentication rejections can happen before RPC execution and must also be handled by the transport. Receipt replay preserves the original accepted response including request_id. Pull holds a shared profile lock while constructing one consistent bounded page, so it cannot skip a revision still held by an earlier writer.
+
 - One active worker per partition. The worker selects pending mutations whose dependencies are resolved and sends at most one at a time initially.
 - Mark sending durably before transport. Once a request might have left the device, never modify its ID or payload. If response is uncertain, resend the exact request.
 - On acceptance, atomically store accepted snapshot, mark acknowledged, and rebuild visible projection from remaining local intents. Then pull server changes.

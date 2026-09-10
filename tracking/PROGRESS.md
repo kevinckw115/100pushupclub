@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T09 implemented with automated CI PASS at4f13591. Native secure storage and hosted OTP still require device/development setup. T08 backend verified. Next: T10 checked mutation/pull RPCs on its own branch. No hosted backend deployed.
+T10 in progress on task/t10-mutation-pull-api. T09 automated CI passed at4f13591; native secure storage and hosted OTP need device/development setup. T08 backend verified. No hosted backend deployed.
 
 ## Fixed direction
 
@@ -51,3 +51,7 @@ Branch task/t07-preferences-reminders. Local preferences, haptics and notificati
 ## 2026-09-10: T09 in progress
 
 New branch task/t09-auth-partitions. Email OTP, session chunks and partition signout implemented; real SQLite and storage fault tests pass. Disposable Supabase OTP/browser checks queued for CI. Native secure storage and hosted email delivery still need owner setup. Next: resolve CI and record T09 evidence, then T10 checked mutation/pull RPCs on a new branch.
+
+## 2026-09-10: T10 in progress
+
+New branch task/t10-mutation-pull-api. Added checked mutation/pull functions, bounded replay-aware request budget, immutable changes/receipts, canonical validation and decimal cursors. Backend tests cover real concurrent HTTP/SQL writes, rollback and read waiting. Commands: node --check tools/backend/tests/mutations.test.mjs passed. Fresh Supabase reset/runtime tests will run in GitHub Actions (local native Supabase executable still blocked). Next: fix any CI failures, then T11 worker on its own branch.

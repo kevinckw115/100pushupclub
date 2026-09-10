@@ -8,6 +8,7 @@ Names below are normative operations. Implement authenticated PostgreSQL RPCs or
 - IDs UUID strings, revisions/epochs decimal strings, dates YYYY-MM-DD, timestamps ISO 8601 UTC. Schema validation exists both client-side and server-side.
 - Error `{code, message, retryable, request_id, current_record?}`. Stable codes: INVALID_QUANTITY, INVALID_TIMEZONE, INVALID_LOCAL_DATE, CLOCK_AHEAD, UNAUTHENTICATED, ACCOUNT_UNAVAILABLE, NOT_FOUND_OR_FORBIDDEN, VERSION_CONFLICT, ENTITY_EXISTS, IDEMPOTENCY_KEY_REUSED, RATE_LIMITED, INVALID_CURSOR, INVITE_EXPIRED, CIRCLE_FULL, QUOTA_EXCEEDED.
 - Never expose SQL errors, token material, another owner's record, or exact locations in errors.
+- T10 adds INVALID_REQUEST (malformed shape/identity/version/source/epoch), INVALID_TIMESTAMP, and retryable SERVER_RETRY. Accepted mutation and pull DTOs include request_id. RPC arguments are `{envelope: CheckinMutation}` and `{after_revision, limit}` respectively. Application error bodies carry the declared HTTP error status; upstream Auth/gateway denials may precede application execution.
 - Cursor is opaque and validated, never an arbitrary SQL predicate. Parameterize filters. Scope IDs resolve only through curated region hierarchy.
 
 | Operation | Input | Output / semantics |
@@ -68,5 +69,7 @@ Return circle id/name/timezone/date, total_reps decimal string, checked_in_count
 ## Abuse budgets (initial configurable defaults)
 
 Authenticated check-in mutations: 120/minute/account; public feed: 30/minute/session plus gateway IP protections; invite preview: 10/minute/source and bounded global budget; report: 10/hour/account. Imports use a separately bounded queue. Validate realistic payload size and quantity, but do not claim to verify exercise. All limits return Retry-After and preserve local pending reps.
+
+The check-in RPC enforces a fixed UTC minute budget including receipt replays and validated error requests. Usage saturates at121 and resets on a new minute. RATE_LIMITED returns HTTP429 and Retry-After seconds. A transient rolled-back transaction does not retain budget state or any partial accepted record. The RPC bounds its parsed envelope at32KB; deployment ingress limits must also bound raw HTTP bodies. Profile/record lock waits are bounded at5seconds and requests at10seconds. Import transport batching/queue limits remain a T12 concern.
 
 Guest feed endpoint needs gateway limits; a mobile publishable API key is not a secret or proof of a unique person. Do not solve abuse by embedding a privileged secret in the app.

@@ -160,8 +160,10 @@
       "depends_on": [
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T10.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A03",

@@ -13,6 +13,7 @@ Keep application tables in a non-exposed schema such as app_private. Expose tigh
 | checkins | id UUID PK, user_id FK immutable, quantity int CHECK 1..999, occurred_at, recorded_timezone text, local_date date, source native/import, created_at server time, updated_at, deleted_at nullable, version int >=1, revision bigint, public_epoch nullable bigint, public_region_id nullable FK |
 | mutation_receipts | user_id + mutation_id composite PK, canonical_payload_hash, immutable result JSON, created_at; account lifetime retention |
 | operation_receipts | user_id + operation_id composite PK, operation name, semantic request hash, immutable result JSON, created_at; non-check-in mutation idempotency |
+| request_budgets | account + operation key; current minute window and bounded usage counter; no private event content |
 | reserved_aliases | normalized alias primary key; server-maintained reserved-name policy |
 | checkin_changes | user_id + revision composite PK, checkin_id, immutable accepted record snapshot JSON; includes tombstones; account lifetime retention |
 | regions | id stable text PK, parent_id FK nullable, kind world/country/admin1/locality, name, country_code nullable, timezone hint nullable; indexed hierarchy/closure |
@@ -34,6 +35,7 @@ Foreign-key cascades must be planned around account deletion: remove memberships
 - On the first verified permanent login, a checked idempotent bootstrap operation creates profiles and account_sync_state atomically. Assign a random non-identifying unique alias such as member_ plus 12 random lowercase alphanumerics, retrying uniqueness collisions; do not derive it from email or the auth UUID. Offer alias editing before enabling public sharing/joining circles. Existing profile bootstrap returns the existing row. Account setup must not depend on an unimplemented auth trigger or allow the client to assign arbitrary ownership.
 
 - Validate IANA timezone using server-supported timezone names and derive local_date from occurred_at in that zone at CREATE. Require client-supplied date to match, otherwise INVALID_LOCAL_DATE. Preserve all three thereafter.
+- UTC input uses seconds or exactly three fractional digits and rejects normalized impossible dates/times. New records more than five minutes ahead of server time return CLOCK_AHEAD, matching the reference rule. Mutation receipts and change snapshots reject UPDATE; account cleanup may delete them.
 - Index checkins(user_id, local_date, occurred_at DESC, id) for personal reads; eligible public time-window lookup on occurred_at, public_region_id and user_id; circle memberships on user_id and active status; changes on (user_id, revision); receipts on their composite PK.
 - Alias normalization is lowercase ASCII after trim; require /^[A-Za-z0-9_]{3,20}$/ and uniqueness in a database constraint. Use a server-maintained reserved-term policy.
 - Per-profile privacy updates lock the profile and increment consent_epoch; create-checkin also locks profile before sync state. Lock order is always profile → account_sync_state → checkin. This prevents a consent race and deadlocks across those functions.

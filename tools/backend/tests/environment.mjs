@@ -20,7 +20,7 @@ export async function request(config, path, { token, admin = false, method = 'PO
     ...(token || admin ? { Authorization: 'Bearer ' + (admin ? config.adminKey : token) } : {}),
     'Content-Type': 'application/json', ...headers,
   }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
-  return { status: response.status, data: await response.json().catch(() => null) };
+  return { status: response.status, data: await response.json().catch(() => null), retryAfter: response.headers.get('retry-after') };
 }
 
 export async function account(config) {
