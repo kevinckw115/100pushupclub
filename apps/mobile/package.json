@@ -30,6 +30,7 @@
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
     "expo-doctor": "^1.20.4",
+    "patch-package": "^8.0.1",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -43,7 +44,8 @@
     "test:integration": "node --test tests/integration/*.test.ts",
     "test:e2e": "maestro test ../../tests/e2e",
     "doctor": "node node_modules/expo-doctor/build/index.js",
-    "export": "node node_modules/expo/bin/cli export --platform all"
+    "export": "node node_modules/expo/bin/cli export --platform all",
+    "postinstall": "node node_modules/patch-package/index.js"
   },
   "private": true,
   "engines": {

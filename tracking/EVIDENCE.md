@@ -30,3 +30,7 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T04
 
 [Guest/Today evidence](evidence/T04.md): actual Expo browser SQLite setup/reload and navigation passed; native and populated states remain open.
+
+## T05
+
+[Logging evidence](evidence/T05.md): 11 real integration checks and browser save/edit/delete/Undo/failure flow passed; one-line SDK web bridge fix verified through fresh install. Native checks not run.

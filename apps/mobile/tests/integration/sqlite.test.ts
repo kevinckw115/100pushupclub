@@ -128,3 +128,51 @@ test('failed migration rolls back schema changes and version marker together', (
     assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 2);
   } finally { db.close(); }
 });
+
+test('quantity edit and deletion recompute totals without moving the recorded day', () => {
+  const f = fixture();
+  try {
+    const guest = f.repo.startGuest(now);
+    const row = f.repo.create(guest.id, input());
+    f.repo.edit(guest.id, row.id, 35);
+    assert.equal(f.repo.get(guest.id, row.id)?.local_date, '2026-09-10');
+    assert.equal(f.repo.total(guest.id, '2026-09-10'), '35');
+    f.repo.delete(guest.id, row.id);
+    assert.equal(f.repo.total(guest.id, '2026-09-10'), '0');
+    assert.throws(() => f.repo.edit(guest.id, row.id, 10));
+  } finally { f.cleanup(); }
+});
+
+test('unsent create can be corrected or undone without a cloud effect', () => {
+  const f = fixture();
+  try {
+    const account = randomUUID();
+    f.db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", account, now);
+    const row = f.repo.create(account, input());
+    f.repo.edit(account, row.id, 15);
+    const queued = f.db.all<{ request_json: string }>('SELECT request_json FROM outbox');
+    assert.equal(queued.length, 1);
+    assert.equal(JSON.parse(queued[0].request_json).quantity, 15);
+    f.repo.delete(account, row.id);
+    assert.equal(f.db.all('SELECT * FROM outbox').length, 0);
+    assert.equal(f.repo.total(account, '2026-09-10'), '0');
+  } finally { f.cleanup(); }
+});
+
+test('in-flight undo retains exact request and queues a dependent deletion', () => {
+  const f = fixture();
+  try {
+    const account = randomUUID();
+    f.db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", account, now);
+    const row = f.repo.create(account, input());
+    const original = f.db.all<{ mutation_id: string; request_json: string }>('SELECT mutation_id,request_json FROM outbox')[0];
+    f.db.exec("UPDATE outbox SET status='sending';");
+    f.repo.delete(account, row.id);
+    const queue = f.db.all<{ request_json: string | null; dependency_mutation: string | null; operation: string }>('SELECT * FROM outbox ORDER BY sequence');
+    assert.equal(queue[0].request_json, original.request_json);
+    assert.equal(queue[1].operation, 'delete');
+    assert.equal(queue[1].request_json, null);
+    assert.equal(queue[1].dependency_mutation, original.mutation_id);
+    assert.equal(f.repo.total(account, '2026-09-10'), '0');
+  } finally { f.cleanup(); }
+});

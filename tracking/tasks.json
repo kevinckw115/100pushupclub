@@ -73,9 +73,11 @@
       "depends_on": [
         "T04"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T05.md"
+      ],
+      "blocker": "Native offline/restart and screen-reader/haptic gates need a development build and device.",
       "acceptance_ids": [
         "A01",
         "A02",

@@ -54,6 +54,39 @@ export class LocalRepository {
     return this.db.all<LocalCheckin>('SELECT * FROM local_checkins WHERE partition_id=? AND id=?', partitionId, id)[0] ?? null;
   }
 
+  edit(partitionId: string, id: string, value: unknown): LocalCheckin {
+    return this.change(partitionId, id, quantity(value));
+  }
+
+  delete(partitionId: string, id: string): LocalCheckin {
+    return this.change(partitionId, id, null);
+  }
+
+  private change(partitionId: string, id: string, count: number | null): LocalCheckin {
+    return this.db.transaction(() => {
+      const partition = this.partition(partitionId);
+      const record = this.get(partitionId, id);
+      if (!record || record.deleted) throw new Error('This check-in is no longer available.');
+      if (record.state === 'conflict' || record.state === 'rejected') throw new Error('Resolve this check-in’s sync issue before changing it.');
+      if (partition.kind === 'account') {
+        const last = this.db.all<{ mutation_id: string; operation: string; status: string; request_json: string | null }>(
+          "SELECT mutation_id,operation,status,request_json FROM outbox WHERE partition_id=? AND entity_id=? AND status <> 'acknowledged' ORDER BY sequence DESC LIMIT 1", partitionId, id)[0];
+        if (last?.status === 'pending' && last.operation === 'create') {
+          if (count === null) this.db.run('DELETE FROM outbox WHERE partition_id=? AND mutation_id=?', partitionId, last.mutation_id);
+          else this.db.run('UPDATE outbox SET intent_quantity=?,request_json=? WHERE partition_id=? AND mutation_id=?', count, JSON.stringify({ ...JSON.parse(last.request_json!), quantity: count }), partitionId, last.mutation_id);
+        } else {
+          const mutationId = uuid(this.makeId());
+          const operation = count === null ? 'delete' : 'update';
+          const request = last ? null : JSON.stringify({ kind: operation, mutation_id: mutationId, checkin_id: id, expected_version: record.server_version, ...(count === null ? {} : { quantity: count }) });
+          this.db.run('INSERT INTO outbox(partition_id,mutation_id,entity_id,operation,intent_quantity,request_json,base_version,dependency_mutation) VALUES(?,?,?,?,?,?,?,?)',
+            partitionId, mutationId, id, operation, count, request, last ? null : record.server_version, last?.mutation_id ?? null);
+        }
+      }
+      this.db.run('UPDATE local_checkins SET quantity=?,deleted=?,state=? WHERE partition_id=? AND id=?', count ?? record.quantity, count === null ? 1 : 0, partition.kind === 'guest' ? 'local' : 'pending', partitionId, id);
+      return this.get(partitionId, id)!;
+    });
+  }
+
   day(partitionId: string, date: string, before?: { time: string; id: string }): LocalCheckin[] {
     return this.db.all<LocalCheckin>(`SELECT * FROM local_checkins WHERE partition_id=? AND local_date=? AND deleted=0
       ${before ? 'AND (occurred_at < ? OR (occurred_at = ? AND id < ?))' : ''}

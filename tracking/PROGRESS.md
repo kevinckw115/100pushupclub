@@ -35,3 +35,7 @@ Branch task/t03-domain-sqlite. Domain, migrations, Expo SQLite driver and transa
 ## 2026-09-10: T04
 
 Branch task/t04-guest-today. Durable guest onboarding and Today implemented. Web export and node scripts/review-guest.mjs passed; screenshots inspected. Typecheck/lint passed. Native first-launch gate unavailable. Next T05: logging, editing, deletion and Undo on a new branch, with actual saved 0/35/100/125 UI checks.
+
+## 2026-09-10: T05
+
+Branch task/t05-log-edit-undo. Durable logging, editing, deletion, Undo and explicit large-entry confirmation implemented. 11 integration tests and node scripts/review-logging.mjs --failure passed against real SQLite; screenshots inspected. npm.cmd ci reapplies scoped Expo SQLite web bridge patch. Native Maestro flow added but requires device/build. Next T06: history pagination and day refresh; T07 reminders afterward. Each gets its own branch.
