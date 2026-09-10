@@ -7,15 +7,16 @@ const app = new URL('../../../apps/mobile/', import.meta.url);
 const build = spawnSync(process.execPath, ['scripts/export.mjs', 'web'], { cwd: app, stdio: 'inherit', env: { ...process.env, EXPO_PUBLIC_APP_ENV: 'development', EXPO_PUBLIC_SUPABASE_URL: config.api, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: config.key } });
 if (build.status !== 0) throw new Error('Connected browser build failed.');
 const server = spawn(process.execPath, ['scripts/preview.mjs'], { cwd: app, stdio: 'ignore' });
-let browser, user;
+let browser, user, page;
+const errors = [];
 try {
   for (let attempt = 0; attempt < 40; attempt++) {
     if (await fetch('http://127.0.0.1:8081').then(response => response.ok, () => false)) break;
     await new Promise(resolve => setTimeout(resolve, 250));
   }
   browser = await chromium.launch({ channel: 'chrome', headless: true });
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  page.on('pageerror', error => errors.push(error.message));
   await page.goto('http://127.0.0.1:8081');
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Log pushups', exact: true }).click();
@@ -45,4 +46,8 @@ try {
   await expect(page.getByText('90 to go. Take your time.')).toBeVisible();
   expect(errors).toEqual([]);
   console.log('PASS: real Auth OTP request, invalid code/retry, profile bootstrap, partition isolation, guest restoration.');
+} catch (error) {
+  const body = await page?.locator('body').innerText().catch(() => 'unavailable');
+  console.error('Browser diagnostic:', JSON.stringify({ errors, screen: body?.replace(/[^\s@]+@[^\s@]+/g, '[email]').replace(/\b\d{6,10}\b/g, '[code]').slice(0, 1000) }));
+  throw error;
 } finally { await browser?.close(); server.kill(); if (user) await removeAccount(config, user); }
