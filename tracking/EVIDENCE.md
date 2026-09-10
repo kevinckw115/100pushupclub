@@ -22,3 +22,7 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T02
 
 [Component evidence](evidence/T02.md): browser interactions and screenshots checked; native accessibility remains open.
+
+## T03
+
+[SQLite evidence](evidence/T03.md): real host SQLite persistence, process exit, migration, atomic rollback and isolation verified. Native adapter unverified.

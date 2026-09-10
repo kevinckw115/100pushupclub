@@ -27,3 +27,7 @@ Branch task/t01-toolchain-bootstrap. App scaffold, Router, lockfile, dev/preview
 ## 2026-09-10: T02
 
 Branch task/t02-design-components. Shared UI implemented; browser component review passed, screenshots inspected. Commands: npm.cmd run typecheck; npm.cmd run lint; node node_modules/expo/bin/cli export --platform web --dev --no-minify; node scripts/review-components.mjs (with preview server running). Native text/keyboard/accessibility gates remain open. Next: T03 domain and real SQLite repository on a new branch.
+
+## 2026-09-10: T03
+
+Branch task/t03-domain-sqlite. Domain, migrations, Expo SQLite driver and transactional repository implemented. 5 unit and 8 integration checks passed; typecheck/lint passed. Exact evidence in evidence/T03.md. Native adapter awaits a target. Next T04: durable guest onboarding and Today using actual storage, on a new branch.

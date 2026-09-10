@@ -13,7 +13,8 @@
       "package": "dev.local.pushupclub"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-sqlite"
     ],
     "web": {
       "bundler": "metro"

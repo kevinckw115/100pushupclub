@@ -42,8 +42,10 @@
       "depends_on": [
         "T01"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T03.md"
+      ],
       "blocker": null,
       "acceptance_ids": []
     },

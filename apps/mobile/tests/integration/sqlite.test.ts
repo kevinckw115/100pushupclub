@@ -1,0 +1,130 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { openTestDatabase } from '../../src/testing/node-sqlite.ts';
+import { migrate } from '../../src/data/local/migrations.ts';
+import { LocalRepository } from '../../src/data/local/repository.ts';
+
+const now = '2026-09-10T15:00:00Z';
+const input = (count = 20) => ({ id: randomUUID(), mutationId: randomUUID(), quantity: count, occurredAt: now, timezone: 'UTC' });
+
+function fixture() {
+  const directory = mkdtempSync(join(tmpdir(), 'pushupclub-sqlite-'));
+  const file = join(directory, 'test.db');
+  const db = openTestDatabase(file);
+  migrate(db);
+  const repo = new LocalRepository(db, randomUUID);
+  return { directory, file, db, repo, cleanup: () => { db.close(); rmSync(directory, { recursive: true }); } };
+}
+
+test('file persists after a worker exits without shutdown handlers', () => {
+  const f = fixture();
+  try {
+    const guest = f.repo.startGuest(now);
+    f.repo.create(guest.id, input());
+    const child = spawnSync(process.execPath, ['tests/fixtures/commit-child.ts', f.file, guest.id], { encoding: 'utf8' });
+    assert.equal(child.status, 0, child.stderr);
+    const reopened = openTestDatabase(f.file);
+    const repo = new LocalRepository(reopened, randomUUID);
+    assert.equal(repo.total(guest.id, '2026-09-10'), '35');
+    assert.equal(repo.activePartition()?.id, guest.id);
+    reopened.close();
+  } finally { f.cleanup(); }
+});
+
+test('closing every connection and reopening preserves the committed guest log', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pushupclub-reopen-'));
+  const file = join(directory, 'test.db');
+  let db = openTestDatabase(file);
+  try {
+    migrate(db);
+    const repo = new LocalRepository(db, randomUUID);
+    const guest = repo.startGuest(now);
+    repo.create(guest.id, input());
+    db.close();
+    db = openTestDatabase(file);
+    migrate(db);
+    assert.equal(new LocalRepository(db, randomUUID).total(guest.id, '2026-09-10'), '20');
+  } finally { db.close(); rmSync(directory, { recursive: true }); }
+});
+
+test('account check-in and outbox commit together; trigger failure rolls both back', () => {
+  const f = fixture();
+  try {
+    const account = randomUUID();
+    // Test setup only. Account partition creation will require verified auth in T09.
+    f.db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", account, now);
+    f.repo.create(account, input());
+    assert.equal(f.db.all('SELECT * FROM outbox').length, 1);
+    f.db.exec("CREATE TRIGGER inject_disk_failure BEFORE INSERT ON outbox BEGIN SELECT RAISE(ABORT,'simulated write failure'); END;");
+    assert.throws(() => f.repo.create(account, input(15)), /simulated write failure/);
+    assert.equal(f.repo.total(account, '2026-09-10'), '20');
+    assert.equal(f.db.all('SELECT * FROM outbox').length, 1);
+  } finally { f.cleanup(); }
+});
+
+test('guest has no cloud outbox, repeated startup keeps identity, partitions cannot cross-read', () => {
+  const f = fixture();
+  try {
+    const guest = f.repo.startGuest(now);
+    const record = f.repo.create(guest.id, input());
+    assert.equal(f.repo.startGuest(now).id, guest.id);
+    const other = randomUUID();
+    f.db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", other, now);
+    assert.equal(f.repo.get(other, record.id), null);
+    assert.equal(f.repo.total(other, '2026-09-10'), '0');
+    assert.equal(f.db.all('SELECT * FROM outbox').length, 0);
+  } finally { f.cleanup(); }
+});
+
+test('constraints reject invalid quantities, time edits, resurrection and sent request changes', () => {
+  const f = fixture();
+  try {
+    const account = randomUUID();
+    f.db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", account, now);
+    const record = f.repo.create(account, input());
+    for (const count of [0, -1, 1.2, 1000]) {
+      assert.throws(() => f.repo.create(account, input(count)));
+      assert.throws(() => f.db.run('UPDATE local_checkins SET quantity=? WHERE id=?', count, record.id));
+    }
+    assert.throws(() => f.db.run("UPDATE local_checkins SET local_date='2026-09-11' WHERE id=?", record.id));
+    f.db.run('UPDATE local_checkins SET deleted=1 WHERE id=?', record.id);
+    assert.throws(() => f.db.run('UPDATE local_checkins SET deleted=0 WHERE id=?', record.id));
+    f.db.exec("UPDATE outbox SET status='sending';");
+    assert.throws(() => f.db.exec("UPDATE outbox SET request_json='{}';"));
+  } finally { f.cleanup(); }
+});
+
+test('v1 database upgrades transactionally without losing records or queued work', () => {
+  const db = openTestDatabase(':memory:');
+  try {
+    migrate(db, 1);
+    const repo = new LocalRepository(db, randomUUID);
+    const account = randomUUID();
+    db.run("INSERT INTO local_partitions(id,kind,created_at) VALUES(?,'account',?)", account, now);
+    const record = repo.create(account, input());
+    migrate(db);
+    migrate(db);
+    assert.equal(repo.get(account, record.id)?.quantity, 20);
+    assert.equal(db.all('SELECT * FROM outbox').length, 1);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 2);
+  } finally { db.close(); }
+});
+
+test('failed migration rolls back schema changes and version marker together', () => {
+  const db = openTestDatabase(':memory:');
+  try {
+    migrate(db, 1);
+    db.exec('CREATE INDEX outbox_ready ON outbox(partition_id);');
+    assert.throws(() => migrate(db), /already exists/);
+    assert.equal(db.all("SELECT name FROM sqlite_master WHERE name='checkins_by_day'").length, 0);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 1);
+    db.exec('DROP INDEX outbox_ready;');
+    migrate(db);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 2);
+  } finally { db.close(); }
+});
