@@ -23,3 +23,7 @@ Date / task / files changed / exact checks / evidence paths / implemented vs ver
 ## 2026-09-10: T01
 
 Branch task/t01-toolchain-bootstrap. App scaffold, Router, lockfile, dev/preview configs, CI and check scripts implemented. See [exact evidence](evidence/T01.md). Commands from apps/mobile: npm.cmd ci; npm.cmd run lint; npm.cmd run typecheck; npm.cmd test; npm.cmd run test:integration; npm.cmd run doctor; node node_modules/expo/bin/cli export --platform web. Full export blocked by Hermes spawn EPERM. Native target and Python unavailable. Next: T02 components, then T03 real SQLite; independent missing-gate exception documented in T01 evidence. Each task gets a new branch stacked on the prior task commit.
+
+## 2026-09-10: T02
+
+Branch task/t02-design-components. Shared UI implemented; browser component review passed, screenshots inspected. Commands: npm.cmd run typecheck; npm.cmd run lint; node node_modules/expo/bin/cli export --platform web --dev --no-minify; node scripts/review-components.mjs (with preview server running). Native text/keyboard/accessibility gates remain open. Next: T03 domain and real SQLite repository on a new branch.

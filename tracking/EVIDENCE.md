@@ -18,3 +18,7 @@ Never copy expected outputs here as if they were observed results.
 ## T01
 
 See [bootstrap evidence](evidence/T01.md). Implemented and automated checks passed except the explicitly recorded native-bytecode/Python gates. Browser screen inspected; native not run.
+
+## T02
+
+[Component evidence](evidence/T02.md): browser interactions and screenshots checked; native accessibility remains open.

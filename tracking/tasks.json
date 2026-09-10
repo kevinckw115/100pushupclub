@@ -28,9 +28,11 @@
       "depends_on": [
         "T01"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T02.md"
+      ],
+      "blocker": "Native screenshots, 200% system text, VoiceOver/TalkBack remain unverified; native target unavailable.",
       "acceptance_ids": []
     },
     {

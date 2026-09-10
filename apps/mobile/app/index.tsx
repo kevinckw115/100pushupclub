@@ -2,6 +2,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import tokens from '../../../design/tokens.json';
 
 export default function Home() {
+  if (__DEV__) {
+    const Gallery = require('../src/testing/ComponentGallery').default;
+    return <Gallery />;
+  }
   return <View style={styles.screen}>
     <Text accessibilityRole="header" style={styles.title}>100pushupclub</Text>
     <Text style={styles.body}>100 is the goal. Start with what you can.</Text>
