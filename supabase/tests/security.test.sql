@@ -1,13 +1,17 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(7);
+select plan(11);
 select is(has_schema_privilege('anon','app_private','USAGE'), false, 'guest has no private schema usage');
 select is(has_schema_privilege('authenticated','app_private','USAGE'), false, 'account has no private schema usage');
 select is(has_table_privilege('authenticated','app_private.checkins','SELECT'), false, 'accounts cannot directly read raw check-ins');
 select is(has_table_privilege('authenticated','app_private.checkins','INSERT'), false, 'accounts cannot directly insert raw check-ins');
 select is(has_function_privilege('anon','public.bootstrap_profile(uuid)','EXECUTE'), false, 'guest cannot bootstrap');
 select is(has_function_privilege('authenticated','public.bootstrap_profile(uuid)','EXECUTE'), true, 'account can invoke checked bootstrap');
+select is(has_function_privilege('anon','public.mutate_checkin(jsonb)','EXECUTE'), false, 'guest cannot execute mutations');
+select is(has_function_privilege('authenticated','public.mutate_checkin(jsonb)','EXECUTE'), true, 'account can invoke checked mutations');
+select is(has_function_privilege('anon','public.pull_changes(text,integer)','EXECUTE'), false, 'guest cannot pull private history');
+select is(has_function_privilege('authenticated','public.pull_changes(text,integer)','EXECUTE'), true, 'account can invoke checked pull');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app_private' and c.relkind='r' and not c.relrowsecurity), 0, 'all private tables enable RLS');
 select * from finish();
 rollback;

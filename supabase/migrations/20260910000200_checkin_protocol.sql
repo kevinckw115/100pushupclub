@@ -12,7 +12,7 @@ create function app_private.api_error(code text, status integer, retryable boole
 language plpgsql set search_path='' as $$
 begin
   perform set_config('response.status',status::text,true);
-  return jsonb_strip_nulls(jsonb_build_object('code',code,'message',case
+  return jsonb_build_object('code',code,'message',case
     when code='VERSION_CONFLICT' then 'This check-in changed on another device.'
     when code='RATE_LIMITED' then 'Please wait before retrying.'
     when code='ACCOUNT_UNAVAILABLE' then 'This account is unavailable.'
@@ -20,7 +20,8 @@ begin
     when code='NOT_FOUND_OR_FORBIDDEN' then 'This check-in is unavailable.'
     when code='SERVER_RETRY' then 'The request could not be completed. Retry the same request.'
     else 'The request could not be accepted.' end,
-    'retryable',retryable,'request_id',gen_random_uuid(),'current_record',current_record));
+    'retryable',retryable,'request_id',gen_random_uuid())
+    || case when current_record is null then '{}'::jsonb else jsonb_build_object('current_record',current_record) end;
 end $$;
 
 create function app_private.utc_text(value timestamptz) returns text

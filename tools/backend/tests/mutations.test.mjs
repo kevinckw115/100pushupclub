@@ -25,6 +25,7 @@ async function fixture(run) {
 
 test('real RPC idempotency, canonical payloads, owner isolation, conflicts, tombstones and paginated pull', async () => fixture(async ({ db, fresh, mutate, pull }) => {
   const a = await fresh(), b = await fresh(), input = create();
+  input.occurred_at = input.occurred_at.replace(/\.\d{3}Z$/, '.000Z');
   const first = await mutate(a, input);
   assert.equal(first.status, 200, JSON.stringify(first.data));
   assert.equal(first.data.revision, '1'); assert.equal(first.data.record.version, 1);
@@ -32,7 +33,7 @@ test('real RPC idempotency, canonical payloads, owner isolation, conflicts, tomb
   assert.ok(first.data.request_id); assert.equal('user_id' in first.data.record, false);
   const replay = await mutate(a, Object.fromEntries(Object.entries(input).reverse()));
   assert.deepEqual(replay.data, first.data);
-  const normalized = await mutate(a, { ...input, mutation_id: input.mutation_id.toUpperCase(), checkin_id: input.checkin_id.toUpperCase() });
+  const normalized = await mutate(a, { ...input, occurred_at: input.occurred_at.replace('.000Z', 'Z'), mutation_id: input.mutation_id.toUpperCase(), checkin_id: input.checkin_id.toUpperCase() });
   assert.deepEqual(normalized.data, first.data);
   assert.equal((await mutate(a, { ...input, quantity: 21 })).data.code, 'IDEMPOTENCY_KEY_REUSED');
   const exists = await mutate(a, { ...input, mutation_id: randomUUID() });
@@ -40,6 +41,10 @@ test('real RPC idempotency, canonical payloads, owner isolation, conflicts, tomb
   const hidden = await mutate(b, { ...input, mutation_id: randomUUID() });
   assert.equal(hidden.status, 404); assert.equal(hidden.data.code, 'NOT_FOUND_OR_FORBIDDEN'); assert.equal('current_record' in hidden.data, false);
   assert.ok((await mutate(null, input)).status >= 400);
+  for (const kind of ['update', 'delete']) {
+    const denied = await mutate(b, { kind, mutation_id: randomUUID(), checkin_id: input.checkin_id, expected_version: 1, ...(kind === 'update' ? { quantity: 99 } : {}) });
+    assert.equal(denied.status, 404); assert.equal(denied.data.code, 'NOT_FOUND_OR_FORBIDDEN'); assert.equal('current_record' in denied.data, false);
+  }
   assert.deepEqual((await pull(b)).data.changes, []);
   const update = { kind: 'update', mutation_id: randomUUID(), checkin_id: input.checkin_id, quantity: 35, expected_version: 1 };
   const edited = await mutate(a, update); assert.equal(edited.status, 200); assert.equal(edited.data.revision, '2');
@@ -75,6 +80,7 @@ test('strict validation, private imports/old consent, large revisions and bounde
     const response = await mutate(user, create(overrides)); assert.equal(response.status, 400, JSON.stringify(response.data)); assert.equal(response.data.code, code);
   }
   assert.equal((await mutate(user, create({ extra: 'x'.repeat(33000) }))).status, 400);
+  for (const envelope of [[], null, { ...create(), mutation_id: 'bad' }, { kind: 'delete', mutation_id: randomUUID(), checkin_id: randomUUID(), expected_version: 0 }]) assert.equal((await mutate(user, envelope)).status, 400);
   const ahead = new Date(Date.now() + 600000).toISOString();
   assert.equal((await mutate(user, create({ occurred_at: ahead, local_date: ahead.slice(0, 10) }))).data.code, 'CLOCK_AHEAD');
   await db.query('update app_private.profiles set public_enabled=true,consent_epoch=2 where user_id=$1', [user.id]);
