@@ -144,11 +144,11 @@
         "T04",
         "T08"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T09.md"
       ],
-      "blocker": null,
+      "blocker": "Native Keychain/Keystore rotation/reinstall and hosted OTP delivery on a phone remain unverified. Disposable real Auth and connected browser gates pass.",
       "acceptance_ids": [
         "A16"
       ]

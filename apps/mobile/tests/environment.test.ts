@@ -13,3 +13,10 @@ test('invalid and incomplete service configuration fails explicitly', () => {
     { EXPO_PUBLIC_APP_ENV: 'production', EXPO_PUBLIC_SUPABASE_URL: 'https://example.com', EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'placeholder' },
   ]) assert.throws(() => readEnvironment(values));
 });
+
+test('HTTP is limited to disposable local development, never preview or production', () => {
+  const key = { EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'test-public-key' };
+  assert.equal(readEnvironment({ ...key, EXPO_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321' }).connected, true);
+  for (const name of ['preview', 'production']) assert.throws(() => readEnvironment({ ...key, EXPO_PUBLIC_APP_ENV: name, EXPO_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321' }), /HTTPS/);
+  for (const url of ['http://example.org', 'http://localhost:1234', 'http://127.0.0.1.evil.test:54321']) assert.throws(() => readEnvironment({ ...key, EXPO_PUBLIC_SUPABASE_URL: url }), /HTTPS/);
+});

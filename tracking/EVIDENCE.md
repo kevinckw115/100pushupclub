@@ -42,3 +42,6 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T07
 
 [Preference/reminder evidence](evidence/T07.md): planner policy and browser persistence verified; native delivery/permission/haptics not run. Ordinary exports now exclude review code.
+
+T08: verified disposable Postgres/Auth security, constraints, rollback and race gates; see tracking/evidence/T08.md.
+T09: implemented email OTP and secure partition lifecycle; real Auth/browser and storage failure gates pass, native delivery/storage pending; see tracking/evidence/T09.md.

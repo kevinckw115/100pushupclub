@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T09 in progress on task/t09-auth-partitions. Native session storage, OTP/recovery UI and durable signout implemented. Unit/SQLite/full export pass; backend OTP expiry/replay/refresh tests pass. Connected browser CI startup failed at onboarding; diagnostics added in4c1b901. Next: fix this integration failure before T10. T08 verified at47c97c3. No hosted backend deployed.
+T09 implemented with automated CI PASS at4f13591. Native secure storage and hosted OTP still require device/development setup. T08 backend verified. Next: T10 checked mutation/pull RPCs on its own branch. No hosted backend deployed.
 
 ## Fixed direction
 
