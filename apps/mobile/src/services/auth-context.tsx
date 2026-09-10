@@ -20,6 +20,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [message, setMessage] = useState<string | null>(null);
   const [restart, setRestart] = useState(0);
   const runtime = useRef<ReturnType<typeof makeAuthClient>>(null);
+  const lastSession = useRef<Session | null>(null);
   const [generation] = useState(() => new Generation());
   const accept = useCallback(async (session: Session | null, ticket: number) => {
     const current = runtime.current;
@@ -71,12 +72,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setReady(true);
         if (runtime.current) {
           const client = runtime.current.client;
-          subscription = client.auth.onAuthStateChange(event => {
-            if (!live) return;
+          subscription = client.auth.onAuthStateChange((event, session) => {
+            if (!live || runtime.current?.client !== client) return;
+            lastSession.current = session;
             if (event === 'SIGNED_OUT') { generation.next(); setStatus(repo.activePartition()?.kind === 'account' ? 'recovery' : 'guest'); }
           }).data.subscription;
           const { data, error } = await client.auth.getSession();
           if (error) { setStatus('recovery'); setMessage('Reconnect your account when online. Local check-ins are safe.'); return; }
+          if (live) lastSession.current = data.session;
           await accept(data.session, ticket);
           if (live && AppState.currentState === 'active') void client.auth.startAutoRefresh();
         }
@@ -128,14 +131,22 @@ export function AuthProvider({ children }: PropsWithChildren) {
     generation.next();
     const current = runtime.current;
     runtime.current = null; current?.dispose();
-    // Best-effort remote revocation, fenced from future local storage writes.
-    if (current) void current.client.auth.signOut({ scope: 'local' }).catch(() => {});
+    // Remote revocation is best-effort; local logout also works without a network.
+    const token = lastSession.current?.access_token;
+    lastSession.current = null;
+    if (token && authEnvironment.connected) {
+      const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 3000);
+      void fetch(authEnvironment.url + '/auth/v1/logout?scope=local', { method: 'POST', headers: { apikey: authEnvironment.key!, Authorization: 'Bearer ' + token }, signal: controller.signal }).catch(() => {}).finally(() => clearTimeout(timer));
+    }
     await sessionStore.clear();
     repo.signOutAccount(account.id, new Date().toISOString(), discard);
     repo.setPreference('device', 'pending_logout', '');
     refresh(); setStatus('guest'); setMessage(null); setReady(false); setRestart(value => value + 1);
   };
-  if (fatal) return <AppScreen><Header /><Notice error>{message}</Notice><Button label="Retry opening sign-in storage" onPress={() => { setFatal(false); setRestart(value => value + 1); }} /></AppScreen>;
+  if (fatal) return <AppScreen><Header /><Notice error>{message}</Notice><Button label="Retry opening sign-in storage" onPress={() => { setFatal(false); setRestart(value => value + 1); }} /><Notice>Resetting sign-in storage requires signing in again. It keeps your local check-ins.</Notice><Button secondary label="Reset sign-in storage" onPress={() => {
+    generation.next(); runtime.current?.dispose(); runtime.current = null;
+    void sessionStore.clear().then(() => { setFatal(false); setReady(false); setRestart(value => value + 1); }).catch(() => setMessage('Secure storage is still unavailable. Please restart the app.'));
+  }} /></AppScreen>;
   if (!ready) return <LoadingStorage />;
   return <Context.Provider value={{ status, message, connected: authEnvironment.connected, web: Platform.OS === 'web', send, verify, cancel, recover, signOut }}>{children}</Context.Provider>;
 }

@@ -15,3 +15,5 @@ These reset/test commands are only for the disposable local stack. The test runn
 The local seed contains only the World hierarchy root, no sample activity or users. Application tables live in app_private, with no client grants and RLS enabled. Checked public functions derive identity from the verified permanent session and use a fixed search_path. Profile bootstrap revisions are informational; a new client must still pull from its own durable cursor.
 
 Native/hosted OTP integration requires the owner’s development Supabase and Expo projects later. CI runs the disposable backend with no production credentials.
+
+T09 configures confirmation and magic-link templates to display `{{ .Token }}` codes. Hosted development needs the same templates and a configured email provider. The mobile app accepts loopback HTTP only in development on54321; use HTTPS for hosted services. Browser preview sessions intentionally do not survive reload. Real OTP/browser CI uses a disposable local stack and server-side test setup; no admin credential enters the mobile bundle.

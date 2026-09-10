@@ -26,8 +26,8 @@ export class ChunkStore implements SecretStore {
     const prefix = `${key}.${slot}`;
     const raw = await this.store.getItem(prefix + '.journal');
     if (raw === null) return;
-    const count = Number(raw);
-    if (!Number.isInteger(count) || count < 1 || count > maxChunks) throw new Error('Session storage needs recovery.');
+    const recorded = Number(raw);
+    const count = Number.isInteger(recorded) && recorded >= 1 && recorded <= maxChunks ? recorded : maxChunks;
     for (let n = 0; n < count; n++) await this.store.removeItem(`${prefix}.${n}`);
     await this.store.removeItem(prefix + '.journal');
   }
