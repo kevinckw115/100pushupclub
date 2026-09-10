@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T08 in progress on task/t08-server-security: private schema and checked profile functions, with disposable Supabase CI verification. No hosted backend is deployed.
+T08 verified on task/t08-server-security at 47c97c3: fresh disposable Supabase, grants/RLS, real JWT authorization, rollback and concurrency checks passed. No hosted backend is deployed. Next: T09 email OTP and partition lifecycle on a new branch.
 
 ## Fixed direction
 

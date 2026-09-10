@@ -61,7 +61,7 @@
       "evidence": [
         "tracking/evidence/T04.md"
       ],
-      "blocker": "Native first-launch offline gate unavailable; populated Today states will be exercised through T05 logging.",
+      "blocker": "Native first-launch offline gate unavailable; populated Today states passed browser review in T05.",
       "acceptance_ids": [
         "A01"
       ]
@@ -127,7 +127,7 @@
       "depends_on": [
         "T03"
       ],
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "tracking/evidence/T08.md"
       ],
