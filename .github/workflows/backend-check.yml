@@ -26,6 +26,12 @@ jobs:
       - name: Real JWT and concurrent PostgreSQL tests
         run: npm test
         working-directory: tools/backend
+      - name: Install mobile browser test dependencies
+        run: npm ci
+        working-directory: apps/mobile
+      - name: Real OTP browser flow
+        run: node tests/auth-browser.mjs
+        working-directory: tools/backend
       - name: Stop disposable stack
         if: always()
         run: node tools/backend/scripts/cli.mjs stop --no-backup

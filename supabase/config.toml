@@ -39,5 +39,13 @@ enable_signup = true
 enable_confirmations = true
 double_confirm_changes = true
 
+[auth.email.template.confirmation]
+subject = "Your 100pushupclub sign-in code"
+content_path = "./supabase/templates/email-code.html"
+
+[auth.email.template.magic_link]
+subject = "Your 100pushupclub sign-in code"
+content_path = "./supabase/templates/email-code.html"
+
 [analytics]
 enabled = false

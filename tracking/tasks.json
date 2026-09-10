@@ -144,8 +144,10 @@
         "T04",
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T09.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A16"

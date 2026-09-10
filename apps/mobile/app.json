@@ -16,7 +16,8 @@
       "expo-router",
       "expo-sqlite",
       "expo-font",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-secure-store"
     ],
     "web": {
       "bundler": "metro"

@@ -20,12 +20,46 @@ export class LocalRepository {
   }
 
   startGuest(now: string): Partition {
-    return this.db.transaction(() => {
+    return this.db.transaction(() => this.activateGuest(now));
+  }
+
+  private activateGuest(now: string): Partition {
       const guest = this.db.all<Partition>("SELECT id,kind,active FROM local_partitions WHERE kind='guest' ORDER BY created_at LIMIT 1")[0];
       this.db.run('UPDATE local_partitions SET active=0 WHERE active=1');
       if (guest) this.db.run('UPDATE local_partitions SET active=1 WHERE id=?', guest.id);
       else this.db.run("INSERT INTO local_partitions(id,kind,active,created_at) VALUES(?,'guest',1,?)", uuid(this.makeId()), instant(now));
       return this.activePartition()!;
+  }
+
+  activateAccount(userId: string, now: string): Partition {
+    uuid(userId);
+    return this.db.transaction(() => {
+      const existing = this.db.all<Partition>('SELECT id,kind,active FROM local_partitions WHERE id=?', userId)[0];
+      if (existing?.kind === 'guest') throw new Error('Account identity conflicts with guest storage.');
+      this.db.run('UPDATE local_partitions SET active=0 WHERE active=1');
+      this.db.run("INSERT INTO local_partitions(id,kind,active,created_at) VALUES(?,'account',1,?) ON CONFLICT(id) DO UPDATE SET active=1", userId, instant(now));
+      this.db.run("INSERT INTO sync_cursors(partition_id,revision) VALUES(?,'0') ON CONFLICT DO NOTHING", userId);
+      this.db.run('DELETE FROM cached_queries');
+      return this.activePartition()!;
+    });
+  }
+
+  unsynced(userId: string): number {
+    return this.db.all<{ count: number }>("SELECT COUNT(DISTINCT entity_id) AS count FROM outbox WHERE partition_id=? AND status<>'acknowledged'", userId)[0].count;
+  }
+
+  signOutAccount(userId: string, now: string, discard: boolean) {
+    return this.db.transaction(() => {
+      if (this.partition(userId).kind !== 'account') throw new Error('An account partition is required.');
+      if (!discard && this.unsynced(userId)) throw new Error('Unsynced check-ins need your decision.');
+      this.db.run('DELETE FROM outbox WHERE partition_id=?', userId);
+      this.db.run('DELETE FROM local_checkins WHERE partition_id=?', userId);
+      this.db.run('DELETE FROM sync_cursors WHERE partition_id=?', userId);
+      this.db.run('DELETE FROM preferences WHERE scope=?', userId);
+      this.db.run('DELETE FROM cached_queries');
+      this.db.run('DELETE FROM local_partitions WHERE id=?', userId);
+      // Import acknowledgements remain as a durable deduplication ledger.
+      return this.activateGuest(now);
     });
   }
 

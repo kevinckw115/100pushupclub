@@ -47,3 +47,7 @@ Branch task/t06-history-day-boundaries. History and day watcher implemented. Sev
 ## 2026-09-10: T07
 
 Branch task/t07-preferences-reminders. Local preferences, haptics and notification adapters implemented. Eleven unit checks, typecheck/lint and Doctor21/21 passed. npm.cmd run export:web and node scripts/review-settings.mjs passed; ordinary bundle excludes review/test modules. npm.cmd run build:review then node scripts/review-logging.mjs --failure passed and removed generated routes. Native A33 needs a device/build. Asked about native target and Expo/Supabase project setup; no response yet. Next T08 on a new branch: real backend schema and authorization tests.
+
+## 2026-09-10: T09 in progress
+
+New branch task/t09-auth-partitions. Email OTP, session chunks and partition signout implemented; real SQLite and storage fault tests pass. Disposable Supabase OTP/browser checks queued for CI. Native secure storage and hosted email delivery still need owner setup. Next: resolve CI and record T09 evidence, then T10 checked mutation/pull RPCs on a new branch.
