@@ -31,3 +31,7 @@ Branch task/t02-design-components. Shared UI implemented; browser component revi
 ## 2026-09-10: T03
 
 Branch task/t03-domain-sqlite. Domain, migrations, Expo SQLite driver and transactional repository implemented. 5 unit and 8 integration checks passed; typecheck/lint passed. Exact evidence in evidence/T03.md. Native adapter awaits a target. Next T04: durable guest onboarding and Today using actual storage, on a new branch.
+
+## 2026-09-10: T04
+
+Branch task/t04-guest-today. Durable guest onboarding and Today implemented. Web export and node scripts/review-guest.mjs passed; screenshots inspected. Typecheck/lint passed. Native first-launch gate unavailable. Next T05: logging, editing, deletion and Undo on a new branch, with actual saved 0/35/100/125 UI checks.

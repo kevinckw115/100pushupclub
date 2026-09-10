@@ -26,3 +26,7 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T03
 
 [SQLite evidence](evidence/T03.md): real host SQLite persistence, process exit, migration, atomic rollback and isolation verified. Native adapter unverified.
+
+## T04
+
+[Guest/Today evidence](evidence/T04.md): actual Expo browser SQLite setup/reload and navigation passed; native and populated states remain open.

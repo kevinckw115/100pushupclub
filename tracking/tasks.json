@@ -57,9 +57,11 @@
         "T02",
         "T03"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T04.md"
+      ],
+      "blocker": "Native first-launch offline gate unavailable; populated Today states will be exercised through T05 logging.",
       "acceptance_ids": [
         "A01"
       ]

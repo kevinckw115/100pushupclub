@@ -4,7 +4,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:8081');
+  await page.goto('http://127.0.0.1:8081/_dev/components');
   await expect(page.getByRole('img', { name: '35 pushups today, goal 100.' })).toBeVisible();
   await page.screenshot({ path: '../../tracking/evidence/t02-35-web.png', fullPage: true });
   await page.getByRole('button', { name: 'Review 100', exact: true }).click();

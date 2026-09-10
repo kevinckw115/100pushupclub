@@ -1,8 +1,8 @@
-import { openDatabaseSync } from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 import type { SqlDriver } from './driver';
 
-export function openLocalDatabase(): SqlDriver {
-  const database = openDatabaseSync('100pushupclub.db');
+export async function openLocalDatabase(): Promise<SqlDriver> {
+  const database = await openDatabaseAsync('100pushupclub.db');
   return {
     exec: sql => database.execSync(sql),
     run: (sql, ...parameters) => { database.runSync(sql, ...parameters); },
