@@ -1,0 +1,4 @@
+appId: dev.local.pushupclub
+---
+- launchApp
+- assertVisible: "100pushupclub"

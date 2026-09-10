@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "notice": "Product tasks are pending. Package tests do not count as product implementation.",
+  "notice": "Implementation started; task evidence distinguishes automated and native gates.",
   "allowed_statuses": [
     "pending",
     "in_progress",
@@ -14,9 +14,11 @@
       "milestone": "M0",
       "title": "Toolchain/bootstrap",
       "depends_on": [],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T01.md"
+      ],
+      "blocker": "Native target unavailable; local Hermes bytecode executable blocked with spawn EPERM. Python package check requires Python.",
       "acceptance_ids": []
     },
     {

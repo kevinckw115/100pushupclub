@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "100pushupclub",
+    "slug": "100pushupclub",
+    "version": "0.1.0",
+    "scheme": "pushupclub-dev",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.local.pushupclub"
+    },
+    "android": {
+      "package": "dev.local.pushupclub"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

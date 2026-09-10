@@ -1,0 +1,7 @@
+{
+  "cli": { "appVersionSource": "local" },
+  "build": {
+    "development": { "developmentClient": true, "distribution": "internal", "env": { "EXPO_PUBLIC_APP_ENV": "development" } },
+    "preview": { "distribution": "internal", "env": { "EXPO_PUBLIC_APP_ENV": "preview" } }
+  }
+}

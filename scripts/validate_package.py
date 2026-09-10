@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 """Validate this handoff's structure, contracts and design; not the future app."""
 import json
+import os
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 errors = []
+
+def source_files(suffix):
+    """Validate repository sources, excluding installed/generated dependencies."""
+    for directory, children, files in os.walk(ROOT):
+        children[:] = [name for name in children if name not in {
+            '.git', 'node_modules', '.expo', 'dist', 'build', 'coverage', '__pycache__'
+        }]
+        for name in files:
+            if name.endswith(suffix):
+                yield Path(directory) / name
 
 def check(condition, message):
     if not condition:
@@ -25,8 +36,8 @@ required = [
 for relative in required:
     check((ROOT/relative).is_file(), f'Missing required file: {relative}')
 
-for path in ROOT.rglob('*.md'):
-    text = path.read_text()
+for path in source_files('.md'):
+    text = path.read_text(encoding='utf-8')
     check(text.count('```') % 2 == 0, f'Unbalanced code fence: {path.relative_to(ROOT)}')
     for match in re.finditer(r'!?\[[^\]]*\]\(([^\s)]+)\)', text):
         target = match.group(1)
@@ -35,9 +46,9 @@ for path in ROOT.rglob('*.md'):
         target = target.split('#')[0]
         check((path.parent/target).exists(), f'Broken local link in {path.relative_to(ROOT)}: {target}')
 
-for path in ROOT.rglob('*.json'):
+for path in source_files('.json'):
     try:
-        json.loads(path.read_text())
+        json.loads(path.read_text(encoding='utf-8'))
     except Exception as exc:
         errors.append(f'Invalid JSON {path.relative_to(ROOT)}: {exc}')
 
