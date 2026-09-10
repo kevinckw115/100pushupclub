@@ -17,6 +17,7 @@ try {
   browser = await chromium.launch({ channel: 'chrome', headless: true });
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.text().startsWith('Local storage initialization failed')) console.log(message.text()); });
   await page.goto('http://127.0.0.1:8081');
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Log pushups', exact: true }).click();
@@ -38,12 +39,12 @@ try {
   await page.getByLabel('Email code', { exact: true }).fill(generated.data.email_otp);
   await page.getByRole('button', { name: 'Verify code', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Log pushups', exact: true })).toBeVisible();
-  await expect(page.getByText('100 to go. Take your time.')).toBeVisible();
+  await expect(page.getByText('100 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByText('Signed in. Cloud check-in synchronization is not available yet.')).toBeVisible();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
   await page.goto('http://127.0.0.1:8081');
-  await expect(page.getByText('90 to go. Take your time.')).toBeVisible();
+  await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   expect(errors).toEqual([]);
   console.log('PASS: real Auth OTP request, invalid code/retry, profile bootstrap, partition isolation, guest restoration.');
 } catch (error) {

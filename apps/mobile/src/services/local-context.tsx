@@ -35,7 +35,7 @@ export function LocalProvider({ children }: PropsWithChildren) {
         setPartition(repository.activePartition());
         setRepo(repository);
       } catch (error) {
-        if (__DEV__) console.warn('Local storage initialization failed:', error instanceof Error ? error.message : 'unknown error');
+        console.warn('Local storage initialization failed:', error instanceof Error && error.message.includes('Sync operation timeout') ? 'SQLITE_WORKER_TIMEOUT' : 'SQLITE_OPEN_FAILED');
         setError('Storage could not be opened. Your records have not been deleted. Close the app and try again.');
       }
     }, 0);

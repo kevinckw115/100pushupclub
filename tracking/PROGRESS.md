@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T08 verified on task/t08-server-security at 47c97c3: fresh disposable Supabase, grants/RLS, real JWT authorization, rollback and concurrency checks passed. No hosted backend is deployed. Next: T09 email OTP and partition lifecycle on a new branch.
+T09 in progress on task/t09-auth-partitions. Native session storage, OTP/recovery UI and durable signout implemented. Unit/SQLite/full export pass; backend OTP expiry/replay/refresh tests pass. Connected browser CI startup failed at onboarding; diagnostics added in4c1b901. Next: fix this integration failure before T10. T08 verified at47c97c3. No hosted backend deployed.
 
 ## Fixed direction
 
