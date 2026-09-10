@@ -1,0 +1,177 @@
+{
+  "package": "100pushupclub-dev-package",
+  "version": "1.0.0",
+  "notice": "SHA-256 of each package file except this manifest.",
+  "files": [
+    {
+      "path": ".github/workflows/package-check.yml",
+      "bytes": 476,
+      "sha256": "e880613b55b16b51ba5a23582548eaa5f6648ee75be81526b980f844d0f62d8b"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 128,
+      "sha256": "7155c1a6530aa2ae148385fb09b4b93913fab54d7e2f2a39d058283cec6072c0"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 3973,
+      "sha256": "4a079ffbd2d8208948575042453d4b21aa4120fcfaa1c8eea077e8b0873cf93c"
+    },
+    {
+      "path": "PACKAGE_VALIDATION.md",
+      "bytes": 2081,
+      "sha256": "71abdc4079a8c969143938ac4fc77fbf68324763e471157815f41e8f91a2eb4a"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2888,
+      "sha256": "eaf3473cb0a6af98e560e481bb9c9b10c6da01c565114b9077797a9df835dc8b"
+    },
+    {
+      "path": "START_HERE.md",
+      "bytes": 3158,
+      "sha256": "6da5ef87714984875c790d2f78958383c3a39c392872f93f28972e3a63e599a5"
+    },
+    {
+      "path": "contracts/domain.ts",
+      "bytes": 3086,
+      "sha256": "25a5d3b7592aaeea8158e9424ad9b318e60e61f7e211c76ebc834098e7a19fe0"
+    },
+    {
+      "path": "design/DESIGN_SYSTEM.md",
+      "bytes": 4834,
+      "sha256": "311d372a8a092ca062bfc9888996777df376e1b34bc4f0bbc81943f2729cb218"
+    },
+    {
+      "path": "design/option-5-cream-brick.png",
+      "bytes": 1433629,
+      "sha256": "38c53210f176a6764f3228ca61d3a337845fbcd920e957ad8f324f135a0211db"
+    },
+    {
+      "path": "design/tokens.json",
+      "bytes": 817,
+      "sha256": "7b37cf1a3092b61347576473e7407830096ea58849a27142dca9193fef5d6f62"
+    },
+    {
+      "path": "docs/01-product.md",
+      "bytes": 7149,
+      "sha256": "ab05d1c427de28afe0e3e609345d6bb72f801372ae02eae1f9a342c6db18fc76"
+    },
+    {
+      "path": "docs/02-decisions.md",
+      "bytes": 3947,
+      "sha256": "9a5634ab4ac57ab7846b532bebf32d026885a709c21e3cf35f70c015b1666226"
+    },
+    {
+      "path": "docs/03-screens.md",
+      "bytes": 7585,
+      "sha256": "31d9b2568ba7f53eb6553e8e6e4625609b80a9db8bd98a86f123f0f803da81f5"
+    },
+    {
+      "path": "docs/04-architecture.md",
+      "bytes": 6170,
+      "sha256": "195d268e3021c743d55069409ba337f9e7de9f092d9fd8824987e569d7385c29"
+    },
+    {
+      "path": "docs/05-data-model.md",
+      "bytes": 9483,
+      "sha256": "f552625e2b4eaa778fb215ef2cf02660d413520ef9068c5b876fbfc75d873f76"
+    },
+    {
+      "path": "docs/06-sync.md",
+      "bytes": 6403,
+      "sha256": "3897e0f1d99b1fd00bbf5c1c6b60d8c4f6954711959a505c467d918fdcb8c51d"
+    },
+    {
+      "path": "docs/07-api.md",
+      "bytes": 6666,
+      "sha256": "c3a14511c834ab06d1bcc67f58ee45765db8c98cc776b1fe629ce887d4eabfa0"
+    },
+    {
+      "path": "docs/08-security.md",
+      "bytes": 5980,
+      "sha256": "a464cf894639e243995cf16b4a9a1d84dd2eb037a706b9dbeedf6db5ef462e7f"
+    },
+    {
+      "path": "docs/09-build-plan.md",
+      "bytes": 7096,
+      "sha256": "806297e478a27c1330c02e81088fe8b9d63e2a4ee04d695d539777bbbe2ca5c9"
+    },
+    {
+      "path": "docs/10-verification.md",
+      "bytes": 6587,
+      "sha256": "e447a7278bc4233ce9685cffc873ef402ea6270986da966ea580fe03397c21a1"
+    },
+    {
+      "path": "docs/11-release.md",
+      "bytes": 5079,
+      "sha256": "d548ba757589a3338b53d0f3556f45fa5adba4fbdc0f87f762343630abdcf5de"
+    },
+    {
+      "path": "docs/12-setup.md",
+      "bytes": 4750,
+      "sha256": "a59df172347bc3e32b394f8c1a01e36b7bdae7d563fae05dd3b61d4540666b48"
+    },
+    {
+      "path": "docs/13-sources.md",
+      "bytes": 2462,
+      "sha256": "4911c9327a43cf70d75dd3b898f44dab239980cb46f0c2bfb75dc0223f0e811b"
+    },
+    {
+      "path": "fixtures/scenarios.json",
+      "bytes": 2066,
+      "sha256": "ad68e4f53196e689a2198515d9c588a3179343b323004c873eb929fff5757562"
+    },
+    {
+      "path": "package.json",
+      "bytes": 416,
+      "sha256": "24a8893aaac9f0da8ff38198ffcfb294e7068759b8899c7a914a0eda27b2bb6f"
+    },
+    {
+      "path": "prompts/KICKOFF.md",
+      "bytes": 1963,
+      "sha256": "b930073c8758b9425c759ae647d326c438f9ade55475acaa143a077b6aae5ec0"
+    },
+    {
+      "path": "prompts/RESUME.md",
+      "bytes": 666,
+      "sha256": "52c3fd9e64e6538361486a5a72702208c924d3595af49e03e2aaf1c9a47f8fde"
+    },
+    {
+      "path": "reference/domain.mjs",
+      "bytes": 6399,
+      "sha256": "a12b6873f2d31a647a291f3ef7dec714c22a8fac4a6b9c4666356afe2eb96f13"
+    },
+    {
+      "path": "scripts/validate_package.py",
+      "bytes": 4337,
+      "sha256": "56805627fbcb81f06a61d115bcc0a1b5e6b61db2994fe4020a1084f100b9fd5a"
+    },
+    {
+      "path": "templates/mobile.env.example",
+      "bytes": 171,
+      "sha256": "2e2e2800e2b66c658c43ed74fd0e11c350b7ef2632b8e66a15b7dccf83fe39b6"
+    },
+    {
+      "path": "tests/domain.test.mjs",
+      "bytes": 6611,
+      "sha256": "4f0301d8d21d1aa9c659c9582e75018887ea90e3b9758c3d81ee74831f41368d"
+    },
+    {
+      "path": "tracking/EVIDENCE.md",
+      "bytes": 568,
+      "sha256": "cd83816f80060917223de558ddb4ed482719626567eec9e49857fd0cf78aebdb"
+    },
+    {
+      "path": "tracking/PROGRESS.md",
+      "bytes": 938,
+      "sha256": "0bf1eed51a874e3391e57af7a42e4d8e0395c05243092a9b7660b3d3231efb63"
+    },
+    {
+      "path": "tracking/tasks.json",
+      "bytes": 6890,
+      "sha256": "2495d43d4536154ffb2f71687a4a0045ba089730a35b9b5977cc0100aeddb0a0"
+    }
+  ]
+}

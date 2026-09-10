@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "notice": "Product tasks are pending. Package tests do not count as product implementation.",
+  "allowed_statuses": [
+    "pending",
+    "in_progress",
+    "implemented",
+    "verified",
+    "blocked"
+  ],
+  "tasks": [
+    {
+      "id": "T01",
+      "milestone": "M0",
+      "title": "Toolchain/bootstrap",
+      "depends_on": [],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": []
+    },
+    {
+      "id": "T02",
+      "milestone": "M0",
+      "title": "Design components",
+      "depends_on": [
+        "T01"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": []
+    },
+    {
+      "id": "T03",
+      "milestone": "M0",
+      "title": "Domain/SQLite",
+      "depends_on": [
+        "T01"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": []
+    },
+    {
+      "id": "T04",
+      "milestone": "M1",
+      "title": "Guest onboarding/Today",
+      "depends_on": [
+        "T02",
+        "T03"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A01"
+      ]
+    },
+    {
+      "id": "T05",
+      "milestone": "M1",
+      "title": "Log/edit/delete/undo",
+      "depends_on": [
+        "T04"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05"
+      ]
+    },
+    {
+      "id": "T06",
+      "milestone": "M1",
+      "title": "History/day boundaries",
+      "depends_on": [
+        "T05"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A07",
+        "A08",
+        "A09"
+      ]
+    },
+    {
+      "id": "T07",
+      "milestone": "M1",
+      "title": "Local preferences/reminders",
+      "depends_on": [
+        "T05"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A33"
+      ]
+    },
+    {
+      "id": "T08",
+      "milestone": "M2",
+      "title": "Server schema/security",
+      "depends_on": [
+        "T03"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A18"
+      ]
+    },
+    {
+      "id": "T09",
+      "milestone": "M2",
+      "title": "Auth/partition lifecycle",
+      "depends_on": [
+        "T04",
+        "T08"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A16"
+      ]
+    },
+    {
+      "id": "T10",
+      "milestone": "M2",
+      "title": "Mutation/pull API",
+      "depends_on": [
+        "T08"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A03",
+        "A10",
+        "A11",
+        "A15",
+        "A18"
+      ]
+    },
+    {
+      "id": "T11",
+      "milestone": "M2",
+      "title": "Client synchronization",
+      "depends_on": [
+        "T05",
+        "T09",
+        "T10"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A06",
+        "A10",
+        "A12",
+        "A13",
+        "A14",
+        "A16"
+      ]
+    },
+    {
+      "id": "T12",
+      "milestone": "M2",
+      "title": "Guest import",
+      "depends_on": [
+        "T09",
+        "T11"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A17"
+      ]
+    },
+    {
+      "id": "T13",
+      "milestone": "M3",
+      "title": "Region directory",
+      "depends_on": [
+        "T08"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A21"
+      ]
+    },
+    {
+      "id": "T14",
+      "milestone": "M3",
+      "title": "Consent/public queries",
+      "depends_on": [
+        "T10",
+        "T13"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A19",
+        "A20",
+        "A21",
+        "A22",
+        "A23"
+      ]
+    },
+    {
+      "id": "T15",
+      "milestone": "M3",
+      "title": "Club interface/live refresh",
+      "depends_on": [
+        "T02",
+        "T09",
+        "T14"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A22",
+        "A25"
+      ]
+    },
+    {
+      "id": "T16",
+      "milestone": "M3",
+      "title": "Report/block/moderation",
+      "depends_on": [
+        "T09",
+        "T14"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A19",
+        "A24",
+        "A30"
+      ]
+    },
+    {
+      "id": "T17",
+      "milestone": "M4",
+      "title": "Circle backend",
+      "depends_on": [
+        "T10",
+        "T16"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A26",
+        "A27"
+      ]
+    },
+    {
+      "id": "T18",
+      "milestone": "M4",
+      "title": "Circle UI",
+      "depends_on": [
+        "T02",
+        "T09",
+        "T17"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A28",
+        "A29"
+      ]
+    },
+    {
+      "id": "T19",
+      "milestone": "M5",
+      "title": "Deletion/export/support",
+      "depends_on": [
+        "T12",
+        "T16",
+        "T18"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A31",
+        "A32"
+      ]
+    },
+    {
+      "id": "T20",
+      "milestone": "M5",
+      "title": "Native accessibility/visual",
+      "depends_on": [
+        "T06",
+        "T07",
+        "T15",
+        "T18",
+        "T19"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A34"
+      ]
+    },
+    {
+      "id": "T21",
+      "milestone": "M5",
+      "title": "Resilience/performance",
+      "depends_on": [
+        "T11",
+        "T15",
+        "T18",
+        "T19"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A36"
+      ]
+    },
+    {
+      "id": "T22",
+      "milestone": "M5",
+      "title": "Delivery/operations",
+      "depends_on": [
+        "T19",
+        "T20",
+        "T21"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A35"
+      ]
+    },
+    {
+      "id": "T23",
+      "milestone": "M5",
+      "title": "Beta acceptance/fixes",
+      "depends_on": [
+        "T22"
+      ],
+      "status": "pending",
+      "evidence": [],
+      "blocker": null,
+      "acceptance_ids": [
+        "A37"
+      ]
+    }
+  ]
+}

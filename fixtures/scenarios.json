@@ -1,0 +1,28 @@
+{
+  "notice": "Synthetic test data. Never seed production or represent as real users.",
+  "day_metrics": [
+    {"name":"zero","quantities":[],"expected":{"total":"0","remaining":100,"progress":0,"achieved":false,"active":false}},
+    {"name":"partial35","quantities":[20,15],"expected":{"total":"35","remaining":65,"progress":0.35,"achieved":false,"active":true}},
+    {"name":"goal100","quantities":[25,25,25,25],"expected":{"total":"100","remaining":0,"progress":1,"achieved":true,"active":true}},
+    {"name":"over125","quantities":[50,50,25],"expected":{"total":"125","remaining":0,"progress":1,"achieved":true,"active":true}}
+  ],
+  "timezones": [
+    {"name":"LA before midnight","instant":"2026-09-10T06:59:59Z","zone":"America/Los_Angeles","date":"2026-09-09"},
+    {"name":"LA midnight","instant":"2026-09-10T07:00:00Z","zone":"America/Los_Angeles","date":"2026-09-10"},
+    {"name":"Tokyo next day","instant":"2026-09-10T16:00:00Z","zone":"Asia/Tokyo","date":"2026-09-11"},
+    {"name":"LA spring before jump","instant":"2026-03-08T09:59:59Z","zone":"America/Los_Angeles","date":"2026-03-08"},
+    {"name":"LA spring after jump","instant":"2026-03-08T10:00:00Z","zone":"America/Los_Angeles","date":"2026-03-08"},
+    {"name":"LA fall first 0130","instant":"2026-11-01T08:30:00Z","zone":"America/Los_Angeles","date":"2026-11-01"},
+    {"name":"LA fall second 0130","instant":"2026-11-01T09:30:00Z","zone":"America/Los_Angeles","date":"2026-11-01"}
+  ],
+  "circle": {"name":"The daily few","timezone":"America/Los_Angeles","members":[
+    {"username":"alex","total":25},{"username":"ben","total":60},{"username":"jamie","total":65},
+    {"username":"morgan","total":0},{"username":"sam","total":0},{"username":"you","total":35}
+  ]},
+  "region_fixture": [
+    {"id":"WORLD","parent":null,"kind":"world","label":"World"},
+    {"id":"US","parent":"WORLD","kind":"country","label":"United States"},
+    {"id":"US-CA","parent":"US","kind":"admin1","label":"California"},
+    {"id":"US-CA-ORANGE","parent":"US-CA","kind":"locality","label":"Orange County"}
+  ]
+}

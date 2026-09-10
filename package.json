@@ -1,0 +1,9 @@
+{
+  "name": "100pushupclub-development-package",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Specification and reference checks; mobile app is to be implemented under apps/mobile",
+  "scripts": {"test":"node --test tests/*.test.mjs", "check:contracts":"node --check contracts/domain.ts", "check:package":"python3 scripts/validate_package.py"},
+  "engines": {"node": ">=22.18.0"}
+}

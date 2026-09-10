@@ -1,0 +1,13 @@
+node_modules/
+.expo/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.keystore
+*.p12
+*.mobileprovision
+__pycache__/
+.DS_Store
