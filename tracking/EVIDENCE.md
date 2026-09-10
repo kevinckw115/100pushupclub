@@ -45,3 +45,5 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 
 T08: verified disposable Postgres/Auth security, constraints, rollback and race gates; see tracking/evidence/T08.md.
 T09: implemented email OTP and secure partition lifecycle; real Auth/browser and storage failure gates pass, native delivery/storage pending; see tracking/evidence/T09.md.
+
+T10: real PostgreSQL/JWT mutation, conflict, rollback, cursor, rate and concurrency gates passed atfa74bff; tracking/evidence/T10.md.

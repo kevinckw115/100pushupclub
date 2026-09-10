@@ -54,8 +54,8 @@ test('real JWT bootstrap, owner isolation, grants/RLS, suspension and alias race
     const checks = await db.query("select c.relname, c.relrowsecurity, has_table_privilege('authenticated',c.oid,'SELECT,INSERT,UPDATE,DELETE') as grants from pg_class c join pg_namespace n on c.relnamespace=n.oid where n.nspname='app_private' and c.relkind='r'");
     assert.ok(checks.rows.length >= 15);
     for (const row of checks.rows) { assert.equal(row.relrowsecurity, true); assert.equal(row.grants, false); }
-    const functions = await db.query("select p.proname,p.prosecdef,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('bootstrap_profile','get_profile')");
-    assert.equal(functions.rows.length, 2);
+    const functions = await db.query("select p.proname,p.prosecdef,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('bootstrap_profile','get_profile','mutate_checkin','pull_changes')");
+    assert.equal(functions.rows.length, 4);
     for (const fn of functions.rows) { assert.equal(fn.prosecdef, true); assert.ok(fn.proconfig.some(value => /^search_path=(""|)$/.test(value))); }
     await db.query("update app_private.profiles set account_status='suspended' where user_id=$1", [a.id]);
     assert.equal((await request(config, '/rest/v1/rpc/get_profile', { token: a.token, body: {} })).status, 403);

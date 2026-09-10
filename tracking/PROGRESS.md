@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T10 in progress on task/t10-mutation-pull-api. T09 automated CI passed at4f13591; native secure storage and hosted OTP need device/development setup. T08 backend verified. No hosted backend deployed.
+T10 verified by real backend CI atfa74bff. Next: T11 client synchronization on its own branch. T09 automated CI passed at4f13591; native secure storage and hosted OTP need device/development setup. T08 backend verified. No hosted backend deployed.
 
 ## Fixed direction
 
