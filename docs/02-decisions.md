@@ -40,4 +40,8 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-10 / ADR-001 / Profile bootstrap transport and operation receipts
+
+The API already required idempotency for non-check-in writes but left their receipt storage and profile envelope implicit. T08 defines separate operation_receipts, typed own-profile envelopes with request IDs, and an informational bootstrap revision. Replays recheck live account availability. A bootstrap revision never initializes a pull cursor, preventing a new device from skipping existing history. No product visibility or ownership rule changes. API, data, sync and TypeScript contracts updated together; real JWT, receipt-replay and concurrency tests added. Initial schema only, so no existing production data migration is needed.
+
 Date / ID / prior decision / new decision / user direction or evidence / impacted contracts and tests / migration or compatibility consequences. Keep old records rather than silently rewriting history.

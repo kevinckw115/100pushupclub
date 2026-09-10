@@ -1,12 +1,12 @@
 # Progress
 
-## Handoff state
+## Current state
 
-Development package prepared. No Expo application or deployed backend exists in this package. Product tasks T01–T23 are pending. Pure reference tests and package checks are recorded separately in PACKAGE_VALIDATION.md after execution.
+T01-T07 implemented on separate task branches. Local tracker has automated domain, real SQLite and browser evidence. Native device/build gates remain open. See the evidence ledger for exact limitations.
 
 ## Current task
 
-T01 in progress on task/t01-toolchain-bootstrap. Expo app and automated checks are being established under apps/mobile. Native gate is unavailable on this host.
+T08 in progress on task/t08-server-security: private schema and checked profile functions, with disposable Supabase CI verification. No hosted backend is deployed.
 
 ## Fixed direction
 

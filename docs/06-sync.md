@@ -6,6 +6,8 @@ Guarantee at-most-one accepted effect per (account, mutation_id), even if a netw
 
 Cross-device conflicting quantity edits are explicit, not last-write-wins. V1 sync occurs on foreground, reconnect, after local mutation, and manual retry; background execution is opportunistic and never a correctness dependency.
 
+After verified login, profile bootstrap must complete before account synchronization. The bootstrap response revision does not acknowledge downloaded records: a new client starts its durable pull cursor at zero, and only a committed pull transaction advances it. Non-check-in operations use separate operation receipts, with live authorization checked again on replay.
+
 ## Mutation envelope
 
 See [TypeScript contract](../contracts/domain.ts). CREATE has UUID entity/mutation IDs, quantity, occurred_at, recorded_timezone, local_date, source and requested_public_epoch. UPDATE has quantity and expected_version. DELETE has expected_version. User identity is never supplied as authority. Canonicalize validated fields server-side and hash their semantic JSON, not arbitrary client JSON key order.

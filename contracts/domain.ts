@@ -5,6 +5,19 @@ export type ISOInstant = string; // UTC ISO 8601; second or millisecond precisio
 export type LocalDate = string; // YYYY-MM-DD
 export type IANATimezone = string;
 
+/** Own account configuration; never an authentication email or public actor DTO. */
+export interface OwnProfile {
+  alias: string;
+  region_id: string | null;
+  public_enabled: boolean;
+  consent_epoch: DecimalString;
+  status: 'active' | 'deleting' | 'suspended';
+}
+export interface ProfileResponse { request_id: UUID; profile: OwnProfile }
+export interface BootstrapProfileResult extends ProfileResponse {
+  revision: DecimalString; // informational; never initialize a client pull cursor from this
+}
+
 export interface CreateCheckin {
   kind: 'create';
   mutation_id: UUID;

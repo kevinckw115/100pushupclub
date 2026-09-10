@@ -127,8 +127,10 @@
       "depends_on": [
         "T03"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T08.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A18"

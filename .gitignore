@@ -11,3 +11,5 @@ coverage/
 *.mobileprovision
 __pycache__/
 .DS_Store
+supabase/.temp/
+supabase/.branches/

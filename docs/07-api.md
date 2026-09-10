@@ -33,6 +33,8 @@ Names below are normative operations. Implement authenticated PostgreSQL RPCs or
 
 All mutating operations beyond check-ins also require idempotency records appropriate to their operation. Their database writes, quotas and receipt must commit atomically. Rate limits still apply to replays to prevent endpoint flooding.
 
+Profile RPC envelopes use `ProfileResponse` and `BootstrapProfileResult` in contracts/domain.ts. Bootstrap returns its original receipt for the same operation ID, after rechecking the live account. Its revision is informational; it must not advance the client pull cursor. `get_profile` returns current own configuration with a request ID and no authentication email. Generic operation receipts are stored separately from check-in mutation receipts.
+
 ## Public DTO
 
 `read_club` response:

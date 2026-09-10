@@ -2,7 +2,7 @@
 
 Version 1.0 · September 10, 2026 · Target: iPhone and Android
 
-**Start with [START_HERE.md](START_HERE.md).** This is a detailed implementation handoff, not an already-built app. It contains agreed product direction, architect-selected defaults, contracts, a small executable reference model, and staged acceptance gates. The app, backend migrations, integrations, and device tests remain to be implemented.
+**Start with [START_HERE.md](START_HERE.md).** The repository now includes the initial [Expo mobile app](apps/mobile/README.md), alongside the original development package. Local logging, corrections, Undo, history and preferences have automated evidence. Follow [current progress](tracking/PROGRESS.md) for backend work and remaining native/device gates; this is not a release-ready app.
 
 The target is a quiet, encouraging pushup tracker: accumulate 100 in a day, log any set size, and see others showing up. No posts, photos, likes, comments, followers, or rankings. Option 5, Cream & Brick, is the approved visual direction.
 

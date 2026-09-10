@@ -12,6 +12,8 @@ Keep application tables in a non-exposed schema such as app_private. Expose tigh
 | account_sync_state | user_id PK, revision bigint default 0; row locked by every accepted check-in mutation |
 | checkins | id UUID PK, user_id FK immutable, quantity int CHECK 1..999, occurred_at, recorded_timezone text, local_date date, source native/import, created_at server time, updated_at, deleted_at nullable, version int >=1, revision bigint, public_epoch nullable bigint, public_region_id nullable FK |
 | mutation_receipts | user_id + mutation_id composite PK, canonical_payload_hash, immutable result JSON, created_at; account lifetime retention |
+| operation_receipts | user_id + operation_id composite PK, operation name, semantic request hash, immutable result JSON, created_at; non-check-in mutation idempotency |
+| reserved_aliases | normalized alias primary key; server-maintained reserved-name policy |
 | checkin_changes | user_id + revision composite PK, checkin_id, immutable accepted record snapshot JSON; includes tombstones; account lifetime retention |
 | regions | id stable text PK, parent_id FK nullable, kind world/country/admin1/locality, name, country_code nullable, timezone hint nullable; indexed hierarchy/closure |
 | region_ancestors | region_id + ancestor_id composite PK; self and all ancestors; generated from vetted region import |
