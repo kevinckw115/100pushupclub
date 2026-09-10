@@ -14,6 +14,8 @@ try {
     if (await fetch('http://127.0.0.1:8081').then(response => response.ok, () => false)) break;
     await new Promise(resolve => setTimeout(resolve, 250));
   }
+  const startups = spawnSync(process.execPath, ['scripts/review-startup.mjs'], { cwd: app, stdio: 'inherit' });
+  if (startups.status !== 0) throw new Error('Concurrent cold-start regression failed.');
   browser = await chromium.launch({ channel: 'chrome', headless: true });
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.on('pageerror', error => errors.push(error.message));
