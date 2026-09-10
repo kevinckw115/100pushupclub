@@ -38,3 +38,7 @@ See [bootstrap evidence](evidence/T01.md). Implemented and automated checks pass
 ## T06
 
 [History evidence](evidence/T06.md): clock, SQLite pagination and browser midnight/history flow passed; native lifecycle pending.
+
+## T07
+
+[Preference/reminder evidence](evidence/T07.md): planner policy and browser persistence verified; native delivery/permission/haptics not run. Ordinary exports now exclude review code.

@@ -4,4 +4,4 @@ expo-sqlite 57.0.2 writes its synchronous worker response length by assigning a 
 
 The patch writes the 32-bit length into a view over the actual response buffer. `patch-package` reapplies it during `npm ci`/`npm install`; a version mismatch must fail rather than silently skip the patch. This changes the browser worker bridge only.
 
-Regression: export web development build, serve with `node scripts/preview.mjs`, then `node scripts/review-logging.mjs --failure`. It saves and reads multiple real SQLite rows, reloads, edits, deletes and exercises rollback. Remove the patch only after verifying an upstream fix with that flow. Native behavior still needs its own device evidence.
+Regression: run `npm run build:review`, serve with `node scripts/preview.mjs`, then `node scripts/review-logging.mjs --failure`. The build helper adds review routes temporarily and removes them after export. It saves and reads multiple real SQLite rows, reloads, edits, deletes and exercises rollback. Remove the patch only after verifying an upstream fix with that flow. Native behavior still needs its own device evidence.

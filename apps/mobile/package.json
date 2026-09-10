@@ -9,7 +9,9 @@
     "expo-crypto": "~57.0.2",
     "expo-dev-client": "~57.0.18",
     "expo-font": "~57.0.3",
+    "expo-haptics": "~57.0.2",
     "expo-linking": "~57.0.9",
+    "expo-notifications": "~57.0.17",
     "expo-router": "~57.0.20",
     "expo-sqlite": "~57.0.2",
     "expo-status-bar": "~57.0.1",
@@ -44,8 +46,10 @@
     "test:integration": "node --test tests/integration/*.test.ts",
     "test:e2e": "maestro test ../../tests/e2e",
     "doctor": "node node_modules/expo-doctor/build/index.js",
-    "export": "node node_modules/expo/bin/cli export --platform all",
-    "postinstall": "node node_modules/patch-package/index.js"
+    "export": "node scripts/export.mjs",
+    "postinstall": "node node_modules/patch-package/index.js",
+    "export:web": "node scripts/export.mjs web",
+    "build:review": "node scripts/build-review.mjs"
   },
   "private": true,
   "engines": {

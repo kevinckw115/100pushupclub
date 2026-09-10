@@ -8,11 +8,12 @@ import { LocalRepository } from '../data/local/repository';
 import type { Partition } from '../data/local/repository';
 import { localDate } from '../domain/checkin';
 import { watchDay } from '../domain/calendar';
+import { refreshReminders } from './reminders';
 import { AppScreen, Header, Notice } from '../components/ui';
 
 export const deviceTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 export const currentDate = () => localDate(new Date().toISOString(), deviceTimezone());
-type LocalState = { repo: LocalRepository | null; ready: boolean; error: string | null; partition: Partition | null; revision: number; date: string; refresh: () => void };
+type LocalState = { repo: LocalRepository | null; ready: boolean; error: string | null; partition: Partition | null; revision: number; date: string; refresh: () => void; reminderStatus: string };
 const Context = createContext<LocalState | null>(null);
 
 export function LocalProvider({ children }: PropsWithChildren) {
@@ -21,6 +22,7 @@ export function LocalProvider({ children }: PropsWithChildren) {
   const [partition, setPartition] = useState<Partition | null>(null);
   const [revision, setRevision] = useState(0);
   const [date, setDate] = useState(currentDate);
+  const [reminderStatus, setReminderStatus] = useState('off');
   useEffect(() => {
     let database: Awaited<ReturnType<typeof openLocalDatabase>> | undefined;
     let active = true;
@@ -53,7 +55,12 @@ export function LocalProvider({ children }: PropsWithChildren) {
     });
     return () => { stop?.(); subscription.remove(); };
   }, [refresh]);
-  return <Context.Provider value={{ repo, ready: repo !== null, error, partition, revision, date, refresh }}>{children}</Context.Provider>;
+  useEffect(() => {
+    let active = true;
+    if (repo) refreshReminders(repo).then(status => { if (active) setReminderStatus(status); }, () => { if (active) setReminderStatus('failed'); });
+    return () => { active = false; };
+  }, [repo, revision]);
+  return <Context.Provider value={{ repo, ready: repo !== null, error, partition, revision, date, refresh, reminderStatus }}>{children}</Context.Provider>;
 }
 
 export function useLocal() {

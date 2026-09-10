@@ -4,6 +4,7 @@ import { BottomSheet, Button, Copy, Notice, QuantityInput } from '../../componen
 import { quantity } from '../../domain/checkin';
 import { deviceTimezone, useLocal } from '../../services/local-context';
 import type { LocalCheckin } from '../../data/local/repository';
+import { confirmLocalCommit } from '../../services/haptics';
 
 export function CheckinEditor({ record, onClose, onSaved }: { record?: LocalCheckin; onClose: () => void; onSaved: (result: LocalCheckin, created: boolean) => void }) {
   const { repo, partition, date } = useLocal();
@@ -33,6 +34,7 @@ export function CheckinEditor({ record, onClose, onSaved }: { record?: LocalChec
       return;
     }
     onSaved(saved, !record);
+    confirmLocalCommit(repo);
   };
   let projected: string | null = null;
   try {

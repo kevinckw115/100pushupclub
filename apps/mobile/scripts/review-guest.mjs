@@ -20,7 +20,7 @@ try {
   await expect(page.getByText('Community is not connected yet.', { exact: false })).toBeVisible();
   await page.getByRole('tab', { name: 'Today', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await page.getByRole('button', { name: 'Back to Today' }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(page.getByRole('img', { name: '0 pushups today, goal 100.' })).toBeVisible();
   expect(errors).toEqual([]);
   console.log('PASS: Expo SQLite guest setup offline after asset load, reload persistence, tabs/settings, no page errors. Native first-launch-offline gate remains open.');

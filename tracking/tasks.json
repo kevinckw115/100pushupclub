@@ -111,9 +111,11 @@
       "depends_on": [
         "T05"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T07.md"
+      ],
+      "blocker": "Native notification permission, delivery, goal cancellation and haptic behavior require an installed development build on iOS/Android.",
       "acceptance_ids": [
         "A33"
       ]
