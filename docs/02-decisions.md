@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-007 / Current public eligibility and opaque pagination
+
+T14 adds idempotent checked profile mutations with expected consent epochs. Alias-only edits preserve epochs; actual sharing toggles and region changes increment them, invalidating previous contributions. Public actor/entry IDs are independently random and immutable. Feed cursors use pgcrypto PGP AES256 encryption with integrity protection and a private generated key, binding viewer, requested/effective scope, 15-minute window anchor, boundary and initial PostgreSQL snapshot. Check-in creation_xid captures the top-level transaction ID so a delayed commit cannot enter an older page; current quantities, consent, deletion, suspension, moderation and blocks still apply on every read. The same materialized eligibility set drives sparse-scope selection, rows and counts. No public response cache is enabled. Authenticated feed budgets are30/minute/session; guest gateway limits remain a deployment gate. Data/API/sync/TypeScript contracts and real concurrency/privacy tests accompany the migration.
+
 ### 2026-09-11 / ADR-006 / Versioned public region directory
 
 T13 implements D21 using the checked September11 GeoNames snapshot and its CC BY4.0 attribution. Countries/first-level regions are included; only US counties/equivalents are promoted to broad localities. Stable geoname-backed IDs retain source codes independently of ISO assumptions. The private directory adds source_code, active status, normalized search indexes and a version manifest. Public list_regions and resolve_region RPCs expose labels and hierarchy only, with50-row limits, scope/version-bound opaque cursors and active-ancestor fallback. Manual browsing choice persists locally per partition; account region/privacy mutation remains the T14 consent contract. No GPS, geocoding calls or source coordinates enter profiles. Generated data is an initial migration; future data releases require separate reviewed migrations.

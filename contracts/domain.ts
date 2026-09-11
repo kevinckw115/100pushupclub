@@ -14,6 +14,10 @@ export interface OwnProfile {
   status: 'active' | 'deleting' | 'suspended';
 }
 export interface ProfileResponse { request_id: UUID; profile: OwnProfile }
+export interface ProfileMutation {
+  operation_id: UUID; alias?: string; region_id?: string | null; public_enabled?: boolean;
+  expected_consent_epoch?: DecimalString; // Required when region or sharing is submitted.
+}
 export interface BootstrapProfileResult extends ProfileResponse {
   revision: DecimalString; // informational; never initialize a client pull cursor from this
 }
@@ -96,6 +100,7 @@ export interface CircleToday {
 }
 export type OutboxStatus = 'pending' | 'sending' | 'acknowledged' | 'conflict' | 'rejected';
 export type SyncErrorCode =
+  | 'CONSENT_CONFLICT' | 'INVALID_ALIAS' | 'ALIAS_UNAVAILABLE' | 'INVALID_REGION'
   | 'INVALID_REQUEST' | 'INVALID_TIMESTAMP' | 'SERVER_RETRY'
   | 'INVALID_QUANTITY' | 'INVALID_TIMEZONE' | 'INVALID_LOCAL_DATE' | 'CLOCK_AHEAD'
   | 'UNAUTHENTICATED' | 'ACCOUNT_UNAVAILABLE' | 'NOT_FOUND_OR_FORBIDDEN'
@@ -105,6 +110,7 @@ export type SyncErrorCode =
 export interface SyncErrorResponse {
   code: SyncErrorCode; message: string; retryable: boolean; request_id: UUID;
   current_record?: OwnCheckin;
+  profile?: OwnProfile;
 }
 export interface MutationRPCInput { envelope: CheckinMutation }
 export interface PullRPCInput { after_revision: DecimalString; limit?: number }

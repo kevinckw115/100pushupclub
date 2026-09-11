@@ -45,6 +45,8 @@ Foreign-key cascades must be planned around account deletion: remove memberships
 
 ## Public eligibility
 
+T14 adds independently random public_actor_id/public_entry_id and immutable creation_xid to the private profile/check-in tables. Owner snapshots continue to omit these internal columns. A private RLS-protected server_secrets row stores the generated feed cursor key. The initial transaction snapshot excludes records committed after the first page, while later edits/privacy changes remain current. No exposed table contains cursor keys or private owner mappings.
+
 A record is eligible only if: account active; profile public_enabled; not deleted; source native; public_epoch equals current profile consent_epoch; public_region_id is the profile's current region snapshot (or world-only null); occurred_at lies in the requested rolling window. Checkin epoch is assigned only during native CREATE when its requested epoch matches current server consent. Otherwise the record saves privately, with the response saying so. UPDATE never changes sharing metadata or bumps feed ordering.
 
 Every consent toggle and region change increments epoch. Disabling sharing or changing region immediately makes all earlier contributions ineligible. Re-enabling affects future records only. Imported and corrected replacement records are private. A record is public only to broad scopes containing its public_region_id; null-region public entries are World-only.

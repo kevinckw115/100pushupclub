@@ -237,8 +237,10 @@
         "T10",
         "T13"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T14.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A19",
