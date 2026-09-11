@@ -7,11 +7,15 @@ import { account, localEnvironment, removeAccount, request } from './environment
 test('100k records and 100 foreground clients return bounded accurate sanitized Club responses', { timeout: 180000 }, async () => {
   const config = localEnvironment(), users = [], db = new pg.Client({ connectionString: config.db }); await db.connect();
   try {
+    await db.query("set statement_timeout='90s'");
     for (let i = 0; i < 10; i++) {
       const user = await account(config); users.push(user);
       assert.equal((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: user.token, body: { operation_id: randomUUID() } })).status, 200);
       assert.equal((await request(config, '/rest/v1/rpc/update_profile', { token: user.token, body: { envelope: { operation_id: randomUUID(), public_enabled: true, expected_consent_epoch: '0', accepted_terms_version: 'community-v1-2026-09-11' } } })).status, 200);
     }
+    const invalid = (zone, day) => db.query("insert into app_private.checkins(id,user_id,quantity,occurred_at,recorded_timezone,local_date,source,version,revision) values(gen_random_uuid(),$1,1,'2026-09-11T12:00:00Z',$2,$3,'native',1,1)", [users[0].id, zone, day]);
+    await assert.rejects(invalid('Not/A_Zone','2026-09-11'), error => error.code === '22023' && error.message === 'INVALID_TIMEZONE');
+    await assert.rejects(invalid('UTC','2026-09-10'), error => error.code === '22023' && error.message === 'INVALID_LOCAL_DATE');
     // Ten days, ten contributors, exactly 10k eligible in the rolling 24-hour window.
     await db.query(`insert into app_private.checkins(id,user_id,quantity,occurred_at,recorded_timezone,local_date,source,created_at,version,revision,public_epoch)
       select gen_random_uuid(),($1::uuid[])[((n-1)/10)%10+1],1,t,'UTC',(t at time zone 'UTC')::date,'native',t,1,n,1
