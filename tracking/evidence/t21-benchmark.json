@@ -1,0 +1,29 @@
+{
+  "source_commit": "9b06540",
+  "ci_run": 34623108975,
+  "backend": {
+    "environment": "Ubuntu GitHub Actions disposable Supabase/Postgres17 localhost",
+    "records": 100000,
+    "history_days": 10,
+    "authenticated_accounts": 10,
+    "foreground_clients": 100,
+    "requests": 100,
+    "stagger_ms": 300,
+    "interval_seconds": 30,
+    "eligible_records": 10000,
+    "response_page_limit": 25,
+    "p50_ms": 43,
+    "p95_ms": 50,
+    "max_ms": 60,
+    "elapsed_ms": 29744
+  },
+  "local_sqlite": {
+    "environment": "Windows Node24.12 real file SQLite",
+    "records": 100000,
+    "day_and_page_p95_ms": 12.16,
+    "snapshot_and_200_pages_ms": 1827,
+    "seed_ms": 765
+  },
+  "native_device_verified": false,
+  "deployment_region_verified": false
+}

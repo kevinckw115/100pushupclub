@@ -71,8 +71,6 @@ T14 implements read_club(scope_id='world',cursor=null,limit=25,max50). Cursors a
 
 Aggregate scope threshold uses eligible unique contributors in the past 24 hours. If a narrow region is below 10, walk ancestors to the first eligible one or World. Compute counts/items under the same eligibility predicate and consistent snapshot. Authenticated responses vary by block list; never put them in a shared unauthenticated cache. Cache public guest responses at most 10 seconds with explicit visibility-change purge. Disable cache if purge correctness is unproven.
 
-## Circle DTO
-
 ## Deletion and export implementation (T19)
 
 request_account_deletion({envelope:{operation_id,status_token,confirm_delete:true}}) requires a confirmed permanent Auth identity, an existing session and a signed AMR authentication time within10 minutes. A refreshed token's iat does not qualify by itself. It allows suspended owners to delete their own accounts. The transaction locks the account, disables sharing, changes status to deleting, increments its epoch, records the job and revokes Auth refresh tokens/sessions. Replays require the original operation ID and status-token hash. All ordinary checked APIs reject the account immediately, including still-valid JWTs.
@@ -80,6 +78,8 @@ request_account_deletion({envelope:{operation_id,status_token,confirm_delete:tru
 account_deletion_status(status_token) is available without a session because Auth is eventually removed. Its random256-bit capability is supplied by the client before deletion and stored only as a hash on the server. It returns job_id, processing/complete and the seven-day operational target, with no account identifiers, content, email or failure internals. Unknown proofs return a generic404; global budget300/minute and no-store responses apply. Hosted source/gateway limits remain required. Do not put proofs in URLs/logs.
 
 export_account(after_id=null,expected_revision=null,limit=500) returns bounded caller-only profile/records/revision/next_id. Subsequent pages must supply the initial revision; intervening check-in changes return EXPORT_CHANGED so clients restart explicitly. It includes own tombstones/imports and exact own recorded fields, never circle peers, public activity or reports about others. Budget30/minute/account. Server worker functions have no client grants.
+
+## Circle DTO
 
 T17 implements authenticated list_circles(), read_circle_today(circle_id), list_circle_invites(circle_id), preview_invite(code), and envelope-based create_circle, join_circle, create_invite, manage_circle. Exact inputs/results are in contracts/domain.ts. Create/join require accept_circle_sharing=true and current participation acceptance. Management actions are leave/delete/remove/transfer/revoke_invite/rename. Owners transfer before leaving or delete the circle. Timezone is immutable. Reads allow30/minute/account; writes share30/minute/account. Preview requires a verified account,10/minute/account and300/minute globally; hosted gateway source limits remain a deployment gate.
 

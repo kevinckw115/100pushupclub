@@ -81,3 +81,7 @@ T09 allows HTTP only for development Supabase loopback endpoints (localhost,127.
 ### 2026-09-10 / ADR-003 / Checked mutation and pull transport
 
 T10 makes request IDs explicit in accepted mutation/pull types, adds validation/transient error codes, and defines PostgreSQL RPC argument wrappers. Strict quantity/time/date/source/epoch validation precedes acceptance; the reference five-minute future-clock tolerance becomes explicit. An account fixed-minute budget includes receipt replays and commits ordinary rejection counts, while transaction failures roll back everything. Pull shares the profile lock and reads one bounded snapshot page. Data/API/sync/TypeScript contracts updated together. New private budget table and immutable-snapshot triggers ship in a separate migration; no existing production deployment is changed. Real Postgres/JWT tests verify the transport, locks, rollback and privacy boundaries.
+
+### 2026-09-11 / ADR-011 / UTC validation fast path
+
+The100k-record resilience setup exposed repeated generation of PostgreSQL timezone metadata in the row trigger. Forward migration010 recognizes the always-valid exact name UTC directly; all other names retain catalog validation. Date consistency, immutable fields and tombstones are unchanged. Tests reject invalid names and inconsistent UTC dates without disabling constraints. No API/data/sync contract changes or timezone-rule cache were introduced.

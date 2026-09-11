@@ -2,11 +2,11 @@
 
 ## Current state
 
-T01-T07 implemented on separate task branches. Local tracker has automated domain, real SQLite and browser evidence. Native device/build gates remain open. See the evidence ledger for exact limitations.
+T01-T19 implementation is on separate stacked task branches; T20-T23 independent review, resilience and operations work is prepared. Native and hosted release gates remain open. Use the latest task branch, not the initial main scaffold.
 
 ## Current task
 
-T17/T18 implemented with passing CI; T18 final877e64e includes the full circle browser flow. T19 client9453e69 is awaiting connected CI;54 SQLite tests and real guest export passed. T20 independent compact browser/keyboard/heading review passed, but native A34 is blocked by missing iOS/Android targets/toolchain. Next: T21 resilience/performance on a new branch while finishing T19 CI. Hosted scheduling, support/domain/retention and native device gates remain open.
+Current branch: task/t23-beta-review. T19 deletion-status retry fix0f4c930 passed all CI, including actual export/deletion/cleanup browser flow; screenshot inspected. T21 forced-exit,100k local records,100k backend/100-client load and populated upgrades passed. Combined source9b06540 passed backend34623108975, mobile34623108995 and package34623108976; backend load p95=50ms on disposable CI localhost. T22 preview/credential guards, bundle audit and aggregate operations diagnostics are implemented. T20 native accessibility and T22/T23 signed-build/device/beta gates are blocked by missing owner/native/hosted setup. See docs/12-operations-runbook.md and docs/13-beta-review.md.
 
 ## Fixed direction
 
@@ -55,3 +55,9 @@ New branch task/t09-auth-partitions. Email OTP, session chunks and partition sig
 ## 2026-09-10: T10 in progress
 
 New branch task/t10-mutation-pull-api. Added checked mutation/pull functions, bounded replay-aware request budget, immutable changes/receipts, canonical validation and decimal cursors. Backend tests cover real concurrent HTTP/SQL writes, rollback and read waiting. Commands: node --check tools/backend/tests/mutations.test.mjs passed. Fresh Supabase reset/runtime tests will run in GitHub Actions (local native Supabase executable still blocked). Next: fix any CI failures, then T11 worker on its own branch.
+
+## 2026-09-11: T19-T23 completion work
+
+Separate task branches pushed for deletion/export, accessibility, resilience, delivery and beta review. Local commands from apps/mobile: npm.cmd test (23 passed), npm.cmd run typecheck (passed), npm.cmd run lint (passed), node --test tests/integration/resilience.test.ts (2 passed), node --test tests/integration/privacy.test.ts (4 passed), npm.cmd run export:web (passed;4 textual artifacts audited). Root node --test tests/release-bundle.test.mjs passed. Full Hermes and disposable Postgres/Auth/browser checks run in GitHub Actions; final results are recorded in task evidence. No native target or hosted deployment was used.
+
+Next action: supply owner Expo/project/signing identifiers, a native iOS and Android target, hosted development Supabase/OTP, support email/domain and actual retention/scheduled-deletion/staff setup. Follow the setup order in docs/13-beta-review.md; perform one-week real beta and log actual findings. Production remains fail-closed; no store submission or invitation sent.

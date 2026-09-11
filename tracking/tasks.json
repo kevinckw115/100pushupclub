@@ -334,11 +334,11 @@
         "T16",
         "T18"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T19.md"
       ],
-      "blocker": null,
+      "blocker": "All CI passed0f4c930: actual export/deletion browser, real Auth/cleanup, full mobile exports and package checks. Native file-sharing/accessibility and hosted deletion schedule/support/domain/retention remain unverified.",
       "acceptance_ids": [
         "A31",
         "A32"
@@ -374,11 +374,11 @@
         "T18",
         "T19"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T21.md"
       ],
-      "blocker": null,
+      "blocker": "Real backend100k-record/100-client load, populated PostgreSQL upgrade, abrupt SQLite process termination and all CI passed9b06540. Representative native-device and deployed-region timings remain unverified.",
       "acceptance_ids": [
         "A36"
       ]
@@ -396,7 +396,7 @@
       "evidence": [
         "tracking/evidence/T22.md"
       ],
-      "blocker": "Signed beta/production configuration requires owner Expo project, bundle IDs, signing accounts, support domain/contact, hosted backend and native T20/T21 evidence. Independent config audit and operations handoff implemented; CI pending.",
+      "blocker": "Configuration/bundle audits and server aggregate diagnostics passed all CI9b06540. Signed builds and release require owner Expo/project/application IDs, signing access, hosted support/OTP/deletion operations and native T20/T21 evidence.",
       "acceptance_ids": [
         "A35"
       ]
