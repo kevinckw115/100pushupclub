@@ -22,7 +22,7 @@ export class DeletionRepository {
       if (p.status && p.status.job_id !== status.job_id) throw new Error('Deletion response mismatch.');
       this.write({ ...p, phase: status.status === 'complete' ? 'complete' : 'acknowledged', status, error: undefined });
       const active = this.local.activePartition();
-      if (active?.id === p.accountId || active?.kind !== 'account') {
+      if (active?.id === p.accountId || (active?.kind !== 'account' && ['pending', 'rejected'].includes(p.phase))) {
         this.local.setPreference('device', 'pending_logout', JSON.stringify({ id: p.accountId, discard: true }));
         this.local.setPreference('device', 'reminders', JSON.stringify({ enabled: false, hour: 18, minute: 0 }));
       }

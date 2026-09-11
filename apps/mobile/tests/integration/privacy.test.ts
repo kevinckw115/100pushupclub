@@ -31,7 +31,12 @@ test('deletion proof and atomic cleanup marker survive restart while guest data 
     f.local.signOutAccount(account, now, true); assert.equal(f.local.activePartition()!.id, guest.id); assert.equal(f.local.total(guest.id, now.slice(0, 10)), '35');
     assert.equal(f.local.db.all('SELECT * FROM local_checkins WHERE partition_id=?', account).length, 0);
     assert.throws(() => f.deletion.acknowledge(randomUUID(), status), /changed/);
-    f.deletion.acknowledge(saved.request.operation_id, { ...status, status: 'complete' }); f.deletion.dismiss(); assert.equal(f.deletion.pending(), null);
+    f.local.setPreference('device', 'pending_logout', '');
+    f.local.setPreference('device', 'reminders', 'guest-preference');
+    f.deletion.acknowledge(saved.request.operation_id, { ...status, status: 'complete' });
+    assert.equal(f.local.preference('device', 'pending_logout'), '');
+    assert.equal(f.local.preference('device', 'reminders'), 'guest-preference');
+    f.deletion.dismiss(); assert.equal(f.deletion.pending(), null);
   } finally { f.db.close(); rmSync(dir, { recursive: true, force: true }); }
 });
 
