@@ -111,7 +111,7 @@ test('v1 database upgrades transactionally without losing records or queued work
     migrate(db);
     assert.equal(repo.get(account, record.id)?.quantity, 20);
     assert.equal(db.all('SELECT * FROM outbox').length, 1);
-    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 3);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 4);
   } finally { db.close(); }
 });
 
@@ -125,7 +125,7 @@ test('failed migration rolls back schema changes and version marker together', (
     assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 1);
     db.exec('DROP INDEX outbox_ready;');
     migrate(db);
-    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 3);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 4);
   } finally { db.close(); }
 });
 

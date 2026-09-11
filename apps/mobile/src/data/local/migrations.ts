@@ -58,6 +58,15 @@ export const migrations = [
    WHEN OLD.deleted=1 AND NEW.deleted=0 AND
      (OLD.state='local' OR json_extract(OLD.accepted_json,'$.deleted_at') IS NOT NULL)
    BEGIN SELECT RAISE(ABORT,'Deleted record cannot be restored'); END;`,
+  `ALTER TABLE guest_imports ADD COLUMN snapshot_json TEXT;
+   ALTER TABLE guest_imports ADD COLUMN remote_json TEXT;
+   ALTER TABLE guest_imports ADD COLUMN code TEXT;
+   ALTER TABLE guest_imports ADD COLUMN collision_attempts INTEGER NOT NULL DEFAULT 0;
+   ALTER TABLE guest_imports ADD COLUMN cleaned INTEGER NOT NULL DEFAULT 0;
+   CREATE UNIQUE INDEX import_destination ON guest_imports(account_partition,destination_id);
+   CREATE INDEX import_work ON guest_imports(account_partition,state);
+   CREATE TRIGGER immutable_import_snapshot BEFORE UPDATE OF snapshot_json,guest_partition,account_partition,source_id ON guest_imports
+   BEGIN SELECT RAISE(ABORT,'Import source cannot change'); END;`,
 ];
 
 export function migrate(db: SqlDriver, target = migrations.length) {

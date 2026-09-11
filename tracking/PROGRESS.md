@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T11 client synchronization implemented on task/t11-client-sync; eight new real SQLite failure/reconciliation checks pass. Full local checks and disposable two-client backend CI are being completed. T10 verified atfa74bff. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T11 evidence, then T12 guest import on a new branch.
+T12 guest import is in progress on task/t12-guest-import: explicit consent, durable jobs, collision handling and optional cleanup; six import SQLite tests pass. T11 real backend/connected offline browser passed atfc28df4; native export passed at05940d6. Expo's overnight SDK patch recommendations caused the follow-up doctor gate to fail; compatibility installer is aligning the SDK57 patch set in the existing lockfile. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T12 real backend/browser evidence, then T13 region directory on a new branch.
 
 ## Fixed direction
 

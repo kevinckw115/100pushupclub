@@ -75,4 +75,6 @@ The check-in RPC enforces a fixed UTC minute budget including receipt replays an
 Guest feed endpoint needs gateway limits; a mobile publishable API key is not a secret or proof of a unique person. Do not solve abuse by embedding a privileged secret in the app.
 # Client protocol validation (T11)
 
+Guest import uses the existing single CREATE RPC with source=import and requested_public_epoch=null. A local batch of at most50 selections creates independent stable mutation receipts; no unimplemented server batch endpoint is called. NOT_FOUND_OR_FORBIDDEN for an import CREATE permits a durable destination remap without exposing the other owner; ENTITY_EXISTS carries only the authenticated owner's snapshot and is checked for identical imported content before acknowledgment.
+
 Mutation and check-in UUIDs use versions1-8 with RFC variant bits, case-insensitively accepted and normalized lowercase. Accepted record revisions are positive decimal int64 strings; pull cursor0 represents a fresh client. Clients validate bounded, strictly ordered pages and retain precision beyond JavaScript safe integers. Imported records cannot have public epoch/region metadata. Authentication is attached as a verified bearer session; no user ID is submitted in mutation or pull bodies.

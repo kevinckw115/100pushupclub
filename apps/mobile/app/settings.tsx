@@ -42,6 +42,7 @@ export default function Settings() {
     <Section title="Account">
       {partition?.kind !== 'account' ? <Button secondary label="Sign in or recover account" onPress={() => router.push('/auth')} /> : <>
         <SyncNotice />
+        <Button secondary label="Import guest check-ins" onPress={() => router.push('/guest-import')} />
         <Button secondary label="Reconnect account" onPress={() => router.push('/auth')} />
         {confirmSignOut ? <>
           <Notice>{repo.unsynced(partition.id)} check-ins haven’t synced. Discarding removes this account’s local records from this phone. Guest check-ins remain.</Notice>

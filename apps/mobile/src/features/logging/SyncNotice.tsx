@@ -9,7 +9,9 @@ export function SyncNotice() {
   const router = useRouter();
   if (!repo || partition?.kind !== 'account') return null;
   const pending = repo.unsynced(partition.id), issues = repository?.issues().length ?? 0;
-  const message = !connection ? 'Sign in to reconnect. Your local check-ins are safe.'
+  const needsSignIn = !connection || status.code === 'UNAUTHENTICATED';
+  const message = needsSignIn ? 'Sign in to reconnect. Your local check-ins are safe.'
+    : status.code === 'ACCOUNT_UNAVAILABLE' ? 'Account access is unavailable. Your local check-ins are safe.'
     : status.state === 'blocked' ? 'Sync needs attention. Your local check-ins are safe.'
     : status.state === 'offline' ? 'Offline. Your check-ins are saved on this phone.'
     : status.state === 'waiting' ? 'Connecting to your account…'
@@ -20,6 +22,6 @@ export function SyncNotice() {
   return <><Notice>{message}</Notice>
     {pending > 0 && <Notice>{pending} check-ins haven’t synced yet.</Notice>}
     {issues > 0 && <Button secondary label="Review sync issues" onPress={() => router.push('/sync-issues')} />}
-    {!connection ? <Button secondary label="Sign in to sync" onPress={() => router.push('/auth')} /> : <Button secondary label="Retry sync" onPress={retry} />}
+    {needsSignIn ? <Button secondary label="Sign in to sync" onPress={() => router.push('/auth')} /> : <Button secondary label="Retry sync" onPress={retry} />}
   </>;
 }

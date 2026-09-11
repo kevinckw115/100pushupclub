@@ -52,11 +52,18 @@ try {
   await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible({ timeout: 20000 });
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Import guest check-ins', exact: true }).click();
+  await page.getByRole('button', { name: /^Select: 10 pushups/ }).click();
+  await page.getByRole('button', { name: 'Review 1 selected check-ins', exact: true }).click();
+  await page.getByRole('button', { name: 'Confirm private import', exact: true }).click();
+  await expect(page.getByText('1 confirmed \u00b7 0 waiting \u00b7 0 need a choice', { exact: true }).filter({ visible: true })).toBeVisible({ timeout: 20000 });
+  await page.screenshot({ path: '../../tracking/evidence/t12-import-web.png', fullPage: true });
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
   await page.goto('http://127.0.0.1:8081');
   await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   expect(errors).toEqual([]);
-  console.log('PASS: real Auth OTP, invalid code/retry, partition isolation, offline account save, reconnect synchronization, guest restoration.');
+  console.log('PASS: real Auth OTP, invalid code/retry, partition isolation, offline account save, reconnect, explicit guest import and guest restoration without cleanup.');
 } catch (error) {
   const body = await page?.locator('body').innerText().catch(() => 'unavailable');
   console.error('Browser diagnostic:', JSON.stringify({ errors, screen: body?.replace(/[^\s@]+@[^\s@]+/g, '[email]').replace(/\b\d{6,10}\b/g, '[code]').slice(0, 1000) }));

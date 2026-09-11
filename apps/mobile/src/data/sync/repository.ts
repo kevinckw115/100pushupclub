@@ -2,6 +2,7 @@ import type { LocalRepository, LocalCheckin } from '../local/repository.ts';
 import { instant, localDate, quantity, uuid } from '../../domain/checkin.ts';
 import { ownCheckin, SyncFailure } from './protocol.ts';
 import type { CheckinMutation, OwnCheckin, MutationAccepted, PullPage } from './protocol.ts';
+import { ImportRepository } from '../local/imports.ts';
 
 export interface QueuedMutation {
   sequence: number; partition_id: string; mutation_id: string; entity_id: string;
@@ -13,8 +14,8 @@ export interface QueuedMutation {
 export interface SyncIssue { entity_id: string; mutation_id: string; code: string; current_record: string | null }
 
 export class SyncRepository {
-  readonly local: LocalRepository; readonly partitionId: string;
-  constructor(local: LocalRepository, partitionId: string) { this.local = local; this.partitionId = partitionId; }
+  readonly local: LocalRepository; readonly partitionId: string; readonly imports: ImportRepository;
+  constructor(local: LocalRepository, partitionId: string) { this.local = local; this.partitionId = partitionId; this.imports = new ImportRepository(local, partitionId); }
   private active() {
     const active = this.local.activePartition();
     if (active?.id !== this.partitionId || active.kind !== 'account') throw new SyncFailure('STALE_SCOPE');
@@ -24,7 +25,8 @@ export class SyncRepository {
     return this.local.db.all<{ revision: string }>('SELECT revision FROM sync_cursors WHERE partition_id=?', this.partitionId)[0]?.revision ?? '0';
   }
   issues(): SyncIssue[] {
-    this.active(); return this.local.db.all<SyncIssue>('SELECT entity_id,mutation_id,code,current_record FROM sync_issues WHERE partition_id=? ORDER BY entity_id LIMIT 100', this.partitionId);
+    this.active(); return this.local.db.all<SyncIssue>(`SELECT entity_id,mutation_id,code,current_record FROM sync_issues WHERE partition_id=?
+      UNION ALL SELECT destination_id,mutation_id,code,remote_json FROM guest_imports WHERE account_partition=? AND state='conflict' ORDER BY entity_id LIMIT 100`, this.partitionId, this.partitionId);
   }
   beginNext(now: string): QueuedMutation | null {
     return this.local.db.transaction(() => {
@@ -91,6 +93,7 @@ export class SyncRepository {
       this.active(); const db = this.local.db;
       if (!db.all('SELECT 1 FROM outbox WHERE partition_id=? AND mutation_id=?', this.partitionId, row.mutation_id).length) return;
       this.snapshot(result.record);
+      this.imports.acknowledge(row.entity_id, row.mutation_id, result.record);
       db.run("UPDATE outbox SET status='acknowledged',acknowledged_version=?,next_retry_at=NULL WHERE partition_id=? AND mutation_id=?", result.record.version, this.partitionId, row.mutation_id);
       this.project(row.entity_id);
     });
@@ -111,11 +114,16 @@ export class SyncRepository {
     });
   }
   fail(row: QueuedMutation, failure: SyncFailure) {
+    if (failure.code === 'ENTITY_EXISTS' && failure.record && this.imports.identical(row.entity_id, failure.record)) {
+      this.acknowledge(row, { request_id: row.mutation_id, record: failure.record, revision: failure.record.revision, effective_public: false });
+      return;
+    }
     this.local.db.transaction(() => this.writeIssue(row, failure));
   }
   private writeIssue(row: QueuedMutation, failure: SyncFailure) {
       this.active(); const conflict = ['VERSION_CONFLICT', 'ENTITY_EXISTS'].includes(failure.code);
       if (failure.record?.id !== undefined && failure.record.id !== row.entity_id) throw new SyncFailure('PROTOCOL');
+      if (this.imports.fail(row.entity_id, row.mutation_id, failure)) return;
       if (failure.record && failure.code === 'VERSION_CONFLICT') this.snapshot(failure.record);
       this.local.db.run('UPDATE outbox SET status=? WHERE partition_id=? AND mutation_id=?', conflict ? 'conflict' : 'rejected', this.partitionId, row.mutation_id);
       this.local.db.run('INSERT INTO sync_issues(partition_id,entity_id,mutation_id,code,current_record) VALUES(?,?,?,?,?) ON CONFLICT(partition_id,entity_id) DO UPDATE SET mutation_id=excluded.mutation_id,code=excluded.code,current_record=excluded.current_record', this.partitionId, row.entity_id, row.mutation_id, failure.code, failure.record ? JSON.stringify(failure.record) : null);

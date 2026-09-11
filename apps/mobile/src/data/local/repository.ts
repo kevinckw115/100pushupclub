@@ -52,6 +52,8 @@ export class LocalRepository {
     return this.db.transaction(() => {
       if (this.partition(userId).kind !== 'account') throw new Error('An account partition is required.');
       if (!discard && this.unsynced(userId)) throw new Error('Unsynced check-ins need your decision.');
+      this.db.run("UPDATE guest_imports SET state='paused' WHERE account_partition=? AND state IN ('pending','conflict')", userId);
+      this.db.run('UPDATE guest_imports SET remote_json=NULL WHERE account_partition=?', userId);
       this.db.run('DELETE FROM sync_issues WHERE partition_id=?', userId);
       this.db.run('DELETE FROM outbox WHERE partition_id=?', userId);
       this.db.run('DELETE FROM local_checkins WHERE partition_id=?', userId);
@@ -104,6 +106,7 @@ export class LocalRepository {
       const record = this.get(partitionId, id);
       if (!record || record.deleted) throw new Error('This check-in is no longer available.');
       if (record.state === 'conflict' || record.state === 'rejected') throw new Error('Resolve this check-in’s sync issue before changing it.');
+      if (record.source === 'import' && this.db.all("SELECT 1 FROM guest_imports WHERE account_partition=? AND destination_id=? AND state IN ('pending','paused','conflict')", partitionId, id).length) throw new Error('Finish this guest import before changing its account copy.');
       if (partition.kind === 'account') {
         const last = this.db.all<{ mutation_id: string; operation: string; status: string; request_json: string | null }>(
           "SELECT mutation_id,operation,status,request_json FROM outbox WHERE partition_id=? AND entity_id=? AND status <> 'acknowledged' ORDER BY sequence DESC LIMIT 1", partitionId, id)[0];

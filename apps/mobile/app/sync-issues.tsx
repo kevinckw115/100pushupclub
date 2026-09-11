@@ -48,7 +48,9 @@ export default function SyncIssues() {
   const { repository } = useSync(), router = useRouter();
   const issues = repository?.issues() ?? [];
   return <AppScreen><Header /><Copy variant="title">Your sync choices</Copy><Copy>Keep the account value or choose what to send. Your local changes stay visible until you decide.</Copy>
-    {repository && issues.map(issue => <Issue key={issue.entity_id} id={issue.entity_id} repository={repository} />)}
+    {repository && issues.map(issue => repository.imports.job(issue.entity_id)?.state === 'conflict'
+      ? <Button key={issue.entity_id} secondary label="Review guest import choice" onPress={() => router.push('/guest-import')} />
+      : <Issue key={issue.entity_id} id={issue.entity_id} repository={repository} />)}
     {!issues.length && <Notice>No sync issues to review.</Notice>}
     <Button secondary label="Back" onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)/today')} />
   </AppScreen>;

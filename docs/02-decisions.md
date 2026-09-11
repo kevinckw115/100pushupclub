@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-005 / Explicit durable guest import
+
+T12 snapshots at most50 selected guest records per consent transaction. Migration4 extends the existing deduplication ledger with immutable source content, collision/retry state and cleanup markers. Source and mutation IDs persist across restart. Another-owner create collision remaps a new destination/mutation atomically; same-owner identical imported content is acknowledged, while mismatches require an explicit choice. Signout pauses incomplete imports and clears account response snapshots; explicit resume uses the original request to resolve uncertain acceptance. Import copies cannot be edited until acceptance, preserving the consent snapshot. Cleanup removes only unchanged guest copies with a currently confirmed matching account snapshot, after pending/conflicting imports are resolved. No server API changes; imports use checked CREATE with source=import and null public epoch, retaining original dates and exclusion from circle history.
+
 ### 2026-09-10 / ADR-004 / Durable client reconciliation
 
 T11 records acknowledged parent versions, retry delays and unresolved sync issues in SQLite migration3. Dependent edits use the exact parent acknowledgment version even if a newer snapshot has arrived; they never silently overwrite that newer version. Accepted snapshots and pull cursors commit together while local intent remains visible. An unaccepted optimistic deletion may be cancelled explicitly; guest deletions and accepted server tombstones remain permanent. Replacement check-ins use a fresh ID and current recorded time with no public consent epoch. Client and initial server mutation UUID validation now agree on versions1-8 and RFC variant bits, preventing accepted but unreadable records. There is no deployed database to migrate. Data/API/sync contracts and failure/concurrent-client tests accompany this change.

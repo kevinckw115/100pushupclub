@@ -46,6 +46,8 @@ This protocol deliberately avoids `updated_at > last_seen_time`, which can miss 
 
 ## Guest import
 
+The client accepts a selected batch of1-50 entries in one local transaction and sends independent existing CREATE RPCs. Import jobs retain an immutable guest snapshot. Incomplete imports pause on explicit account signout; resuming is a new explicit user choice and preserves the same envelope for uncertain requests. Imported account copies remain uneditable until acceptance. Another-owner collisions automatically remap at most3 times before requiring a choice. Cleanup requires all chosen jobs to finish or be cancelled and a matching currently accepted account copy; changed guest content stays local. No cleanup runs automatically.
+
 Guest mode has no cloud account/outbox transmission. Guest records have stable UUIDs. On consent to import, snapshot selected nondeleted guest entries and create durable per-record import jobs in the target account partition with stable mutation IDs. Each CREATE source=import, public epoch=null. Import can batch transport but uses independent per-record receipts/results.
 
 After each accepted record, mark import acknowledged. Restart resumes unfinished jobs. On ENTITY_EXISTS for the same owner and identical imported content, count as already imported; mismatch creates a visible import conflict rather than overwriting. Another owner's UUID collision uses a newly generated destination UUID persisted in the import mapping. Guest records remain unchanged until all selected records are verified and the user chooses cleanup. Do not import the same guest partition automatically into a second account.

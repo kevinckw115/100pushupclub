@@ -36,7 +36,7 @@ export class SyncEngine {
   }
   sync(): Promise<void> {
     if (!this.active() || this.blocked) return Promise.resolve();
-    try { this.repo.adjustClock(new Date(this.clock.now()).toISOString()); }
+    try { this.repo.imports.resume(); this.repo.adjustClock(new Date(this.clock.now()).toISOString()); }
     catch { this.blocked = true; this.report({ state: 'blocked', code: 'LOCAL_STORAGE' }); return Promise.resolve(); }
     this.requested = true;
     if (this.running) return this.running;

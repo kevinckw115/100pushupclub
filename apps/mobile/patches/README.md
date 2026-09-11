@@ -1,5 +1,7 @@
 # Expo SQLite web bridge patch
 
+Revalidated for expo-sqlite57.0.3 during the T12 SDK57 patch alignment. Both upstream defects remain in that patch release and the existing hunks apply unchanged. `scripts/patches.mjs` now verifies the installed package version exactly before applying patches, turning an unreviewed version mismatch into an installation failure.
+
 expo-sqlite 57.0.2 writes its synchronous worker response length by assigning a Uint32Array into a Uint8Array. Typed-array `set` converts each element to one byte, truncating the length above 255. Reading three full check-ins reproduced a JSON parse failure in the real Expo browser adapter.
 
 The patch writes the 32-bit length into a view over the actual response buffer. `patch-package` reapplies it during `npm ci`/`npm install`; a version mismatch must fail rather than silently skip the patch. This changes the browser worker bridge only.

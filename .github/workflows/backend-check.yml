@@ -32,6 +32,12 @@ jobs:
       - name: Real OTP browser flow
         run: node tests/auth-browser.mjs
         working-directory: tools/backend
+      - name: Browser review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: connected-browser-review
+          path: tracking/evidence/t12-import-web.png
+          if-no-files-found: error
       - name: Stop disposable stack
         if: always()
         run: node tools/backend/scripts/cli.mjs stop --no-backup

@@ -182,11 +182,11 @@
         "T09",
         "T10"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T11.md"
       ],
-      "blocker": null,
+      "blocker": "Native lifecycle/network and secure-storage gates require a development build; real backend and native exports passed.",
       "acceptance_ids": [
         "A06",
         "A10",
@@ -204,8 +204,10 @@
         "T09",
         "T11"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T12.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A17"
