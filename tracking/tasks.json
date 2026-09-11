@@ -355,9 +355,11 @@
         "T18",
         "T19"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T20.md"
+      ],
+      "blocker": "A34 requires named iOS/Android devices and a current development build. adb/Java/Maestro are absent. Compact browser keyboard, headings, target sizing and reduced-motion preference checks passed; native screen readers/system text200% remain unverified.",
       "acceptance_ids": [
         "A34"
       ]

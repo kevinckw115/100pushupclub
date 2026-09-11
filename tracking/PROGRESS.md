@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T17 implemented with passing CI. T18 interface d44389f passed mobile/package; connected circle browser is running. T19 deletion/export is in progress on task/t19-deletion-export: recent-auth atomic deletion, status-only recovery capability, bounded privileged cleanup worker and own paginated export, with real Auth/rollback/retry tests. Next: verify backend CI, implement in-app/verified web deletion and export surfaces, finish T18 browser fixes. Native and hosted gates remain open; no production deployment.
+T17/T18 implemented with passing CI; T18 final877e64e includes the full circle browser flow. T19 client9453e69 is awaiting connected CI;54 SQLite tests and real guest export passed. T20 independent compact browser/keyboard/heading review passed, but native A34 is blocked by missing iOS/Android targets/toolchain. Next: T21 resilience/performance on a new branch while finishing T19 CI. Hosted scheduling, support/domain/retention and native device gates remain open.
 
 ## Fixed direction
 

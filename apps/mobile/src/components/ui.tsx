@@ -8,7 +8,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { theme as t, typography } from '../theme/theme';
 
 export function Copy({ variant = 'body', style, ...props }: TextProps & { variant?: keyof typeof t.type }) {
-  return <Text {...props} style={[typography(variant), style]} />;
+  return <Text accessibilityRole={variant === 'title' || variant === 'section' ? 'header' : undefined} {...props} style={[typography(variant), style]} />;
 }
 
 export function AppScreen({ children, footer }: PropsWithChildren<{ footer?: React.ReactNode }>) {
