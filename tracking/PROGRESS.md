@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T16 report/block/moderation is in progress on task/t16-report-block-moderation. Checked safety/staff RPCs, participation constraint/consent form and real JWT/audit tests are implemented; mobile report/block flow and durable retries are next. T14 4cafd66 and T15 b0629ae passed connected backend/browser, mobile/full native exports and package CI; screenshots downloaded and inspected. T15 verifies two-account totals, privacy removal, offline clearing, no scroll jump and polling stopped on tab blur. Native secure storage/lifecycle/accessibility, anonymous gateway rate enforcement, staff/support and hosted setup remain external gates. No hosted backend deployed.
+T16 implemented and all CI passed at9289ac3 (backend34617703132, mobile34617703092, package34617703096). T17 circle backend is in progress on task/t17-circle-backend: checked reads/writes, hashed invites, quota locks and real concurrency/privacy tests. Next: run disposable PostgreSQL CI, fix failures, then T18 circle UI on a new branch. Native and hosted gates remain open; no production deployment.
 
 ## Fixed direction
 

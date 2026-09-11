@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(24);
+select plan(30);
 select is(has_schema_privilege('anon','app_private','USAGE'), false, 'guest has no private schema usage');
 select is(has_schema_privilege('authenticated','app_private','USAGE'), false, 'account has no private schema usage');
 select is(has_table_privilege('authenticated','app_private.checkins','SELECT'), false, 'accounts cannot directly read raw check-ins');
@@ -26,5 +26,11 @@ select is(has_table_privilege('authenticated','app_private.staff_members','INSER
 select is(has_table_privilege('authenticated','app_private.reports','SELECT'), false, 'account cannot read other reports');
 select is(has_function_privilege('authenticated','app_private.require_staff()','EXECUTE'), false, 'private staff authorization helper is not exposed');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app_private' and c.relkind='r' and not c.relrowsecurity), 0, 'all private tables enable RLS');
+select is(has_function_privilege('anon','public.preview_invite(text)','EXECUTE'), false, 'guest cannot enumerate invitations');
+select is(has_function_privilege('authenticated','public.join_circle(jsonb)','EXECUTE'), true, 'account can invoke checked joins');
+select is(has_function_privilege('authenticated','public.read_circle_today(uuid)','EXECUTE'), true, 'account can invoke checked circle reads');
+select is(has_function_privilege('authenticated','app_private.circle_today(uuid,uuid,timestamptz)','EXECUTE'), false, 'account cannot spoof a circle viewer');
+select is(has_function_privilege('authenticated','app_private.invite_code(uuid,uuid,uuid)','EXECUTE'), false, 'account cannot derive invitation secrets');
+select is(has_table_privilege('authenticated','app_private.circle_memberships','INSERT'), false, 'account cannot bypass membership limits');
 select * from finish();
 rollback;

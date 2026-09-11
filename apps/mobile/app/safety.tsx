@@ -11,7 +11,7 @@ export default function Safety() {
   const { partition, refresh } = useLocal(), sync = useSync();
   const [subject, setSubject] = useState<'alias' | 'checkin' | 'circle_name'>(params.circle_id ? 'circle_name' : params.actor_id ? 'alias' : 'checkin');
   const [reason, setReason] = useState<ReportMutation['reason']>('abuse'), [confirm, setConfirm] = useState(false), [error, setError] = useState(false);
-  const actor = typeof params.actor_id === 'string' && /^a_[0-9a-f]{32}$/.test(params.actor_id) ? params.actor_id : null;
+  const actor = typeof params.actor_id === 'string' && /^[am]_[0-9a-f]{32}$/.test(params.actor_id) ? params.actor_id : null;
   const entry = typeof params.entry_id === 'string' && /^e_[0-9a-f]{32}$/.test(params.entry_id) ? params.entry_id : null;
   const circle = typeof params.circle_id === 'string' && /^[0-9a-f-]{36}$/.test(params.circle_id) ? params.circle_id : null;
   const store = sync.repository?.safety, pending = store?.all().some(p => p.request.operation === 'report_subject');

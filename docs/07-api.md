@@ -73,6 +73,12 @@ Aggregate scope threshold uses eligible unique contributors in the past 24 hours
 
 ## Circle DTO
 
+T17 implements authenticated list_circles(), read_circle_today(circle_id), list_circle_invites(circle_id), preview_invite(code), and envelope-based create_circle, join_circle, create_invite, manage_circle. Exact inputs/results are in contracts/domain.ts. Create/join require accept_circle_sharing=true and current participation acceptance. Management actions are leave/delete/remove/transfer/revoke_invite/rename. Owners transfer before leaving or delete the circle. Timezone is immutable. Reads allow30/minute/account; writes share30/minute/account. Preview requires a verified account,10/minute/account and300/minute globally; hosted gateway source limits remain a deployment gate.
+
+List contains at most5 summaries; detail at most20 member rows and includes is_owner/name_change_required. Member IDs are random per membership and rotate on rejoin. Checked management and alias report/block actions resolve these internally without returning Auth IDs or global public actors in circle responses. list_blocks still returns the caller's global opaque blocked-actor IDs for later unblocking.
+
+Invites expire after seven days, with at most5 active links per circle. Preview returns only name/timezone/member_count/relative expiry. Codes have256 bits from a private HMAC key; only SHA256 hashes enter invitation storage. Create-invite receipts omit codes; authorized unchanged-owner replay derives the identical code only while the invitation remains valid. Transfer, moderation-required name changes and deletion revoke links. Clients retain uncertain operation IDs, then fetch current state after acknowledgment; a create/join replay after removal or rejoining returns MEMBERSHIP_CHANGED. Management receipts acknowledge past effects and do not reapply them.
+
 Return circle id/name/timezone/date, total_reps decimal string, checked_in_count, active_member_count, hidden_activity boolean, and member rows `{member_id, username, total_reps, checked_in, is_self}`. No individual check-in times or quantities are needed. member_id is a circle-scoped opaque identifier; management resolves it after authorization. Member list order is case-insensitive alias plus stable ID, not rep count.
 
 ## Abuse budgets (initial configurable defaults)

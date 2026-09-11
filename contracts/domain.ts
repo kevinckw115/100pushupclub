@@ -95,6 +95,7 @@ export interface ClubPage {
 }
 export interface CircleToday {
   id: UUID; name: string; timezone: IANATimezone; local_date: LocalDate;
+  is_owner: boolean; name_change_required: boolean;
   total_reps: DecimalString; checked_in_count: number; active_member_count: number;
   hidden_activity: boolean;
   members: Array<{
@@ -104,6 +105,8 @@ export interface CircleToday {
 }
 export type OutboxStatus = 'pending' | 'sending' | 'acknowledged' | 'conflict' | 'rejected';
 export type SyncErrorCode =
+  | 'CIRCLE_LIMIT' | 'CIRCLE_FULL' | 'INVALID_CIRCLE_NAME' | 'INVITE_UNAVAILABLE' | 'INVITE_LIMIT'
+  | 'CIRCLE_NAME_REQUIRED' | 'OWNER_TRANSFER_REQUIRED' | 'MEMBERSHIP_CHANGED' | 'PARTICIPATION_REQUIRED'
   | 'TERMS_REQUIRED' | 'ALIAS_CHANGE_REQUIRED' | 'STAFF_REQUIRED'
   | 'CONSENT_CONFLICT' | 'INVALID_ALIAS' | 'ALIAS_UNAVAILABLE' | 'INVALID_REGION'
   | 'INVALID_REQUEST' | 'INVALID_TIMESTAMP' | 'SERVER_RETRY'
@@ -133,3 +136,18 @@ export interface ReportMutation { operation_id: UUID; subject_type: 'alias' | 'c
 export interface BlockReceipt { request_id: UUID; operation_id: UUID; actor_id: string; blocked: boolean }
 export interface ReportReceipt { request_id: UUID; operation_id: UUID; report_id: UUID; received: true }
 export interface BlockPage { request_id: UUID; items: Array<{ actor_id: string; alias: string }>; next_actor: string | null }
+
+export interface CircleSummary { id: UUID; name: string; timezone: IANATimezone; is_owner: boolean; member_id: string; member_count: number; name_change_required: boolean }
+export interface CircleList { request_id: UUID; items: CircleSummary[] }
+export interface CircleResponse { request_id: UUID; circle: CircleToday }
+export interface CircleJoined { request_id: UUID; operation_id: UUID; circle: CircleSummary }
+export interface CreateCircle { operation_id: UUID; name: string; timezone: IANATimezone; accept_circle_sharing: true }
+export interface JoinCircle { operation_id: UUID; code: string; accept_circle_sharing: true }
+export interface CreateInvite { operation_id: UUID; circle_id: UUID }
+export interface InviteCreated { request_id: UUID; operation_id: UUID; circle_id: UUID; invite: { id: UUID; code: string; expires_at: ISOInstant } }
+export interface InvitePreview { request_id: UUID; name: string; timezone: IANATimezone; member_count: number; expires_in_seconds: number }
+export interface InviteList { request_id: UUID; items: Array<{ id: UUID; expires_at: ISOInstant }> }
+export type ManageCircle = { operation_id: UUID; circle_id: UUID } & (
+  { action: 'leave' | 'delete' } | { action: 'rename'; name: string } | { action: 'remove' | 'transfer'; member_id: string } | { action: 'revoke_invite'; invite_id: UUID }
+);
+export interface CircleManaged { request_id: UUID; operation_id: UUID; circle_id: UUID; applied: true }

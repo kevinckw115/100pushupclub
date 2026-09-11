@@ -277,11 +277,11 @@
         "T09",
         "T14"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T16.md"
       ],
-      "blocker": null,
+      "blocker": "Native accessibility/lifecycle and hosted staff/support setup remain unverified; connected browser, real backend and mobile CI passed at9289ac3.",
       "acceptance_ids": [
         "A19",
         "A24",
@@ -296,8 +296,10 @@
         "T10",
         "T16"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T17.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A26",

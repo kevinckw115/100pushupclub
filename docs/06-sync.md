@@ -1,5 +1,7 @@
 # Offline sync contract
 
+T17 circle writes use stable operation IDs and semantic receipt hashes. Create/join responses are historical acknowledgments: fetch current list/detail before presenting current role, name or totals. Replaying a prior join after leave/removal/rejoin cannot recreate the old interval and returns MEMBERSHIP_CHANGED. Management receipt replay never reapplies a past removal or transfer. Invite creation can replay the same derived code only while the current owner/invitation remain eligible; raw codes never enter receipts. Every read requires current membership. Until checked realtime authorization is available, foreground polling is the T18 fallback; blur, sign-out, account switch and membership/safety changes clear private group views.
+
 ## Guarantees and limits
 
 Profile changes use a durable stable operation_id and immutable submitted fields until the response is known. Replaying an accepted change returns its original receipt after live account checks; a subsequent get_profile refreshes current state. Consent conflicts require a fresh user choice and new operation. Only a confirmed enabled profile epoch may accompany new native logs; a pending privacy change forces new logs private. UI cannot claim sharing stopped until server acknowledgment.

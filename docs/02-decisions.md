@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-009 / Checked circle intervals, quota locking and invitations
+
+T17 implements contributor and viewer current-interval cutoffs on both event and server creation time, preventing newcomers from reading prejoin history. Random per-membership IDs rotate on rejoin; checked safety resolution maps them internally. Sorted user advisory/profile locks precede circle locks so20-member and5-circle limits remain atomic across concurrent joins. Authenticated invite preview uses10/account/minute plus300/global/minute budgets. SHA256-only invitation storage supports retryable creation through a private HMAC-derived256-bit code, code-free receipts and live owner/revocation checks. Transfer revokes previous owner's links. API/data/sync/types and real JWT, transaction, timezone and rollback tests change together. No hosted deployment. PostgreSQL17 primitives: https://www.postgresql.org/docs/17/explicit-locking.html and https://www.postgresql.org/docs/17/pgcrypto.html.
+
 ### 2026-09-11 / ADR-008 / Participation and checked safety operations
 
 T16 makes documented participation acceptance explicit as versioned profile data and a database constraint. Existing opt-ins are turned off with epoch invalidation until acceptance; personal offline logging remains independent. Block/report operations use visible public subjects, caller-owned durable receipts and bounded budgets. Staff authorization uses a private enabled-account registry, with atomic append-only audits and no client role claims. Required names are hidden/replaced immediately; suspension/restoration never republishes old public history. API/data/sync/TypeScript contracts and real JWT/rollback tests change together. No hosted staff account or production deployment is provisioned by this implementation.

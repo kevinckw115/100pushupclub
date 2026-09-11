@@ -1,5 +1,9 @@
 # Data model and invariants
 
+T17 adds independently random membership member_id, rotated on rejoin, and validates interval ordering. Circle identity/creation time/fixed IANA timezone are immutable. Active-membership and native check-in window indexes support bounded reads. Eligibility requires both occurred_at and server created_at at or after the later of contributor and viewer current joined_at; newcomers receive no pre-interval history. Local midnight boundaries use PostgreSQL timezone rules including DST. Import, tombstone, moderation, account/deletion and bilateral block exclusions apply to rows and totals; the denominator remains actual active membership.
+
+Circle writes lock sorted user advisory keys and profiles before circle/membership rows, serializing cross-circle quota checks and final-slot joins. Private invitation storage contains SHA256 hashes only. A private generated HMAC key derives retry-stable256-bit codes; operation receipts store hash-based request semantics and code-free results. A bounded private global preview budget complements per-account budgets. New helpers/tables deny public/anon/authenticated direct access; only checked RPCs are granted.
+
 This is a normative schema specification, not deployable SQL. Codex must implement versioned migrations and prove behavior against real local PostgreSQL before deploying. Do not copy an incomplete example into production.
 
 ## Server tables

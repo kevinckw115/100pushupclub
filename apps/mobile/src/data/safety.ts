@@ -9,13 +9,13 @@ export function safetyRequest(operation: SafetyOperation, value: unknown): Safet
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error('Invalid safety request.');
   const operation_id = uuid(v.operation_id);
   if (operation === 'block_user' || operation === 'unblock_user') {
-    if (!/^a_[0-9a-f]{32}$/.test(v.actor_id) || Object.keys(v).some(key => !['operation_id', 'actor_id'].includes(key))) throw new Error('Choose an account from current activity.');
+    if (!/^[am]_[0-9a-f]{32}$/.test(v.actor_id) || Object.keys(v).some(key => !['operation_id', 'actor_id'].includes(key))) throw new Error('Choose an account from current activity.');
     return { operation, envelope: { operation_id, actor_id: v.actor_id } };
   }
   if (operation !== 'report_subject' || !['alias', 'circle_name', 'checkin'].includes(v.subject_type) || !['abuse', 'impersonation', 'inappropriate_name', 'other'].includes(v.reason)
     || Object.keys(v).some(key => !['operation_id', 'subject_type', 'subject_id', 'reason'].includes(key))) throw new Error('Choose a subject and report reason.');
   if (v.subject_type === 'circle_name') uuid(v.subject_id);
-  else if (!(v.subject_type === 'alias' ? /^a_[0-9a-f]{32}$/ : /^e_[0-9a-f]{32}$/).test(v.subject_id)) throw new Error('Choose a subject from current activity.');
+  else if (!(v.subject_type === 'alias' ? /^[am]_[0-9a-f]{32}$/ : /^e_[0-9a-f]{32}$/).test(v.subject_id)) throw new Error('Choose a subject from current activity.');
   return { operation, envelope: { operation_id, subject_type: v.subject_type, subject_id: v.subject_id, reason: v.reason } };
 }
 export function safetyReceipt(value: unknown, request: SafetyRequest): SafetyReceipt {
