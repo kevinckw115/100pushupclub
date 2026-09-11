@@ -315,11 +315,11 @@
         "T09",
         "T17"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T18.md"
       ],
-      "blocker": null,
+      "blocker": "All connected/backend/mobile CI passed877e64e. Native share, accessibility and device lifecycle checks remain unverified.",
       "acceptance_ids": [
         "A28",
         "A29"
