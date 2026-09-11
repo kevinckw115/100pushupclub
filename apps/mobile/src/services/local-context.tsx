@@ -9,6 +9,7 @@ import type { Partition } from '../data/local/repository';
 import { localDate } from '../domain/checkin';
 import { watchDay } from '../domain/calendar';
 import { refreshReminders } from './reminders';
+import { clearInterruptedExports } from './export-file';
 import { AppScreen, Header, Notice } from '../components/ui';
 
 export const deviceTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -28,6 +29,7 @@ export function LocalProvider({ children }: PropsWithChildren) {
     let active = true;
     const timer = setTimeout(async () => {
       try {
+        clearInterruptedExports();
         database = await openLocalDatabase();
         if (!active) { database.close(); return; }
         migrate(database);

@@ -57,6 +57,15 @@ jobs:
           name: circle-browser-review
           path: tracking/evidence/t18-circle-web.png
           if-no-files-found: error
+      - name: Real export and deletion browser flow
+        run: node tests/privacy-browser.mjs
+        working-directory: tools/backend
+      - name: Privacy browser evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-browser-review
+          path: tracking/evidence/t19-deletion-web.png
+          if-no-files-found: error
       - name: Stop disposable stack
         if: always()
         run: node tools/backend/scripts/cli.mjs stop --no-backup

@@ -1,0 +1,14 @@
+import { useRouter } from 'expo-router';
+import { AppScreen, Header, Copy, Button, Notice, Section } from '../src/components/ui';
+import { PARTICIPATION_TERMS_VERSION } from '../src/data/local/profile';
+export default function Policies() {
+  const router = useRouter();
+  return <AppScreen><Header /><Copy variant="title">Privacy and participation</Copy>
+    <Section title="Your personal log"><Copy>Guest check-ins stay on this device. Signing in enables a separate account copy and synchronization. Importing guest history requires your choice and keeps those records private. Account access uses your verified email; community screens show aliases.</Copy></Section>
+    <Section title="Sharing is your choice"><Copy>Public Club sharing starts off. When enabled, eligible future check-ins can show your alias, quantity and a coarse relative time. Manually chosen regions are broad; the app does not request GPS. Turning sharing off removes your current public contributions. Circle membership separately shares new activity within its fixed daily timezone; pre-join and imported history stay private.</Copy></Section>
+    <Section title="A respectful community"><Copy>Use an appropriate alias and circle name. Do not impersonate, harass or abuse others. Log your own activity honestly. Report inappropriate names or behavior using the menu beside a member. Blocking hides activity between accounts. Moderation can hide entries, require name changes or suspend account participation.</Copy><Copy variant="caption">Participation version: {PARTICIPATION_TERMS_VERSION}</Copy></Section>
+    <Section title="Export and deletion"><Copy>You can export your own local or saved cloud data. Account deletion requires recent email verification and confirmation. It immediately disables access, then removes primary account data through retryable cleanup with a seven-day operational target. Separate guest records stay on this device. Minimal moderation audit records and provider backups can have separate retention periods.</Copy><Notice>This development build has no published backup-retention schedule or final support policy yet. These must be configured and disclosed before public release.</Notice></Section>
+    <Section title="Data kept out of community views"><Copy>Private check-in records, account emails, exact event times, recorded personal dates and timezones, session tokens and backend secrets are not included in public or circle activity responses. There are no contact uploads, posts, chat or photo sharing.</Copy></Section>
+    <Button secondary label="Export your data" onPress={() => router.push('/export')} /><Button secondary label="Delete account" onPress={() => router.push('/delete-account')} /><Button secondary label="Support" onPress={() => router.push('/support')} /><Button secondary label="Back" onPress={() => router.canGoBack() ? router.back() : router.replace('/settings')} />
+  </AppScreen>;
+}

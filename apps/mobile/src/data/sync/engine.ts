@@ -20,7 +20,7 @@ export class SyncEngine {
     this.clock = options.clock ?? defaultClock; this.changed = options.changed ?? (() => {}); this.report = options.report ?? (() => {});
   }
   private current() { return this.alive && this.valid(); }
-  private active() { return this.current() && this.online && this.foreground; }
+  private active() { return this.current() && this.online && this.foreground && !this.repo.local.deletionPending(this.repo.partitionId); }
   stop() { this.alive = false; this.controller.abort(); if (this.timer !== undefined) this.clock.cancel(this.timer); }
   setOnline(online: boolean) { this.online = online; if (!online) { this.controller.abort(); this.report({ state: 'offline' }); } else void this.sync(); }
   setForeground(foreground: boolean) { this.foreground = foreground; if (!foreground) this.controller.abort(); else void this.sync(); }

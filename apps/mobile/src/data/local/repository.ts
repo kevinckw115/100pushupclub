@@ -48,6 +48,8 @@ export class LocalRepository {
     return this.db.all<{ count: number }>("SELECT COUNT(DISTINCT entity_id) AS count FROM outbox WHERE partition_id=? AND status<>'acknowledged'", userId)[0].count;
   }
   pendingAccountChanges(userId: string): boolean { return this.unsynced(userId) > 0 || !!this.preference(userId, 'pending_profile') || !!this.preference(userId, 'pending_safety') || !!this.preference(userId, 'pending_circle'); }
+  deletionPending(userId: string): boolean { const raw = this.preference('device', 'account_deletion'); if (!raw) return false; const value = JSON.parse(raw); return value.accountId === userId; }
+  private writable(userId: string) { if (this.deletionPending(userId)) throw new Error('Resolve your account deletion request before changing this account.'); }
 
   signOutAccount(userId: string, now: string, discard: boolean) {
     return this.db.transaction(() => {
@@ -74,6 +76,7 @@ export class LocalRepository {
   }
 
   create(partitionId: string, input: { id: string; mutationId: string; quantity: unknown; occurredAt: string; timezone: string; publicEpoch?: string | null }): LocalCheckin {
+    this.writable(partitionId);
     const id = uuid(input.id), mutationId = uuid(input.mutationId), count = quantity(input.quantity);
     const occurredAt = instant(input.occurredAt), date = localDate(occurredAt, input.timezone);
     if (input.publicEpoch != null && !/^\d+$/.test(input.publicEpoch)) throw new Error('Invalid consent epoch.');
@@ -102,6 +105,7 @@ export class LocalRepository {
   }
 
   private change(partitionId: string, id: string, count: number | null): LocalCheckin {
+    this.writable(partitionId);
     return this.db.transaction(() => {
       const partition = this.partition(partitionId);
       const record = this.get(partitionId, id);

@@ -77,6 +77,8 @@ export default function Settings() {
       {reminderStatus === 'failed' && <Notice error>Reminders could not be scheduled. Save the setting again to retry.</Notice>}
     </Section>
     {message && <Notice>{message}</Notice>}
+    <Section title="Your data"><Button secondary label="Export your data" onPress={() => router.push('/export')} /><Button secondary label={repo.preference('device', 'account_deletion') ? 'Review deletion request' : 'Delete account'} onPress={() => router.push('/delete-account')} /></Section>
+    <Section title="Help and policies"><Button secondary label="Privacy and participation" onPress={() => router.push('/policies')} /><Button secondary label="Support" onPress={() => router.push('/support')} /></Section>
     <Button secondary label="Back" onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)/today')} />
   </AppScreen>;
 }

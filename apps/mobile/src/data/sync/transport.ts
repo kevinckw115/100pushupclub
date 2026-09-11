@@ -5,6 +5,7 @@ import { blockPage, safetyReceipt } from '../safety.ts';
 import type { SafetyRequest, SafetyReceipt, BlockPage } from '../safety.ts';
 import { circleList, circleResponse, circleReceipt, inviteList, invitePreview } from '../circles.ts';
 import type { CircleRequest, CircleReceipt } from '../circles.ts';
+import { exportPage } from '../account-privacy.ts';
 
 export interface SyncTransport {
   mutate(input: CheckinMutation, signal: AbortSignal): Promise<MutationAccepted>;
@@ -65,6 +66,7 @@ export class HttpSyncTransport implements SyncTransport {
     try { return accepted(data, input.checkin_id); } catch { throw new SyncFailure('PROTOCOL'); }
   }
   async circle(input: CircleRequest, signal: AbortSignal): Promise<CircleReceipt> { return circleReceipt(await this.post(input.operation, { envelope: input.envelope }, signal), input); }
+  async exportAccount(after: string | null, revision: string | null, signal: AbortSignal) { return exportPage(await this.post('export_account', { after_id: after, expected_revision: revision, limit: 500 }, signal), after, revision); }
   async circles(signal: AbortSignal) { return circleList(await this.post('list_circles', {}, signal)); }
   async circleToday(id: string, signal: AbortSignal) { return circleResponse(await this.post('read_circle_today', { circle_id: id }, signal), id); }
   async circleInvites(id: string, signal: AbortSignal) { return inviteList(await this.post('list_circle_invites', { circle_id: id }, signal)); }

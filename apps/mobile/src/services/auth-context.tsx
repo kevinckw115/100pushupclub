@@ -12,7 +12,7 @@ import { SyncFailure } from '../data/sync/protocol';
 import * as Network from 'expo-network';
 
 type Status = 'guest' | 'ready' | 'recovery' | 'offline';
-type AuthState = { status: Status; connected: boolean; connection: AccountLease | null; web: boolean; message: string | null; send: (email: string) => Promise<void>; verify: (email: string, code: string) => Promise<boolean>; cancel: () => Promise<void>; recover: () => Promise<boolean>; signOut: (discard: boolean) => Promise<void> };
+type AuthState = { status: Status; connected: boolean; connection: AccountLease | null; web: boolean; message: string | null; send: (email: string, deletion?: boolean) => Promise<void>; verify: (email: string, code: string) => Promise<boolean>; cancel: () => Promise<void>; recover: () => Promise<boolean>; signOut: (discard: boolean) => Promise<void>; verifyDeletion: (email: string, code: string) => Promise<{ userId: string; token: string }>; finishDeletion: (userId: string) => Promise<void> };
 const Context = createContext<AuthState | null>(null);
 const safeError = (error: { code?: string; status?: number } | null) => error?.status === 429 ? 'Too many attempts. Wait a minute and try again.' : error?.code === 'otp_expired' ? 'That code is incorrect or expired. Request another code.' : 'Could not sign in. Check your connection and try again.';
 
@@ -142,11 +142,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => { live = false; generation.next(); subscription?.unsubscribe(); runtime.current?.dispose(); runtime.current = null; appState.remove(); network.remove(); clearInterval(retry); };
   }, [repo, restart, generation, accept, refresh, recover, setConnection]);
 
-  const send = async (email: string) => {
+  const send = async (email: string, deletion = false) => {
     const current = runtime.current;
     if (!current) throw new Error('Account sign-in is not connected yet.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw new Error('Enter a valid email address.');
-    const { error } = await current.client.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    const { error } = await current.client.auth.signInWithOtp({ email, options: { shouldCreateUser: !deletion } });
     if (error) throw new Error(safeError(error));
   };
   const verify = async (email: string, token: string) => {
@@ -169,6 +169,31 @@ export function AuthProvider({ children }: PropsWithChildren) {
     // Cancelling guest sign-in must invalidate any late verification persistence.
     if (repo?.activePartition()?.kind !== 'account') await sessionStore.clear();
     setReady(false); setMessage(null); setRestart(value => value + 1);
+  };
+  const verifyDeletion = async (email: string, code: string) => {
+    const current = runtime.current;
+    if (!current || !repo) throw new Error('Connect before verifying account ownership.');
+    const ticket = generation.next(); authWork.current = ticket; automaticRecovery.current = false; setConnection(null);
+    try {
+      const { data, error } = await current.client.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
+      if (error || !data.session || !generation.current(ticket)) throw new Error(safeError(error));
+      const verified = await current.client.auth.getUser();
+      if (verified.error || !verified.data.user?.email_confirmed_at || verified.data.user.is_anonymous || !generation.current(ticket)) throw new Error('Account ownership could not be verified.');
+      const active = repo.activePartition();
+      if (active?.kind === 'account' && active.id !== verified.data.user.id) throw new Error('Use the email for the account currently signed in.');
+      lastSession.current = data.session;
+      return { userId: verified.data.user.id, token: data.session.access_token };
+    } finally { if (authWork.current === ticket) authWork.current = 0; }
+  };
+  const finishDeletion = async (userId: string) => {
+    if (!repo) return;
+    const active = repo.activePartition();
+    if (active?.kind === 'account' && active.id !== userId) return;
+    repo.setPreference('device', 'pending_logout', JSON.stringify({ id: userId, discard: true }));
+    generation.next(); automaticRecovery.current = false; setConnection(null); runtime.current?.dispose(); runtime.current = null; lastSession.current = null;
+    await sessionStore.clear();
+    if (active?.id === userId) repo.signOutAccount(userId, new Date().toISOString(), true);
+    repo.setPreference('device', 'pending_logout', ''); refresh(); setStatus('guest'); setMessage(null); setReady(false); setRestart(value => value + 1);
   };
   const signOut = async (discard: boolean) => {
     if (!repo) return;
@@ -198,7 +223,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void sessionStore.clear().then(() => { setFatal(false); setReady(false); setRestart(value => value + 1); }).catch(() => setMessage('Secure storage is still unavailable. Please restart the app.'));
   }} /></AppScreen>;
   if (!ready) return <LoadingStorage />;
-  return <Context.Provider value={{ status, message, connected: authEnvironment.connected, connection, web: Platform.OS === 'web', send, verify, cancel, recover, signOut }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ status, message, connected: authEnvironment.connected, connection, web: Platform.OS === 'web', send, verify, cancel, recover, signOut, verifyDeletion, finishDeletion }}>{children}</Context.Provider>;
 }
 
 export function useAuth() { const value = useContext(Context); if (!value) throw new Error('Auth provider is missing.'); return value; }
