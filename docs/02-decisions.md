@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-006 / Versioned public region directory
+
+T13 implements D21 using the checked September11 GeoNames snapshot and its CC BY4.0 attribution. Countries/first-level regions are included; only US counties/equivalents are promoted to broad localities. Stable geoname-backed IDs retain source codes independently of ISO assumptions. The private directory adds source_code, active status, normalized search indexes and a version manifest. Public list_regions and resolve_region RPCs expose labels and hierarchy only, with50-row limits, scope/version-bound opaque cursors and active-ancestor fallback. Manual browsing choice persists locally per partition; account region/privacy mutation remains the T14 consent contract. No GPS, geocoding calls or source coordinates enter profiles. Generated data is an initial migration; future data releases require separate reviewed migrations.
+
 ### 2026-09-11 / ADR-005 / Explicit durable guest import
 
 T12 snapshots at most50 selected guest records per consent transaction. Migration4 extends the existing deduplication ledger with immutable source content, collision/retry state and cleanup markers. Source and mutation IDs persist across restart. Another-owner create collision remaps a new destination/mutation atomically; same-owner identical imported content is acknowledged, while mismatches require an explicit choice. Signout pauses incomplete imports and clears account response snapshots; explicit resume uses the original request to resolve uncertain acceptance. Import copies cannot be edited until acceptance, preserving the consent snapshot. Cleanup removes only unchanged guest copies with a currently confirmed matching account snapshot, after pending/conflicting imports are resolved. No server API changes; imports use checked CREATE with source=import and null public epoch, retaining original dates and exclusion from circle history.

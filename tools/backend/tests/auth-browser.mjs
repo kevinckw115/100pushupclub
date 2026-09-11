@@ -26,6 +26,20 @@ try {
   // Default 10; this record must still exist in the guest partition after logout.
   await page.getByRole('button', { name: 'Add pushups', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Choose browsing region', exact: true }).click();
+  await page.getByLabel('Search regions', { exact: true }).fill('Orange County');
+  const county = page.getByRole('heading', { name: 'Orange County \u00b7 California \u00b7 United States', exact: true });
+  await county.locator('..').getByRole('button', { name: 'Use Orange County', exact: true }).click();
+  await expect(page.getByText('Current choice: Orange County \u00b7 California \u00b7 United States', { exact: true })).toBeVisible();
+  await page.context().setOffline(true);
+  await page.getByRole('button', { name: 'Refresh directory', exact: true }).click();
+  await expect(page.getByText('Showing a saved directory page. Connect to refresh it.', { exact: true })).toBeVisible();
+  await page.context().setOffline(false);
+  await page.getByLabel('Search regions', { exact: true }).fill('zzzz-no-such-region');
+  await expect(page.getByText('No matching regions. Try a broader name.', { exact: true })).toBeVisible();
+  await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));
+  await page.screenshot({ path: '../../tracking/evidence/t13-region-web.png' });
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('button', { name: 'Sign in or recover account', exact: true }).click();
   const email = `browser-${randomUUID()}@example.invalid`;
   const created = await request(config, '/auth/v1/admin/users', { admin: true, body: { email, email_confirm: true } });
@@ -57,6 +71,8 @@ try {
   await page.getByRole('button', { name: 'Review 1 selected check-ins', exact: true }).click();
   await page.getByRole('button', { name: 'Confirm private import', exact: true }).click();
   await expect(page.getByText('1 confirmed \u00b7 0 waiting \u00b7 0 need a choice', { exact: true }).filter({ visible: true })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));
   await page.screenshot({ path: '../../tracking/evidence/t12-import-web.png', fullPage: true });
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();

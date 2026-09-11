@@ -2,6 +2,8 @@
 
 ## Guarantees and limits
 
+The public geographic directory is independently versioned and does not advance private check-in cursors. Its page cursor binds normalized search, parent and snapshot version; stale/mismatched cursors fail. Cached directory pages can be shown offline with an explicit saved-page notice. Local browsing selection changes no public consent epoch; account region/sharing changes still use the T14 checked profile operation.
+
 Guarantee at-most-one accepted effect per (account, mutation_id), even if a network response is lost. Guarantee local save and queue insertion commit together. A new intentional tap after the first completes is a new check-in; idempotency does not collapse legitimate identical sets. Prevent double taps while the same local save is in progress.
 
 Cross-device conflicting quantity edits are explicit, not last-write-wins. V1 sync occurs on foreground, reconnect, after local mutation, and manual retry; background execution is opportunistic and never a correctness dependency.

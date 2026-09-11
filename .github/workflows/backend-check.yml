@@ -36,7 +36,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: connected-browser-review
-          path: tracking/evidence/t12-import-web.png
+          path: |
+            tracking/evidence/t12-import-web.png
+            tracking/evidence/t13-region-web.png
           if-no-files-found: error
       - name: Stop disposable stack
         if: always()

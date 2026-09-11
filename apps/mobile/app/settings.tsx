@@ -56,6 +56,7 @@ export default function Settings() {
       </>}
       {auth.message && <Notice>{auth.message}</Notice>}
     </Section>
+    <Section title="Region"><Button secondary label="Choose browsing region" onPress={() => router.push('/region')} /><Button secondary label="About the directory" onPress={() => router.push('/about')} /></Section>
     <Section title="After a save"><Button secondary label={`Haptics: ${haptics ? 'on' : 'off'}`} onPress={() => {
       try { repo.setPreference('device', 'haptics', haptics ? 'off' : 'on'); refresh(); setMessage('Haptic preference saved.'); }
       catch { setMessage('Could not save the haptic preference.'); }

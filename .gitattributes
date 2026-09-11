@@ -1,0 +1,2 @@
+# Preserve downloaded source bytes for the checked SHA-256 manifest on Windows.
+data/regions/*/*.txt -text

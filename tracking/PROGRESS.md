@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T12 guest import is in progress on task/t12-guest-import: explicit consent, durable jobs, collision handling and optional cleanup; six import SQLite tests pass. T11 real backend/connected offline browser passed atfc28df4; native export passed at05940d6. Expo's overnight SDK patch recommendations caused the follow-up doctor gate to fail; compatibility installer is aligning the SDK57 patch set in the existing lockfile. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T12 real backend/browser evidence, then T13 region directory on a new branch.
+T13 region directory is in progress on task/t13-region-directory: checked GeoNames snapshot, generated hierarchy/ancestors, bounded public search/resolve RPCs, manual cached picker and attribution. T12 verified at4292735 with real import/collision/restart/browser tests and full native/web exports; SDK57 compatibility alignment passed. T11 sync tests also reran successfully. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T13 backend/browser evidence, then T14 consent/public queries on a new branch.
 
 ## Fixed direction
 

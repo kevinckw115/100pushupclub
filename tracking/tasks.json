@@ -204,7 +204,7 @@
         "T09",
         "T11"
       ],
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "tracking/evidence/T12.md"
       ],
@@ -220,8 +220,10 @@
       "depends_on": [
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T13.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A21"

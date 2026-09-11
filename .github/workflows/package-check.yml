@@ -15,4 +15,5 @@ jobs:
           python-version: '3.12'
       - run: npm test
       - run: npm run check:contracts
+      - run: node --test tools/regions/regions.test.mjs
       - run: python3 scripts/validate_package.py

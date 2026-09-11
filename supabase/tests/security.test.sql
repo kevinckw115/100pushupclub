@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(11);
+select plan(15);
 select is(has_schema_privilege('anon','app_private','USAGE'), false, 'guest has no private schema usage');
 select is(has_schema_privilege('authenticated','app_private','USAGE'), false, 'account has no private schema usage');
 select is(has_table_privilege('authenticated','app_private.checkins','SELECT'), false, 'accounts cannot directly read raw check-ins');
@@ -12,6 +12,10 @@ select is(has_function_privilege('anon','public.mutate_checkin(jsonb)','EXECUTE'
 select is(has_function_privilege('authenticated','public.mutate_checkin(jsonb)','EXECUTE'), true, 'account can invoke checked mutations');
 select is(has_function_privilege('anon','public.pull_changes(text,integer)','EXECUTE'), false, 'guest cannot pull private history');
 select is(has_function_privilege('authenticated','public.pull_changes(text,integer)','EXECUTE'), true, 'account can invoke checked pull');
+select is(has_function_privilege('anon','public.list_regions(text,text,text,integer)','EXECUTE'), true, 'guest can browse public directory');
+select is(has_function_privilege('authenticated','public.resolve_region(text)','EXECUTE'), true, 'account can resolve broad regions');
+select is(has_table_privilege('anon','app_private.regions','SELECT'), false, 'guest cannot directly read private schema tables');
+select is(has_table_privilege('authenticated','app_private.directory_versions','INSERT'), false, 'account cannot replace the directory');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app_private' and c.relkind='r' and not c.relrowsecurity), 0, 'all private tables enable RLS');
 select * from finish();
 rollback;

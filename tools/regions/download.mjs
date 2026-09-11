@@ -1,0 +1,21 @@
+import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
+const date = process.argv[2];
+if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) throw new Error('Supply snapshot date YYYY-MM-DD.');
+const directory = resolve('data/regions', date);
+if (existsSync(directory)) throw new Error('Snapshot exists; review a new version instead of overwriting.');
+const files = ['countryInfo.txt', 'admin1CodesASCII.txt', 'admin2Codes.txt', 'readme.txt'];
+const results = await Promise.all(files.map(async name => {
+  const url = 'https://download.geonames.org/export/dump/' + name;
+  const response = await fetch(url, { signal: AbortSignal.timeout(60000) });
+  if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length > 20000000 || buffer.length < 100) throw new Error('Unexpected source size.');
+  return { name, url, buffer, sha256: createHash('sha256').update(buffer).digest('hex'), bytes: buffer.length };
+}));
+mkdirSync(directory, { recursive: true });
+for (const { name, buffer } of results) writeFileSync(resolve(directory, name), buffer);
+const manifest = { version: 'geonames-' + date, downloaded_at: new Date().toISOString(), license: 'CC-BY-4.0', license_url: 'https://creativecommons.org/licenses/by/4.0/', attribution: 'Geographical data from GeoNames, modified for the 100pushupclub broad-region directory.', source: 'https://www.geonames.org/', coverage: { countries: 'current source country directory', admin1: 'source first-level areas', locality: 'US counties and county equivalents only; elsewhere use admin1 or country' }, files: results.map(({ buffer, ...metadata }) => metadata) };
+writeFileSync(resolve(directory, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+console.log(JSON.stringify({ version: manifest.version, files: manifest.files.map(({ name, bytes }) => ({ name, bytes })) }));

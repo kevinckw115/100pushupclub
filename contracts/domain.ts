@@ -108,3 +108,10 @@ export interface SyncErrorResponse {
 }
 export interface MutationRPCInput { envelope: CheckinMutation }
 export interface PullRPCInput { after_revision: DecimalString; limit?: number }
+
+export interface Region {
+  id: string; parent_id: string | null; kind: 'world' | 'country' | 'admin1' | 'locality';
+  name: string; label: string; has_children: boolean;
+}
+export interface RegionPage { request_id: UUID; version: string; items: Region[]; next_cursor: string | null }
+export interface ResolvedRegion { request_id: UUID; version: string; region: Region; ancestors: Region[]; fallback_reason: 'MISSING_REGION' | null }

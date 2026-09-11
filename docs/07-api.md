@@ -20,6 +20,7 @@ Names below are normative operations. Implement authenticated PostgreSQL RPCs or
 | update_profile | optional alias/region/public_enabled, expected consent_epoch for privacy changes | profile; stale epoch returns conflict; toggles/region changes increment epoch |
 | read_club | scope_id, page cursor optional, limit default25 max50 | sanitized feed + counts and window metadata; safe guest access |
 | list_regions | parent or normalized search term, cursor | curated public labels/IDs; max50 |
+| resolve_region | region_id | selected region and ordered ancestor labels; inactive/missing region falls back to an active broader region or World |
 | list_circles | none | own active circle summaries only |
 | create_circle | name, IANA timezone, operation_id UUID | group + owner membership; idempotent and quota checked |
 | create_invite | circle_id, operation_id | one-time-returned opaque code/link; owner only; 7-day expiry |
@@ -33,6 +34,8 @@ Names below are normative operations. Implement authenticated PostgreSQL RPCs or
 | export_account | own verified session | paginated own records/preferences, never circle peers' data |
 
 All mutating operations beyond check-ins also require idempotency records appropriate to their operation. Their database writes, quotas and receipt must commit atomically. Rate limits still apply to replays to prevent endpoint flooding.
+
+Directory RPCs permit anon/authenticated execution because they return only geographic labels. `list_regions(parent_id='world',search=null,cursor=null,limit=50)` trims/case-folds/unaccents search, requires2-80 characters when nonempty and uses literal substring matching. Pass parent_id=null for directory-wide search. Cursors bind the parent, search and source version. `resolve_region(region_id)` returns an active selected region and ordered ancestors, or MISSING_REGION with the closest active broader ancestor/World. Inputs and execution time are bounded; malformed requests/cursors return common API errors. No profile/coordinate/activity data appears in either response.
 
 Profile RPC envelopes use `ProfileResponse` and `BootstrapProfileResult` in contracts/domain.ts. Bootstrap returns its original receipt for the same operation ID, after rechecking the live account. Its revision is informational; it must not advance the client pull cursor. `get_profile` returns current own configuration with a request ID and no authentication email. Generic operation receipts are stored separately from check-in mutation receipts.
 
