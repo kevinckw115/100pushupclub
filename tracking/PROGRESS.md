@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T17 implemented and all CI passed3270912 (backend34619516412, mobile34619516398, package34619516397). T18 circle interface is in progress on task/t18-circle-interface: routes, durable operations, invitations, lifecycle clearing and50 passing integration checks. Next: connected browser circle flow and fixes, then T19 deletion/export/support on a new branch. Native device and hosted setup gates remain open; no production deployment.
+T17 implemented with passing CI. T18 interface d44389f passed mobile/package; connected circle browser is running. T19 deletion/export is in progress on task/t19-deletion-export: recent-auth atomic deletion, status-only recovery capability, bounded privileged cleanup worker and own paginated export, with real Auth/rollback/retry tests. Next: verify backend CI, implement in-app/verified web deletion and export surfaces, finish T18 browser fixes. Native and hosted gates remain open; no production deployment.
 
 ## Fixed direction
 

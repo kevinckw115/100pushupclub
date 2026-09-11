@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(30);
+select plan(34);
 select is(has_schema_privilege('anon','app_private','USAGE'), false, 'guest has no private schema usage');
 select is(has_schema_privilege('authenticated','app_private','USAGE'), false, 'account has no private schema usage');
 select is(has_table_privilege('authenticated','app_private.checkins','SELECT'), false, 'accounts cannot directly read raw check-ins');
@@ -32,5 +32,9 @@ select is(has_function_privilege('authenticated','public.read_circle_today(uuid)
 select is(has_function_privilege('authenticated','app_private.circle_today(uuid,uuid,timestamptz)','EXECUTE'), false, 'account cannot spoof a circle viewer');
 select is(has_function_privilege('authenticated','app_private.invite_code(uuid,uuid,uuid)','EXECUTE'), false, 'account cannot derive invitation secrets');
 select is(has_table_privilege('authenticated','app_private.circle_memberships','INSERT'), false, 'account cannot bypass membership limits');
+select is(has_function_privilege('anon','public.request_account_deletion(jsonb)','EXECUTE'), false, 'deletion initiation requires a verified account');
+select is(has_function_privilege('anon','public.account_deletion_status(text)','EXECUTE'), true, 'status proof remains usable after Auth removal');
+select is(has_function_privilege('authenticated','app_private.advance_deletion(uuid)','EXECUTE'), false, 'clients cannot run privileged cleanup');
+select is(has_function_privilege('anon','public.export_account(uuid,text,integer)','EXECUTE'), false, 'guests cannot export accounts');
 select * from finish();
 rollback;

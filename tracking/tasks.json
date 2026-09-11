@@ -334,8 +334,10 @@
         "T16",
         "T18"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T19.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A31",

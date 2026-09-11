@@ -1,5 +1,7 @@
 # Offline sync contract
 
+T19 deletion is online and requires recent authentication plus deliberate confirmation. Persist operation ID and random status capability before sending. After uncertain delivery, check status with that capability instead of creating a new account or new deletion intent. Ordinary sync stops once deletion is pending; after acknowledgment, clear account data/session/caches and notifications while preserving the separate guest partition. A persisted local cleanup marker must survive interruption. Completed status means primary account/Auth cleanup finished, not instant removal from provider backups. Exports are separate own/guest snapshots; server pagination restarts explicitly on EXPORT_CHANGED and never merges peers into an export.
+
 T17 circle writes use stable operation IDs and semantic receipt hashes. Create/join responses are historical acknowledgments: fetch current list/detail before presenting current role, name or totals. Replaying a prior join after leave/removal/rejoin cannot recreate the old interval and returns MEMBERSHIP_CHANGED. Management receipt replay never reapplies a past removal or transfer. Invite creation can replay the same derived code only while the current owner/invitation remain eligible; raw codes never enter receipts. Every read requires current membership. Until checked realtime authorization is available, foreground polling is the T18 fallback; blur, sign-out, account switch and membership/safety changes clear private group views.
 
 ## Guarantees and limits

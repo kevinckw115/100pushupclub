@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-010 / Deletion recovery after Auth removal and bounded exports
+
+T19 adds recent signed-AMR/session verification, atomic deletion marking/session revocation and a server-only phased cleanup worker. Automatic circle ownership follows the existing earliest-member rule. The client supplies a random status capability before submission; its hash is retained independently of deleted Auth data. This permits anonymous proof-based status-only recovery after a lost response or token expiration without recreating an account. Status exposes no identity/content. Own export uses bounded UUID pages and a stable check-in revision check; concurrent changes require explicit restart. API/data/sync/types and real Auth/rollback/worker tests change together. Hosted scheduling, gateway limits, support and actual retention disclosures remain setup gates. Official semantics: https://supabase.com/docs/guides/auth/jwt-fields , https://supabase.com/docs/guides/auth/sessions , https://supabase.com/docs/reference/javascript/auth-admin-deleteuser .
+
 ### 2026-09-11 / ADR-009 / Checked circle intervals, quota locking and invitations
 
 T17 implements contributor and viewer current-interval cutoffs on both event and server creation time, preventing newcomers from reading prejoin history. Random per-membership IDs rotate on rejoin; checked safety resolution maps them internally. Sorted user advisory/profile locks precede circle locks so20-member and5-circle limits remain atomic across concurrent joins. Authenticated invite preview uses10/account/minute plus300/global/minute budgets. SHA256-only invitation storage supports retryable creation through a private HMAC-derived256-bit code, code-free receipts and live owner/revocation checks. Transfer revokes previous owner's links. API/data/sync/types and real JWT, transaction, timezone and rollback tests change together. No hosted deployment. PostgreSQL17 primitives: https://www.postgresql.org/docs/17/explicit-locking.html and https://www.postgresql.org/docs/17/pgcrypto.html.

@@ -105,6 +105,7 @@ export interface CircleToday {
 }
 export type OutboxStatus = 'pending' | 'sending' | 'acknowledged' | 'conflict' | 'rejected';
 export type SyncErrorCode =
+  | 'REAUTH_REQUIRED' | 'DELETION_ALREADY_REQUESTED' | 'EXPORT_CHANGED'
   | 'CIRCLE_LIMIT' | 'CIRCLE_FULL' | 'INVALID_CIRCLE_NAME' | 'INVITE_UNAVAILABLE' | 'INVITE_LIMIT'
   | 'CIRCLE_NAME_REQUIRED' | 'OWNER_TRANSFER_REQUIRED' | 'MEMBERSHIP_CHANGED' | 'PARTICIPATION_REQUIRED'
   | 'TERMS_REQUIRED' | 'ALIAS_CHANGE_REQUIRED' | 'STAFF_REQUIRED'
@@ -151,3 +152,6 @@ export type ManageCircle = { operation_id: UUID; circle_id: UUID } & (
   { action: 'leave' | 'delete' } | { action: 'rename'; name: string } | { action: 'remove' | 'transfer'; member_id: string } | { action: 'revoke_invite'; invite_id: UUID }
 );
 export interface CircleManaged { request_id: UUID; operation_id: UUID; circle_id: UUID; applied: true }
+export interface RequestAccountDeletion { operation_id: UUID; status_token: string; confirm_delete: true }
+export interface AccountDeletionStatus { request_id: UUID; job_id: UUID; status: 'processing' | 'complete'; completion_target_days: 7 }
+export interface AccountExportPage { request_id: UUID; revision: DecimalString; profile: OwnProfile; records: OwnCheckin[]; next_id: UUID | null }
