@@ -1,12 +1,15 @@
 import { accepted, ownCheckin, ownProfile, pullPage, SyncFailure } from './protocol.ts';
 import type { CheckinMutation, MutationAccepted, PullPage } from './protocol.ts';
 import type { OwnProfile, ProfileMutation } from '../../../../../contracts/domain.ts';
+import { blockPage, safetyReceipt } from '../safety.ts';
+import type { SafetyRequest, SafetyReceipt, BlockPage } from '../safety.ts';
 
 export interface SyncTransport {
   mutate(input: CheckinMutation, signal: AbortSignal): Promise<MutationAccepted>;
   pull(after: string, signal: AbortSignal): Promise<PullPage>;
   getProfile?(signal: AbortSignal): Promise<OwnProfile>;
   updateProfile?(input: ProfileMutation, signal: AbortSignal): Promise<OwnProfile>;
+  safety?(input: SafetyRequest, signal: AbortSignal): Promise<SafetyReceipt>;
 }
 export interface AccountLease {
   userId: string;
@@ -65,6 +68,14 @@ export class HttpSyncTransport implements SyncTransport {
   async getProfile(signal: AbortSignal): Promise<OwnProfile> {
     const data = await this.post('get_profile', {}, signal) as { profile: unknown };
     try { return ownProfile(data.profile); } catch { throw new SyncFailure('PROTOCOL'); }
+  }
+  async safety(input: SafetyRequest, signal: AbortSignal): Promise<SafetyReceipt> {
+    const data = await this.post(input.operation, { envelope: input.envelope }, signal);
+    try { return safetyReceipt(data, input); } catch { throw new SyncFailure('PROTOCOL'); }
+  }
+  async listBlocks(after: string | null, signal: AbortSignal): Promise<BlockPage> {
+    const data = await this.post('list_blocks', { after_actor: after, limit: 25 }, signal);
+    try { return blockPage(data, after); } catch { throw new SyncFailure('PROTOCOL'); }
   }
   async updateProfile(input: ProfileMutation, signal: AbortSignal): Promise<OwnProfile> {
     const data = await this.post('update_profile', { envelope: input }, signal) as { profile: unknown };

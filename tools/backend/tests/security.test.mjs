@@ -23,7 +23,9 @@ test('real JWT bootstrap, owner isolation, grants/RLS, suspension and alias race
     assert.deepEqual(replay.data, first.data);
     const other = await request(config, '/rest/v1/rpc/bootstrap_profile', { token: b.token, body: { operation_id: randomUUID() } });
     assert.equal(other.status, 200); assert.notEqual(other.data.profile.alias, first.data.profile.alias);
-    assert.deepEqual(Object.keys(first.data.profile).sort(), ['alias','consent_epoch','public_enabled','region_id','status']);
+    assert.deepEqual(Object.keys(first.data.profile).sort(), ['alias','alias_change_required','consent_epoch','participation_terms_version','public_enabled','region_id','status']);
+    assert.equal(first.data.profile.alias_change_required, false);
+    assert.equal(first.data.profile.participation_terms_version, null);
     const own = await request(config, '/rest/v1/rpc/get_profile', { token: a.token, body: {} });
     assert.equal(own.data.profile.alias, first.data.profile.alias);
     const guest = await request(config, '/rest/v1/rpc/get_profile', { body: {} });

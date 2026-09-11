@@ -17,6 +17,7 @@ export class ClubReader {
   private ready() { return this.alive && this.active && this.online && this.valid(); }
   private cancel() { this.generation++; this.controller.abort(); if (this.timer !== undefined) this.clock.cancel(this.timer); this.timer = undefined; this.queued = false; }
   stop() { this.alive = false; this.cancel(); this.listeners.clear(); }
+  invalidate() { this.cancel(); this.publish({ page: null, rows: [], updates: null, status: this.online ? 'waiting' : 'offline' }); void this.refresh(); }
   setScope(scope: string) {
     if (!isScope(scope)) throw new Error('Invalid browsing scope.');
     if (scope === this.value.scope) return;

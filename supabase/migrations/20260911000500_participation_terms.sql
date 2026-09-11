@@ -68,7 +68,7 @@ begin
   end if;
   if desired_region is not null and not exists(select 1 from app_private.regions r where r.id=desired_region and r.active
     and not exists(select 1 from app_private.region_ancestors a join app_private.regions p on p.id=a.ancestor_id where a.region_id=r.id and not p.active)) then return app_private.api_error('INVALID_REGION',400); end if;
-  if exists(select 1 from app_private.reserved_aliases where alias_normalized=lower(desired_alias)) then return app_private.api_error('ALIAS_UNAVAILABLE',409); end if;
+  if (desired_alias is distinct from current_profile.alias or not current_profile.alias_change_required) and exists(select 1 from app_private.reserved_aliases where alias_normalized=lower(desired_alias)) then return app_private.api_error('ALIAS_UNAVAILABLE',409); end if;
   if desired_public and desired_terms is distinct from 'community-v1-2026-09-11' then return app_private.api_error('TERMS_REQUIRED',409); end if;
   if desired_public and current_profile.alias_change_required and desired_alias=current_profile.alias then return app_private.api_error('ALIAS_CHANGE_REQUIRED',409); end if;
   next_epoch := current_profile.consent_epoch;

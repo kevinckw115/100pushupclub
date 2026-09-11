@@ -71,10 +71,12 @@ test('visible-only reports, bilateral blocks, participation and audited staff ac
     assert.equal((await op(a, 'update_profile', { public_enabled: true, expected_consent_epoch: required.consent_epoch })).data.code, 'ALIAS_CHANGE_REQUIRED');
     const renamed = await op(a, 'update_profile', { alias: 'renamed_' + randomUUID().slice(0, 8), public_enabled: true, expected_consent_epoch: required.consent_epoch });
     assert.equal(renamed.status, 200); assert.equal(renamed.data.profile.alias_change_required, false);
+    assert.equal((await op(hidden, 'update_profile', { alias: required.alias })).data.code, 'ALIAS_UNAVAILABLE');
     assert.equal((await feed(null)).data.pushups_past_24_hours, '0');
     assert.equal((await create(a, renamed.data.profile.consent_epoch, 5)).status, 200);
     assert.equal((await moderate({ action: 'require_circle_name', subject_id: circle })).status, 200);
     assert.deepEqual((await db.query('select name,name_change_required from app_private.circles where id=$1', [circle])).rows[0], { name: 'Name needs review', name_change_required: true });
+    assert.equal((await db.query("select 1 from app_private.reserved_circle_names where name_normalized='private test circle'")).rowCount, 1);
     assert.equal((await moderate({ action: 'suspend', subject_id: b.actor })).status, 200); assert.equal((await call(b, 'get_profile')).status, 403);
     assert.equal((await create(b, null)).status, 403);
     assert.equal((await moderate({ action: 'restore', subject_id: b.actor })).status, 200); assert.equal((await call(b, 'get_profile')).data.profile.public_enabled, false);

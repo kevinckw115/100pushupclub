@@ -5,6 +5,9 @@ alter table app_private.profiles add column participation_accepted_at timestampt
 update app_private.profiles set public_enabled=false,consent_epoch=case when consent_epoch<9223372036854775807 then consent_epoch+1 else consent_epoch end where public_enabled;
 alter table app_private.profiles add constraint public_participation_confirmed check (not public_enabled or coalesce(participation_terms_version='community-v1-2026-09-11' and participation_accepted_at is not null and not alias_change_required,false));
 alter table app_private.circles add column name_change_required boolean not null default false;
+create table app_private.reserved_circle_names (name_normalized text primary key);
+alter table app_private.reserved_circle_names enable row level security;
+revoke all on app_private.reserved_circle_names from public,anon,authenticated;
 alter table app_private.reports add column context jsonb not null default '{}'::jsonb;
 create table app_private.staff_members (user_id uuid primary key references auth.users(id) on delete cascade, enabled boolean not null default true);
 alter table app_private.staff_members enable row level security;
@@ -148,7 +151,7 @@ $$;
 create function public.staff_moderate(envelope jsonb) returns jsonb
 language plpgsql security definer set search_path='' set lock_timeout='5s' set statement_timeout='10s' as $$
 declare actor uuid; operation_key uuid; action_name text; subject_key text; private_reason text;
-  target uuid; digest text; receipt app_private.operation_receipts; response jsonb; current_status text;
+  target uuid; digest text; receipt app_private.operation_receipts; response jsonb; current_status text; rejected_name text;
 begin
   actor := app_private.require_staff();
   perform 1 from app_private.profiles where user_id=actor for update;
@@ -170,11 +173,15 @@ begin
   elsif action_name in ('require_alias','suspend','restore') then
     select user_id,account_status into target,current_status from app_private.profiles where public_actor_id=subject_key for update;
     if not found or target=actor or current_status='deleting' or exists(select 1 from app_private.deletion_jobs where user_id=target) then return app_private.api_error('NOT_FOUND_OR_FORBIDDEN',404); end if;
+    if action_name='require_alias' then insert into app_private.reserved_aliases(alias_normalized) select lower(alias) from app_private.profiles where user_id=target on conflict do nothing; end if;
     update app_private.profiles set public_enabled=false,consent_epoch=case when consent_epoch<9223372036854775807 then consent_epoch+1 else consent_epoch end,
       alias_change_required=case when action_name='require_alias' then true else alias_change_required end,
       account_status=case when action_name='suspend' then 'suspended' when action_name='restore' then 'active' else account_status end where user_id=target;
   elsif action_name='require_circle_name' then
     if subject_key !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' then return app_private.api_error('INVALID_REQUEST',400); end if;
+    select name into rejected_name from app_private.circles where id=subject_key::uuid and deleted_at is null for update;
+    if not found then return app_private.api_error('NOT_FOUND_OR_FORBIDDEN',404); end if;
+    insert into app_private.reserved_circle_names(name_normalized) values(lower(btrim(rejected_name))) on conflict do nothing;
     update app_private.circles set name='Name needs review',name_change_required=true where id=subject_key::uuid and deleted_at is null;
     if not found then return app_private.api_error('NOT_FOUND_OR_FORBIDDEN',404); end if;
     update app_private.circle_invites set revoked_at=coalesce(revoked_at,statement_timestamp()) where circle_id=subject_key::uuid;

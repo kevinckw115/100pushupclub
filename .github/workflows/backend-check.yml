@@ -44,6 +44,8 @@ jobs:
             tracking/evidence/t13-region-web.png
             tracking/evidence/t14-sharing-web.png
             tracking/evidence/t15-club-web.png
+            tracking/evidence/t16-blocked-web.png
+            tracking/evidence/t16-feed-web.png
           if-no-files-found: error
       - name: Stop disposable stack
         if: always()

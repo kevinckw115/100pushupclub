@@ -20,6 +20,7 @@ export function SyncNotice() {
     : issues ? 'Some check-ins need your choice before syncing.'
     : pending ? `${pending} check-ins waiting to sync.` : 'All check-ins synced.';
   return <><Notice>{message}</Notice>
+    {!!repo.preference(partition.id, 'pending_safety') && <><Notice>A report or block request still needs confirmation.</Notice><Button secondary label="Review safety request" onPress={() => router.push('/safety')} /></>}
     {repo.preference(partition.id, 'pending_profile') && <><Notice>An account sharing change still needs confirmation. New check-ins stay private while it is pending.</Notice><Button secondary label="Review sharing change" onPress={() => router.push('/sharing')} /></>}
     {pending > 0 && <Notice>{pending} check-ins haven’t synced yet.</Notice>}
     {issues > 0 && <Button secondary label="Review sync issues" onPress={() => router.push('/sync-issues')} />}

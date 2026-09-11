@@ -22,3 +22,5 @@ Use a fresh UUID for new intent, and the same UUID/reason for an uncertain retry
 Requiring an alias change disables sharing and invalidates its prior epoch. The account must choose a different alias before re-enabling participation. Requiring a circle name change immediately replaces the public name with “Name needs review” and revokes invites; the owner can rename through the circle API. Suspension blocks checked user APIs and hides activity; restoration leaves sharing off and never republishes old epochs. Staff cannot suspend/restore itself or restore a deleting account. Personal check-in quantities are never rewritten by moderation.
 
 Hosted staff provisioning, support address, policy URLs and operational access review remain deployment gates. The repository does not claim these have been configured.
+
+Required alias/name changes also reserve the rejected normalized name so it cannot be immediately reused. These policy entries remain private; circle creation/rename checks use the reserved-circle-name table.

@@ -1,13 +1,13 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { chromium, expect } from '../../../apps/mobile/node_modules/@playwright/test/index.mjs';
-import { localEnvironment, request, removeAccount } from './environment.mjs';
+import { account, localEnvironment, request, removeAccount } from './environment.mjs';
 const config = localEnvironment();
 const app = new URL('../../../apps/mobile/', import.meta.url);
 const build = spawnSync(process.execPath, ['scripts/export.mjs', 'web'], { cwd: app, stdio: 'inherit', env: { ...process.env, EXPO_PUBLIC_APP_ENV: 'development', EXPO_PUBLIC_SUPABASE_URL: config.api, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: config.key } });
 if (build.status !== 0) throw new Error('Connected browser build failed.');
 const server = spawn(process.execPath, ['scripts/preview.mjs'], { cwd: app, stdio: 'ignore' });
-let browser, user, page;
+let browser, user, otherUser, page;
 const errors = [];
 try {
   for (let attempt = 0; attempt < 40; attempt++) {
@@ -107,13 +107,52 @@ try {
   await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));
   await page.screenshot({ path: '../../tracking/evidence/t14-sharing-web.png', fullPage: true });
   await page.getByRole('button', { name: 'Back', exact: true }).click();
+  otherUser = await account(config);
+  const otherAlias = 'safety_' + randomUUID().slice(0, 8), otherTime = new Date().toISOString();
+  expect((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: otherUser.token, body: { operation_id: randomUUID() } })).status).toBe(200);
+  expect((await request(config, '/rest/v1/rpc/update_profile', { token: otherUser.token, body: { envelope: { operation_id: randomUUID(), alias: otherAlias, public_enabled: true, expected_consent_epoch: '0', accepted_terms_version: 'community-v1-2026-09-11' } } })).status).toBe(200);
+  expect((await request(config, '/rest/v1/rpc/mutate_checkin', { token: otherUser.token, body: { envelope: { kind: 'create', mutation_id: randomUUID(), checkin_id: randomUUID(), quantity: 20, occurred_at: otherTime, recorded_timezone: 'UTC', local_date: otherTime.slice(0, 10), source: 'native', requested_public_epoch: '1' } } })).status).toBe(200);
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('tab', { name: 'Club', exact: true }).click();
+  await expect(page.getByText(otherAlias, { exact: true })).toBeVisible({ timeout: 20000 });
+  await page.getByRole('button', { name: 'Report or block ' + otherAlias, exact: true }).click();
+  await page.getByRole('button', { name: 'Send report', exact: true }).click();
+  await expect(page.getByText(/Your last safety request was confirmed/)).toBeVisible({ timeout: 20000 });
+  await page.context().setOffline(true);
+  await page.getByRole('button', { name: 'Block account', exact: true }).click();
+  await page.getByRole('button', { name: 'Confirm block', exact: true }).click();
+  await expect(page.getByText(/Request saved on this phone; server confirmation is pending/)).toBeVisible();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(page.getByText('Public activity is hidden while your safety request needs confirmation.', { exact: true })).toBeVisible();
+  await expect(page.getByText(otherAlias, { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
+  await expect(page.getByText(/A report or block request is unconfirmed/)).toBeVisible();
+  await page.getByRole('button', { name: 'Keep my check-ins', exact: true }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.context().setOffline(false);
+  await expect(page.getByText(/No check-ins yet\. Start with yours/)).toBeVisible({ timeout: 30000 });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Blocked accounts', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Unblock ' + otherAlias, exact: true })).toBeVisible({ timeout: 20000 });
+  await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));
+  await page.screenshot({ path: '../../tracking/evidence/t16-blocked-web.png', fullPage: true });
+  await page.getByRole('button', { name: 'Unblock ' + otherAlias, exact: true }).click();
+  await page.getByRole('button', { name: 'Confirm unblock ' + otherAlias, exact: true }).click();
+  await expect(page.getByText('No blocked accounts.', { exact: true })).toBeVisible({ timeout: 20000 });
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(page.getByText(otherAlias, { exact: true })).toBeVisible({ timeout: 20000 });
+  await page.getByText(otherAlias, { exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: '../../tracking/evidence/t16-feed-web.png', fullPage: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
   await page.goto('http://127.0.0.1:8081');
   await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   expect(errors).toEqual([]);
-  console.log('PASS: real Auth OTP, invalid code/retry, partition isolation, offline account save, reconnect, explicit guest import, offline sharing change and guest restoration without cleanup.');
+  console.log('PASS: real Auth OTP, invalid code/retry, partition isolation, offline account save, import, sharing change, report, offline block/signout guard, unblock and guest restoration.');
 } catch (error) {
   const body = await page?.locator('body').innerText().catch(() => 'unavailable');
   console.error('Browser diagnostic:', JSON.stringify({ errors, screen: body?.replace(/[^\s@]+@[^\s@]+/g, '[email]').replace(/\b\d{6,10}\b/g, '[code]').slice(0, 1000) }));
   throw error;
-} finally { await browser?.close(); server.kill(); if (user) await removeAccount(config, user); }
+} finally { await browser?.close(); server.kill(); if (user) await removeAccount(config, user); if (otherUser) await removeAccount(config, otherUser); }

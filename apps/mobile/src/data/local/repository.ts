@@ -47,11 +47,12 @@ export class LocalRepository {
   unsynced(userId: string): number {
     return this.db.all<{ count: number }>("SELECT COUNT(DISTINCT entity_id) AS count FROM outbox WHERE partition_id=? AND status<>'acknowledged'", userId)[0].count;
   }
+  pendingAccountChanges(userId: string): boolean { return this.unsynced(userId) > 0 || !!this.preference(userId, 'pending_profile') || !!this.preference(userId, 'pending_safety'); }
 
   signOutAccount(userId: string, now: string, discard: boolean) {
     return this.db.transaction(() => {
       if (this.partition(userId).kind !== 'account') throw new Error('An account partition is required.');
-      if (!discard && (this.unsynced(userId) || this.preference(userId, 'pending_profile'))) throw new Error('Unsynced account changes need your decision.');
+      if (!discard && this.pendingAccountChanges(userId)) throw new Error('Unsynced account changes need your decision.');
       this.db.run("UPDATE guest_imports SET state='paused' WHERE account_partition=? AND state IN ('pending','conflict')", userId);
       this.db.run('UPDATE guest_imports SET remote_json=NULL WHERE account_partition=?', userId);
       this.db.run('DELETE FROM sync_issues WHERE partition_id=?', userId);
