@@ -189,6 +189,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (!repo) return;
     const active = repo.activePartition();
     if (active?.kind === 'account' && active.id !== userId) return;
+    if (active?.id !== userId && lastSession.current?.user.id !== userId && !repo.preference('device', 'pending_logout')) return;
     repo.setPreference('device', 'pending_logout', JSON.stringify({ id: userId, discard: true }));
     generation.next(); automaticRecovery.current = false; setConnection(null); runtime.current?.dispose(); runtime.current = null; lastSession.current = null;
     await sessionStore.clear();
