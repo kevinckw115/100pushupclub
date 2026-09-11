@@ -130,7 +130,7 @@ test('circle totals use fixed timezone, both membership intervals, authoritative
     await db.query("update app_private.circle_memberships set joined_at='2026-03-01T00:00:00Z' where circle_id=$1", [circle.id]);
     const seed = async (user, quantity, occurred, { created = occurred, source = 'native', deleted = false, excluded = false } = {}) => {
       const id = randomUUID();
-      await db.query("insert into app_private.checkins(id,user_id,quantity,occurred_at,created_at,recorded_timezone,local_date,source,version,revision,deleted_at,moderation_excluded) values($1,$2,$3,$4,$5,'Asia/Tokyo','2026-03-09',$6,1,1,case when $7 then $5::timestamptz else null end,$8)", [id, user.id, quantity, occurred, created, source, deleted, excluded]); return id;
+      await db.query("insert into app_private.checkins(id,user_id,quantity,occurred_at,created_at,recorded_timezone,local_date,source,version,revision,deleted_at,moderation_excluded) values($1,$2,$3,$4,$5,'Asia/Tokyo',($4::timestamptz at time zone 'Asia/Tokyo')::date,$6,1,1,case when $7 then $5::timestamptz else null end,$8)", [id, user.id, quantity, occurred, created, source, deleted, excluded]); return id;
     };
     await seed(a, 100, midnight); await seed(b, 85, '2026-03-09T06:00:00Z');
     await seed(a, 900, '2026-03-08T07:59:59.999Z'); await seed(a, 800, '2026-03-09T07:00:00Z');
