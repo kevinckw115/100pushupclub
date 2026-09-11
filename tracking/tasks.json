@@ -296,11 +296,11 @@
         "T10",
         "T16"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T17.md"
       ],
-      "blocker": null,
+      "blocker": "Real backend and mobile CI passed3270912. Native/realtime socket verification unavailable; checked polling is the implemented fallback.",
       "acceptance_ids": [
         "A26",
         "A27"
@@ -315,8 +315,10 @@
         "T09",
         "T17"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T18.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A28",

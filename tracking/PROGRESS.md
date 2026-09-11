@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T16 implemented and all CI passed at9289ac3 (backend34617703132, mobile34617703092, package34617703096). T17 circle backend is in progress on task/t17-circle-backend: checked reads/writes, hashed invites, quota locks and real concurrency/privacy tests. Next: run disposable PostgreSQL CI, fix failures, then T18 circle UI on a new branch. Native and hosted gates remain open; no production deployment.
+T17 implemented and all CI passed3270912 (backend34619516412, mobile34619516398, package34619516397). T18 circle interface is in progress on task/t18-circle-interface: routes, durable operations, invitations, lifecycle clearing and50 passing integration checks. Next: connected browser circle flow and fixes, then T19 deletion/export/support on a new branch. Native device and hosted setup gates remain open; no production deployment.
 
 ## Fixed direction
 

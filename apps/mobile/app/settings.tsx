@@ -51,6 +51,7 @@ export default function Settings() {
           <Notice>{repo.unsynced(partition.id)} check-ins haven’t synced. Discarding removes this account’s local records from this phone. Guest check-ins remain.</Notice>
           {pendingProfile && <Notice>A sharing change is unconfirmed. Signing out stops its retries; sharing may still be on at the server.</Notice>}
           {!!repo.preference(partition.id, 'pending_safety') && <Notice>A report or block request is unconfirmed. Signing out stops retries; the server may not have applied it.</Notice>}
+          {!!repo.preference(partition.id, 'pending_circle') && <Notice>A circle request is unconfirmed. Signing out stops retries; its membership or invitation change may already have reached the server.</Notice>}
           <Button secondary label="Retry account connection" onPress={() => { if (auth.connection) sync.retry(); else void auth.recover().catch(() => setMessage('Could not reconnect.')); }} />
           <Button label={repo.pendingAccountChanges(partition.id) ? 'Discard and sign out' : 'Sign out'} onPress={() => { void auth.signOut(repo.pendingAccountChanges(partition.id)).catch(() => setMessage('Sign-out cleanup failed. Please retry.')); }} />
           <Button secondary label="Keep my check-ins" onPress={() => setConfirmSignOut(false)} />

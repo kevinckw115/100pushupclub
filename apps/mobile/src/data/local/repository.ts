@@ -47,7 +47,7 @@ export class LocalRepository {
   unsynced(userId: string): number {
     return this.db.all<{ count: number }>("SELECT COUNT(DISTINCT entity_id) AS count FROM outbox WHERE partition_id=? AND status<>'acknowledged'", userId)[0].count;
   }
-  pendingAccountChanges(userId: string): boolean { return this.unsynced(userId) > 0 || !!this.preference(userId, 'pending_profile') || !!this.preference(userId, 'pending_safety'); }
+  pendingAccountChanges(userId: string): boolean { return this.unsynced(userId) > 0 || !!this.preference(userId, 'pending_profile') || !!this.preference(userId, 'pending_safety') || !!this.preference(userId, 'pending_circle'); }
 
   signOutAccount(userId: string, now: string, discard: boolean) {
     return this.db.transaction(() => {

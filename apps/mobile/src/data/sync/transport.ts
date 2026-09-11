@@ -3,6 +3,8 @@ import type { CheckinMutation, MutationAccepted, PullPage } from './protocol.ts'
 import type { OwnProfile, ProfileMutation } from '../../../../../contracts/domain.ts';
 import { blockPage, safetyReceipt } from '../safety.ts';
 import type { SafetyRequest, SafetyReceipt, BlockPage } from '../safety.ts';
+import { circleList, circleResponse, circleReceipt, inviteList, invitePreview } from '../circles.ts';
+import type { CircleRequest, CircleReceipt } from '../circles.ts';
 
 export interface SyncTransport {
   mutate(input: CheckinMutation, signal: AbortSignal): Promise<MutationAccepted>;
@@ -10,6 +12,7 @@ export interface SyncTransport {
   getProfile?(signal: AbortSignal): Promise<OwnProfile>;
   updateProfile?(input: ProfileMutation, signal: AbortSignal): Promise<OwnProfile>;
   safety?(input: SafetyRequest, signal: AbortSignal): Promise<SafetyReceipt>;
+  circle?(input: CircleRequest, signal: AbortSignal): Promise<CircleReceipt>;
 }
 export interface AccountLease {
   userId: string;
@@ -40,7 +43,7 @@ export class HttpSyncTransport implements SyncTransport {
         if (response.ok) return value;
         const suppliedCode = typeof value.code === 'string' && /^[A-Z_]{1,50}$/.test(value.code) ? value.code : null;
         if (!suppliedCode && response.status < 500 && ![401, 403, 429].includes(response.status)) throw new SyncFailure('PROTOCOL');
-        const code = response.status === 401 ? 'UNAUTHENTICATED' : response.status === 403 ? 'ACCOUNT_UNAVAILABLE' : suppliedCode ?? 'SERVER_RETRY';
+        const code = response.status === 401 ? 'UNAUTHENTICATED' : response.status === 403 ? (suppliedCode === 'PARTICIPATION_REQUIRED' ? suppliedCode : 'ACCOUNT_UNAVAILABLE') : suppliedCode ?? 'SERVER_RETRY';
         const retryAfter = response.headers.get('retry-after');
         const retryAfterMs = retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) * 1000 : 0;
         if (!Number.isFinite(retryAfterMs) || retryAfterMs > 2147483647) throw new SyncFailure('PROTOCOL');
@@ -61,6 +64,11 @@ export class HttpSyncTransport implements SyncTransport {
     const data = await this.post('mutate_checkin', { envelope: input }, signal);
     try { return accepted(data, input.checkin_id); } catch { throw new SyncFailure('PROTOCOL'); }
   }
+  async circle(input: CircleRequest, signal: AbortSignal): Promise<CircleReceipt> { return circleReceipt(await this.post(input.operation, { envelope: input.envelope }, signal), input); }
+  async circles(signal: AbortSignal) { return circleList(await this.post('list_circles', {}, signal)); }
+  async circleToday(id: string, signal: AbortSignal) { return circleResponse(await this.post('read_circle_today', { circle_id: id }, signal), id); }
+  async circleInvites(id: string, signal: AbortSignal) { return inviteList(await this.post('list_circle_invites', { circle_id: id }, signal)); }
+  async previewInvite(code: string, signal: AbortSignal) { return invitePreview(await this.post('preview_invite', { code }, signal)); }
   async pull(after: string, signal: AbortSignal): Promise<PullPage> {
     const data = await this.post('pull_changes', { after_revision: after, limit: 100 }, signal);
     try { return pullPage(data, after); } catch { throw new SyncFailure('PROTOCOL'); }

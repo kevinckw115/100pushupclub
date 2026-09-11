@@ -36,6 +36,7 @@ jobs:
         run: node tests/club-browser.mjs
         working-directory: tools/backend
       - name: Browser review evidence
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: connected-browser-review
@@ -46,6 +47,15 @@ jobs:
             tracking/evidence/t15-club-web.png
             tracking/evidence/t16-blocked-web.png
             tracking/evidence/t16-feed-web.png
+          if-no-files-found: error
+      - name: Real private circle browser flow
+        run: node tests/circle-browser.mjs
+        working-directory: tools/backend
+      - name: Circle browser evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: circle-browser-review
+          path: tracking/evidence/t18-circle-web.png
           if-no-files-found: error
       - name: Stop disposable stack
         if: always()

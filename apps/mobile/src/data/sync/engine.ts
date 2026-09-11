@@ -27,6 +27,7 @@ export class SyncEngine {
   retry() {
     if (!this.current()) return Promise.resolve();
     this.blocked = false;
+    this.repo.circles.clearNetworkRetry();
     if (this.repo.safety.pending()?.code === 'NETWORK') this.repo.safety.clearRetry();
     if (this.lastCode === 'NETWORK') { this.notBefore = 0; this.repo.clearRetry(); this.repo.profile.clearRetry(); }
     return this.sync();
@@ -107,6 +108,26 @@ export class SyncEngine {
     }
     return true;
   }
+  private async syncCircle(): Promise<boolean> {
+    if (!this.transport.circle) return true;
+    const store = this.repo.circles, pending = store.pending();
+    if (!pending || pending.state === 'rejected') return true;
+    const delay = store.retryDelay(this.clock.now()); if (delay > 0) { this.wake(delay); return true; }
+    store.sending(pending.request.envelope.operation_id);
+    try {
+      const result = await this.transport.circle(pending.request, this.controller.signal);
+      if (!this.active()) return false;
+      store.accept(pending.request.envelope.operation_id, result); this.changed();
+    } catch (error) {
+      if (!this.active()) return false;
+      if (error instanceof SyncFailure && error.retryable) {
+        const delay = Math.max(error.retryAfterMs, Math.min(60000, Math.max(1000, (pending.retryDelay ?? 0) * 2)));
+        store.defer(pending.request.envelope.operation_id, this.clock.now(), delay, error.code); this.changed(); this.wake(delay);
+      } else if (error instanceof SyncFailure && error.code !== 'IDEMPOTENCY_KEY_REUSED' && ([400, 404, 409].includes(error.status) || error.code === 'PARTICIPATION_REQUIRED')) { store.reject(pending.request.envelope.operation_id, error.code); this.changed(); }
+      else throw error;
+    }
+    return true;
+  }
   private async loop() {
     this.controller = new AbortController();
     while (this.requested && this.active()) {
@@ -115,6 +136,7 @@ export class SyncEngine {
       try {
         if (!await this.syncSafety()) return;
         if (!await this.syncProfile()) return;
+        if (!await this.syncCircle()) return;
         await this.pull();
         if (!this.active()) return;
         while (this.active() && (row = this.repo.beginNext(new Date(this.clock.now()).toISOString()))) {
