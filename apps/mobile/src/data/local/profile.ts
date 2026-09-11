@@ -2,6 +2,8 @@ import type { LocalRepository } from './repository.ts';
 import type { OwnProfile, ProfileMutation } from '../../../../../contracts/domain.ts';
 import { ownProfile, decimal, SyncFailure } from '../sync/protocol.ts';
 import { uuid } from '../../domain/checkin.ts';
+import { PARTICIPATION_TERMS_VERSION } from '../../../../../contracts/domain.ts';
+export { PARTICIPATION_TERMS_VERSION } from '../../../../../contracts/domain.ts';
 export type { OwnProfile, ProfileMutation } from '../../../../../contracts/domain.ts';
 export interface PendingProfile { request: ProfileMutation; state: 'pending' | 'sending' | 'rejected'; code?: string; retryAt?: number; retryDelay?: number }
 export class ProfileRepository {
@@ -27,7 +29,8 @@ export class ProfileRepository {
     if (fields.alias !== undefined && !/^[A-Za-z0-9_]{3,20}$/.test(fields.alias.trim())) throw new Error('Use 3 to 20 letters, numbers or underscores for your alias.');
     if (fields.region_id !== undefined && fields.region_id !== null && !/^gn:[1-9]\d{0,18}$/.test(fields.region_id)) throw new Error('Choose a region from the directory.');
     if (fields.region_id !== undefined || fields.public_enabled !== undefined) decimal(fields.expected_consent_epoch);
-    if (fields.alias === undefined && fields.region_id === undefined && fields.public_enabled === undefined) throw new Error('There are no changes to save.');
+    if (fields.accepted_terms_version !== undefined && fields.accepted_terms_version !== PARTICIPATION_TERMS_VERSION) throw new Error('Review the current participation terms.');
+    if (fields.alias === undefined && fields.region_id === undefined && fields.public_enabled === undefined && fields.accepted_terms_version === undefined) throw new Error('There are no changes to save.');
     const request = { ...fields, ...(fields.alias !== undefined ? { alias: fields.alias.trim() } : {}), operation_id: uuid(this.local.makeId()) };
     this.local.setPreference(this.account, 'pending_profile', JSON.stringify({ request, state: 'pending' }));
   }
@@ -64,5 +67,5 @@ export class ProfileRepository {
     const pending = this.pending(); if (pending && pending.state !== 'rejected') this.local.setPreference(this.account, 'pending_profile', JSON.stringify({ ...pending, retryAt: now + delay, retryDelay: delay }));
   }
   clearRetry() { const pending = this.pending(); if (pending) this.local.setPreference(this.account, 'pending_profile', JSON.stringify({ ...pending, retryAt: 0 })); }
-  publicEpoch(): string | null { const profile = this.cached(); return !this.pending() && profile?.status === 'active' && profile.public_enabled ? profile.consent_epoch : null; }
+  publicEpoch(): string | null { const profile = this.cached(); return !this.pending() && profile?.status === 'active' && profile.public_enabled && !profile.alias_change_required && profile.participation_terms_version === PARTICIPATION_TERMS_VERSION ? profile.consent_epoch : null; }
 }

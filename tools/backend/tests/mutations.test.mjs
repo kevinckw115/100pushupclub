@@ -68,7 +68,7 @@ test('real RPC idempotency, canonical payloads, owner isolation, conflicts, tomb
   assert.equal((await mutate(a, input)).status, 403); assert.equal((await pull(a)).status, 403);
 }));
 
-test('strict validation, private imports/old consent, large revisions and bounded request rate', async () => fixture(async ({ db, fresh, mutate, pull }) => {
+test('strict validation, private imports/old consent, large revisions and bounded request rate', async () => fixture(async ({ config, db, fresh, mutate, pull }) => {
   const user = await fresh();
   const cases = [
     [{ quantity: 0 }, 'INVALID_QUANTITY'], [{ quantity: 1000 }, 'INVALID_QUANTITY'], [{ quantity: 1.5 }, 'INVALID_QUANTITY'], [{ quantity: '20' }, 'INVALID_QUANTITY'],
@@ -83,6 +83,7 @@ test('strict validation, private imports/old consent, large revisions and bounde
   for (const envelope of [[], null, { ...create(), mutation_id: 'bad' }, { kind: 'delete', mutation_id: randomUUID(), checkin_id: randomUUID(), expected_version: 0 }]) assert.equal((await mutate(user, envelope)).status, 400);
   const ahead = new Date(Date.now() + 600000).toISOString();
   assert.equal((await mutate(user, create({ occurred_at: ahead, local_date: ahead.slice(0, 10) }))).data.code, 'CLOCK_AHEAD');
+  assert.equal((await request(config, '/rest/v1/rpc/update_profile', { token: user.token, body: { envelope: { operation_id: randomUUID(), accepted_terms_version: 'community-v1-2026-09-11' } } })).status, 200);
   await db.query('update app_private.profiles set public_enabled=true,consent_epoch=2 where user_id=$1', [user.id]);
   const shared = await mutate(user, create({ requested_public_epoch: '2' }));
   assert.equal(shared.status, 200, JSON.stringify(shared.data)); assert.equal(shared.data.effective_public, true); assert.equal(shared.data.record.public_epoch, '2');

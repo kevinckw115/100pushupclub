@@ -13,7 +13,7 @@ import { SyncFailure } from '../../src/data/sync/protocol.ts';
 import type { OwnProfile } from '../../src/data/local/profile.ts';
 import type { SyncTransport } from '../../src/data/sync/transport.ts';
 const now = '2026-09-11T12:00:00.000Z';
-const on: OwnProfile = { alias: 'test_person', region_id: null, public_enabled: true, consent_epoch: '1', status: 'active' };
+const on: OwnProfile = { alias: 'test_person', region_id: null, public_enabled: true, consent_epoch: '1', status: 'active', participation_terms_version: 'community-v1-2026-09-11', alias_change_required: false };
 const off = { ...on, public_enabled: false, consent_epoch: '2' };
 function fixture(path = ':memory:', account = randomUUID()) {
   const db = openTestDatabase(path); migrate(db); const local = new LocalRepository(db, randomUUID);

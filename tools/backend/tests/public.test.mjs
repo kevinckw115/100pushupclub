@@ -8,7 +8,7 @@ const create = (epoch, quantity = 10, time = new Date(Date.now() - 60000).toISOS
 async function fixture(run) {
   const config = localEnvironment(), users = [], db = new pg.Client({ connectionString: config.db }); await db.connect();
   const fresh = async () => { const user = await account(config); users.push(user); assert.equal((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: user.token, body: { operation_id: randomUUID() } })).status, 200); return user; };
-  const profile = (user, fields) => request(config, '/rest/v1/rpc/update_profile', { token: user?.token, body: { envelope: { operation_id: randomUUID(), ...fields } } });
+  const profile = (user, fields) => request(config, '/rest/v1/rpc/update_profile', { token: user?.token, body: { envelope: { operation_id: randomUUID(), ...(fields.public_enabled === true ? { accepted_terms_version: 'community-v1-2026-09-11' } : {}), ...fields } } });
   const mutate = (user, envelope) => request(config, '/rest/v1/rpc/mutate_checkin', { token: user.token, body: { envelope } });
   const club = (scope_id = 'world', cursor = null, limit = 50, user = null) => request(config, '/rest/v1/rpc/read_club', { token: user?.token, body: { scope_id, cursor, limit } });
   const ids = Object.fromEntries((await db.query("SELECT source_code,id FROM app_private.regions WHERE source_code IN ('US.CA','US.CA.059','US.CA.037')")).rows.map(r => [r.source_code, r.id]));

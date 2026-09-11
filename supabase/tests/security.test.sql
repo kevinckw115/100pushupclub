@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(19);
+select plan(24);
 select is(has_schema_privilege('anon','app_private','USAGE'), false, 'guest has no private schema usage');
 select is(has_schema_privilege('authenticated','app_private','USAGE'), false, 'account has no private schema usage');
 select is(has_table_privilege('authenticated','app_private.checkins','SELECT'), false, 'accounts cannot directly read raw check-ins');
@@ -20,6 +20,11 @@ select is(has_function_privilege('anon','public.update_profile(jsonb)','EXECUTE'
 select is(has_function_privilege('authenticated','public.update_profile(jsonb)','EXECUTE'), true, 'account can invoke checked consent changes');
 select is(has_function_privilege('anon','public.read_club(text,text,integer)','EXECUTE'), true, 'guest can read sanitized eligible feed');
 select is(has_table_privilege('anon','app_private.server_secrets','SELECT'), false, 'guest cannot read cursor keys');
+select is(has_function_privilege('anon','public.block_user(jsonb)','EXECUTE'), false, 'guest cannot block');
+select is(has_function_privilege('authenticated','public.report_subject(jsonb)','EXECUTE'), true, 'account can invoke checked reporting');
+select is(has_table_privilege('authenticated','app_private.staff_members','INSERT'), false, 'account cannot promote itself');
+select is(has_table_privilege('authenticated','app_private.reports','SELECT'), false, 'account cannot read other reports');
+select is(has_function_privilege('authenticated','app_private.require_staff()','EXECUTE'), false, 'private staff authorization helper is not exposed');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='app_private' and c.relkind='r' and not c.relrowsecurity), 0, 'all private tables enable RLS');
 select * from finish();
 rollback;

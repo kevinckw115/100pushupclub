@@ -241,7 +241,7 @@
       "evidence": [
         "tracking/evidence/T14.md"
       ],
-      "blocker": "Native consent/lifecycle checks and anonymous gateway rate enforcement require device/deployment setup. Connected browser rerun pending after verified web buffer fix.",
+      "blocker": "Native consent/lifecycle checks and anonymous gateway rate enforcement require device/deployment setup. Connected CI passed.",
       "acceptance_ids": [
         "A19",
         "A20",
@@ -259,11 +259,11 @@
         "T09",
         "T14"
       ],
-      "status": "in_progress",
+      "status": "implemented",
       "evidence": [
         "tracking/evidence/T15.md"
       ],
-      "blocker": null,
+      "blocker": "Native A25 lifecycle/accessibility/scroll checks require a device. Connected two-account browser and full native exports passed.",
       "acceptance_ids": [
         "A22",
         "A25"
@@ -277,8 +277,10 @@
         "T09",
         "T14"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T16.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A19",

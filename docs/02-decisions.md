@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-11 / ADR-008 / Participation and checked safety operations
+
+T16 makes documented participation acceptance explicit as versioned profile data and a database constraint. Existing opt-ins are turned off with epoch invalidation until acceptance; personal offline logging remains independent. Block/report operations use visible public subjects, caller-owned durable receipts and bounded budgets. Staff authorization uses a private enabled-account registry, with atomic append-only audits and no client role claims. Required names are hidden/replaced immediately; suspension/restoration never republishes old public history. API/data/sync/TypeScript contracts and real JWT/rollback tests change together. No hosted staff account or production deployment is provisioned by this implementation.
+
 ### 2026-09-11 / ADR-007 / Current public eligibility and opaque pagination
 
 T14 adds idempotent checked profile mutations with expected consent epochs. Alias-only edits preserve epochs; actual sharing toggles and region changes increment them, invalidating previous contributions. Public actor/entry IDs are independently random and immutable. Feed cursors use pgcrypto PGP AES256 encryption with integrity protection and a private generated key, binding viewer, requested/effective scope, 15-minute window anchor, boundary and initial PostgreSQL snapshot. Check-in creation_xid captures the top-level transaction ID so a delayed commit cannot enter an older page; current quantities, consent, deletion, suspension, moderation and blocks still apply on every read. The same materialized eligibility set drives sparse-scope selection, rows and counts. No public response cache is enabled. Authenticated feed budgets are30/minute/session; guest gateway limits remain a deployment gate. Data/API/sync/TypeScript contracts and real concurrency/privacy tests accompany the migration.

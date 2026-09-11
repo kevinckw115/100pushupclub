@@ -35,7 +35,7 @@ test('guest import survives restart and both UUID collisions against real accoun
       assert.equal((await request(config, '/rest/v1/rpc/mutate_checkin', { token: user.token, body })).status, 200);
     }
     // Even an opted-in account must never publish imported history.
-    assert.equal((await request(config, '/rest/v1/rpc/update_profile', { token: b.token, body: { envelope: { operation_id: randomUUID(), public_enabled: true, region_id: null, expected_consent_epoch: '0' } } })).status, 200);
+    assert.equal((await request(config, '/rest/v1/rpc/update_profile', { token: b.token, body: { envelope: { operation_id: randomUUID(), public_enabled: true, region_id: null, expected_consent_epoch: '0', accepted_terms_version: 'community-v1-2026-09-11' } } })).status, 200);
     let lost = false, original;
     engine = new SyncEngine({ repo: sync, valid: () => true, clock, transport: {
       pull: (...args) => http.pull(...args),

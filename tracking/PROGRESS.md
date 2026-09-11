@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T15 Club interface is in progress on task/t15-club-interface, stacked on T14. Reader/parser tests6/6, local TypeScript/lint and ordinary export pass. Connected two-account browser check is added. T14 is implemented; real Postgres tests and full mobile exports passed, while the longer connected consent flow exposed and now fixes SQLite web buffer exhaustion. T14 4cafd66 reruns connected CI; local six-startup plus50-interaction allocation regression passes with one shared buffer. Next: finish connected T14/T15 checks and inspect screenshots, then T16 report/block/moderation on a new branch. Native secure storage, lifecycle, accessibility, guest gateway rate enforcement and hosted setup remain external gates. No hosted backend deployed.
+T16 report/block/moderation is in progress on task/t16-report-block-moderation. Checked safety/staff RPCs, participation constraint/consent form and real JWT/audit tests are implemented; mobile report/block flow and durable retries are next. T14 4cafd66 and T15 b0629ae passed connected backend/browser, mobile/full native exports and package CI; screenshots downloaded and inspected. T15 verifies two-account totals, privacy removal, offline clearing, no scroll jump and polling stopped on tab blur. Native secure storage/lifecycle/accessibility, anonymous gateway rate enforcement, staff/support and hosted setup remain external gates. No hosted backend deployed.
 
 ## Fixed direction
 

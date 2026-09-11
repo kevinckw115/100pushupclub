@@ -79,6 +79,7 @@ try {
   const publicAlias = 'review_' + randomUUID().slice(0, 8);
   await page.getByLabel('Public alias', { exact: true }).fill(publicAlias);
   await page.getByRole('button', { name: 'Sharing choice: off', exact: true }).click();
+  await page.getByRole('button', { name: 'Accept participation terms', exact: true }).click();
   await page.getByRole('button', { name: 'Save account settings', exact: true }).click();
   await expect(page.getByText(/Last confirmed sharing: on\. Only future eligible/)).toBeVisible({ timeout: 20000 });
   await page.getByRole('button', { name: 'Back', exact: true }).click();

@@ -6,6 +6,7 @@ import { useLocal, LoadingStorage } from '../src/services/local-context';
 import { useSync } from '../src/services/sync-context';
 import { region, world } from '../src/data/regions';
 import type { OwnProfile, ProfileMutation, ProfileRepository } from '../src/data/local/profile';
+import { PARTICIPATION_TERMS_VERSION } from '../src/data/local/profile';
 import { theme, typography } from '../src/theme/theme';
 
 export default function Sharing() {
@@ -25,6 +26,7 @@ function ProfileForm({ initial, store }: { initial: OwnProfile; store: ProfileRe
   const draft = store.pending()?.request;
   const [baseline, setBaseline] = useState(initial), [alias, setAlias] = useState(draft?.alias ?? initial.alias);
   const [enabled, setEnabled] = useState(draft?.public_enabled ?? initial.public_enabled), [regionId, setRegionId] = useState(draft?.region_id !== undefined ? draft.region_id : initial.region_id);
+  const [terms, setTerms] = useState(draft?.accepted_terms_version === PARTICIPATION_TERMS_VERSION || initial.participation_terms_version === PARTICIPATION_TERMS_VERSION);
   const [message, setMessage] = useState<string | null>(null);
   let browsing = world;
   try { const saved = repo!.preference(partition!.id, 'browse_region'); if (saved) browsing = region(JSON.parse(saved)); } catch { /* World is the safe default. */ }
@@ -33,13 +35,15 @@ function ProfileForm({ initial, store }: { initial: OwnProfile; store: ProfileRe
   const restore = (keepDraft: boolean) => {
     try {
       store.discardRejected(); setBaseline(current);
-      if (!keepDraft) { setAlias(current.alias); setEnabled(current.public_enabled); setRegionId(current.region_id); }
+      if (!keepDraft) { setAlias(current.alias); setEnabled(current.public_enabled); setRegionId(current.region_id); setTerms(current.participation_terms_version === PARTICIPATION_TERMS_VERSION); }
       setMessage(keepDraft ? 'Review your draft against the current account settings, then save again.' : null); refresh();
     } catch { setMessage('Could not update the local draft. Please retry.'); }
   };
   const save = () => {
     try {
       const fields: Omit<ProfileMutation, 'operation_id'> = {};
+      if (enabled && !terms) { setMessage('Accept the participation terms before enabling public sharing.'); return; }
+      if (terms && baseline.participation_terms_version !== PARTICIPATION_TERMS_VERSION) fields.accepted_terms_version = PARTICIPATION_TERMS_VERSION;
       if (alias.trim() !== baseline.alias) fields.alias = alias.trim();
       if (enabled !== baseline.public_enabled) fields.public_enabled = enabled;
       if (regionId !== baseline.region_id) fields.region_id = regionId;
@@ -49,8 +53,12 @@ function ProfileForm({ initial, store }: { initial: OwnProfile; store: ProfileRe
   };
   return <>
     <Notice>Last confirmed sharing: {current.public_enabled ? 'on' : 'off'}. {pending ? 'Your new choice is not yet confirmed.' : 'Only future eligible check-ins can be shared.'}</Notice>
+    {current.alias_change_required && <Notice error>Your alias needs to change before you can participate publicly again. Choose a respectful name below.</Notice>}
     <Section title="Your alias"><Copy>Use 3 to 20 letters, numbers or underscores. Your email stays private.</Copy>
       <TextInput accessibilityLabel="Public alias" value={alias} onChangeText={setAlias} editable={!locked} autoCapitalize="none" autoCorrect={false} maxLength={20} style={{ ...typography('body'), minHeight: 52, padding: 12, borderWidth: 1, borderRadius: 12, borderColor: theme.colors.textSecondary }} />
+    </Section>
+    <Section title="Participation terms"><Copy>Use respectful aliases and circle names. Do not harass, impersonate others, or use hateful or sexually explicit names. Report abuse and block accounts you do not want to see. Moderators may hide activity, require a name change, or suspend an account.</Copy><Copy>Your personal log works without public participation. Sharing and circles are optional.</Copy>
+      <Button secondary label={terms ? 'Participation terms accepted' : 'Accept participation terms'} onPress={() => setTerms(true)} disabled={locked || terms} />
     </Section>
     <Section title="Public sharing"><Copy>Share your alias, pushup count and approximate recency with the Club. Your exact check-in time is private. Imported guest history is never shared.</Copy>
       <Button secondary label={`Sharing choice: ${enabled ? 'on' : 'off'}`} onPress={() => setEnabled(!enabled)} disabled={locked} />
@@ -61,7 +69,7 @@ function ProfileForm({ initial, store }: { initial: OwnProfile; store: ProfileRe
       <Button secondary label="Choose a browsing region" onPress={() => router.push('/region')} disabled={locked} />
     </Section>
     {pending ? pending.state === 'rejected' ? <>
-      <Notice error>{pending.code === 'CONSENT_CONFLICT' ? 'Sharing changed on another device. Review the current account settings before trying again.' : pending.code === 'ALIAS_UNAVAILABLE' ? 'That alias is unavailable. Choose another one.' : 'The account change was not accepted. Review your alias and region.'}</Notice>
+      <Notice error>{pending.code === 'CONSENT_CONFLICT' ? 'Sharing changed on another device. Review the current account settings before trying again.' : pending.code === 'ALIAS_UNAVAILABLE' ? 'That alias is unavailable. Choose another one.' : pending.code === 'TERMS_REQUIRED' ? 'Review and accept the current participation terms.' : pending.code === 'ALIAS_CHANGE_REQUIRED' ? 'Choose a new respectful alias before sharing again.' : 'The account change was not accepted. Review your alias and region.'}</Notice>
       <Button label="Edit rejected change" onPress={() => restore(true)} /><Button secondary label="Use account settings" onPress={() => restore(false)} />
     </> : <><Notice>Saved on this phone; waiting for server confirmation. New check-ins remain private. Sharing may still be on until this change is confirmed.</Notice><Button label="Retry sharing change" onPress={sync.retry} /></> : <Button label="Save account settings" onPress={save} />}
     {message && <Notice>{message}</Notice>}

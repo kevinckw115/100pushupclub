@@ -11,7 +11,9 @@ export function ownProfile(value: unknown): OwnProfile {
   if (typeof row.alias !== 'string' || !/^[A-Za-z0-9_]{3,20}$/.test(row.alias) || typeof row.public_enabled !== 'boolean'
     || (row.region_id !== null && (typeof row.region_id !== 'string' || !/^gn:[1-9]\d{0,18}$/.test(row.region_id)))
     || !['active', 'deleting', 'suspended'].includes(String(row.status))) throw new Error('Invalid account profile.');
-  return { alias: row.alias, region_id: row.region_id as string | null, public_enabled: row.public_enabled, consent_epoch: decimal(row.consent_epoch), status: row.status as OwnProfile['status'] };
+  if (row.participation_terms_version != null && (typeof row.participation_terms_version !== 'string' || row.participation_terms_version.length > 100)) throw new Error('Invalid participation version.');
+  if (row.alias_change_required !== undefined && typeof row.alias_change_required !== 'boolean') throw new Error('Invalid alias status.');
+  return { alias: row.alias, region_id: row.region_id as string | null, public_enabled: row.public_enabled, consent_epoch: decimal(row.consent_epoch), status: row.status as OwnProfile['status'], participation_terms_version: row.participation_terms_version as string ?? null, alias_change_required: row.alias_change_required === true };
 }
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid response.');

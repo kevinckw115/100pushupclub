@@ -24,7 +24,10 @@ Keep application tables in a non-exposed schema such as app_private. Expose tigh
 | blocks | blocker_id + blocked_id PK, no self-block, created_at |
 | reports | id UUID PK, reporter_id, subject_type alias/circle_name/checkin, subject_id, reason enum, status, created_at; no arbitrary public text |
 | moderation_audit | id, staff identity, action, subject, private reason, created_at; backend staff only |
+| staff_members | verified Auth user UUID, enabled flag; private administration only, no client CRUD |
 | deletion_jobs | user_id UNIQUE, status, requested_at, last_attempt_at, completed_at, private error code |
+
+T16 profiles add participation_terms_version/participation_accepted_at and alias_change_required. A database constraint disallows public_enabled unless current participation acceptance exists and no alias change is required. Circles add name_change_required; reports capture a minimal private subject context at submission so renaming does not erase the review context. Moderation audit UPDATE/DELETE is rejected by a trigger; action, audit and original receipt commit atomically. Reports keep enum reasons and never accept arbitrary public text. A separate fixed-hour request-budget key enforces report limits.
 
 Checkin ID collisions across accounts return generic NOT_FOUND_OR_FORBIDDEN, never information about the other owner. Receipt IDs are account-scoped. Quantity updates are absolute new values, never increments to an aggregate. Deleted check-ins remain tombstoned and cannot be restored under the same ID. Creating a deliberate replacement requires a new ID and defaults private.
 

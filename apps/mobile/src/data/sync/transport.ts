@@ -71,7 +71,8 @@ export class HttpSyncTransport implements SyncTransport {
     try {
       const profile = ownProfile(data.profile);
       if ((input.alias !== undefined && profile.alias !== input.alias.trim()) || (input.public_enabled !== undefined && profile.public_enabled !== input.public_enabled)
-        || (input.region_id !== undefined && profile.region_id !== (input.region_id === 'world' ? null : input.region_id))) throw new Error('Unexpected profile receipt.');
+        || (input.region_id !== undefined && profile.region_id !== (input.region_id === 'world' ? null : input.region_id))
+        || (input.accepted_terms_version !== undefined && profile.participation_terms_version !== input.accepted_terms_version)) throw new Error('Unexpected profile receipt.');
       return profile;
     } catch { throw new SyncFailure('PROTOCOL'); }
   }

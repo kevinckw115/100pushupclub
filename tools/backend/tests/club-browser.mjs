@@ -17,7 +17,7 @@ try {
   for (let i = 0; i < 2; i++) {
     const user = await account(config); users.push(user); user.alias = 'club_' + randomUUID().slice(0, 8);
     expect((await request(config, '/rest/v1/rpc/bootstrap_profile', { token: user.token, body: { operation_id: randomUUID() } })).status).toBe(200);
-    await rpc(user, 'update_profile', { operation_id: randomUUID(), alias: user.alias, public_enabled: true, expected_consent_epoch: '0' });
+    await rpc(user, 'update_profile', { operation_id: randomUUID(), alias: user.alias, public_enabled: true, expected_consent_epoch: '0', accepted_terms_version: 'community-v1-2026-09-11' });
     await create(user, (i + 1) * 10);
   }
   // auth-browser exports the ordinary connected build immediately before this script.

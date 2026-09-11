@@ -4,6 +4,7 @@ export type DecimalString = string; // non-negative integer, never Number(revisi
 export type ISOInstant = string; // UTC ISO 8601; second or millisecond precision
 export type LocalDate = string; // YYYY-MM-DD
 export type IANATimezone = string;
+export const PARTICIPATION_TERMS_VERSION = 'community-v1-2026-09-11';
 
 /** Own account configuration; never an authentication email or public actor DTO. */
 export interface OwnProfile {
@@ -12,11 +13,14 @@ export interface OwnProfile {
   public_enabled: boolean;
   consent_epoch: DecimalString;
   status: 'active' | 'deleting' | 'suspended';
+  participation_terms_version: string | null;
+  alias_change_required: boolean;
 }
 export interface ProfileResponse { request_id: UUID; profile: OwnProfile }
 export interface ProfileMutation {
   operation_id: UUID; alias?: string; region_id?: string | null; public_enabled?: boolean;
   expected_consent_epoch?: DecimalString; // Required when region or sharing is submitted.
+  accepted_terms_version?: string; // Only after the user explicitly accepts the displayed participation terms.
 }
 export interface BootstrapProfileResult extends ProfileResponse {
   revision: DecimalString; // informational; never initialize a client pull cursor from this
@@ -100,6 +104,7 @@ export interface CircleToday {
 }
 export type OutboxStatus = 'pending' | 'sending' | 'acknowledged' | 'conflict' | 'rejected';
 export type SyncErrorCode =
+  | 'TERMS_REQUIRED' | 'ALIAS_CHANGE_REQUIRED' | 'STAFF_REQUIRED'
   | 'CONSENT_CONFLICT' | 'INVALID_ALIAS' | 'ALIAS_UNAVAILABLE' | 'INVALID_REGION'
   | 'INVALID_REQUEST' | 'INVALID_TIMESTAMP' | 'SERVER_RETRY'
   | 'INVALID_QUANTITY' | 'INVALID_TIMEZONE' | 'INVALID_LOCAL_DATE' | 'CLOCK_AHEAD'
@@ -121,3 +126,10 @@ export interface Region {
 }
 export interface RegionPage { request_id: UUID; version: string; items: Region[]; next_cursor: string | null }
 export interface ResolvedRegion { request_id: UUID; version: string; region: Region; ancestors: Region[]; fallback_reason: 'MISSING_REGION' | null }
+
+export type SafetyOperation = 'block_user' | 'unblock_user' | 'report_subject';
+export interface BlockMutation { operation_id: UUID; actor_id: string }
+export interface ReportMutation { operation_id: UUID; subject_type: 'alias' | 'circle_name' | 'checkin'; subject_id: string; reason: 'abuse' | 'impersonation' | 'inappropriate_name' | 'other' }
+export interface BlockReceipt { request_id: UUID; operation_id: UUID; actor_id: string; blocked: boolean }
+export interface ReportReceipt { request_id: UUID; operation_id: UUID; report_id: UUID; received: true }
+export interface BlockPage { request_id: UUID; items: Array<{ actor_id: string; alias: string }>; next_actor: string | null }
