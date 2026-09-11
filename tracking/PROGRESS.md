@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T14 consent/public queries is in progress on task/t14-consent-public-queries. Backend 1ab8b80 passed real Postgres/Auth, public privacy/race/pagination and mobile CI. Durable client sharing controls and four SQLite failure/replay tests are implemented; integration 38/38 and lint passed. Next: verify connected consent UI and full exports, then start T15 Club interface on a new branch. T13 region directory verified at227a217 and T12 at4292735. Native secure storage, lifecycle, accessibility and hosted OTP still need device/development setup. No hosted backend deployed.
+T15 Club interface is in progress on task/t15-club-interface, stacked on T14. Reader/parser tests6/6, local TypeScript/lint and ordinary export pass. Connected two-account browser check is added. T14 is implemented; real Postgres tests and full mobile exports passed, while the longer connected consent flow exposed and now fixes SQLite web buffer exhaustion. T14 4cafd66 reruns connected CI; local six-startup plus50-interaction allocation regression passes with one shared buffer. Next: finish connected T14/T15 checks and inspect screenshots, then T16 report/block/moderation on a new branch. Native secure storage, lifecycle, accessibility, guest gateway rate enforcement and hosted setup remain external gates. No hosted backend deployed.
 
 ## Fixed direction
 

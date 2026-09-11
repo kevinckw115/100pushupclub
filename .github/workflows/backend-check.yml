@@ -32,6 +32,9 @@ jobs:
       - name: Real OTP browser flow
         run: node tests/auth-browser.mjs
         working-directory: tools/backend
+      - name: Two-account Club browser flow
+        run: node tests/club-browser.mjs
+        working-directory: tools/backend
       - name: Browser review evidence
         uses: actions/upload-artifact@v4
         with:
@@ -40,6 +43,7 @@ jobs:
             tracking/evidence/t12-import-web.png
             tracking/evidence/t13-region-web.png
             tracking/evidence/t14-sharing-web.png
+            tracking/evidence/t15-club-web.png
           if-no-files-found: error
       - name: Stop disposable stack
         if: always()
