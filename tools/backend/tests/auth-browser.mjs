@@ -76,10 +76,18 @@ try {
   await page.screenshot({ path: '../../tracking/evidence/t12-import-web.png', fullPage: true });
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('button', { name: 'Alias and public sharing', exact: true }).click();
-  await page.getByLabel('Public alias', { exact: true }).fill('review_' + randomUUID().slice(0, 8));
+  const publicAlias = 'review_' + randomUUID().slice(0, 8);
+  await page.getByLabel('Public alias', { exact: true }).fill(publicAlias);
   await page.getByRole('button', { name: 'Sharing choice: off', exact: true }).click();
   await page.getByRole('button', { name: 'Save account settings', exact: true }).click();
   await expect(page.getByText(/Last confirmed sharing: on\. Only future eligible/)).toBeVisible({ timeout: 20000 });
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('button', { name: 'Log pushups', exact: true }).click();
+  await page.getByRole('button', { name: 'Add pushups', exact: true }).click();
+  await expect.poll(async () => (await request(config, '/rest/v1/rpc/read_club', { body: { scope_id: 'world' } })).data.items.filter(row => row.username === publicAlias).map(row => row.quantity)).toEqual([10]);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Alias and public sharing', exact: true }).click();
   await page.context().setOffline(true);
   await page.getByRole('button', { name: 'Sharing choice: on', exact: true }).click();
   await page.getByRole('button', { name: 'Save account settings', exact: true }).click();
@@ -94,6 +102,7 @@ try {
   await page.context().setOffline(false);
   await page.getByRole('button', { name: 'Retry sharing change', exact: true }).click();
   await expect(page.getByText(/Last confirmed sharing: off\. Only future eligible/)).toBeVisible({ timeout: 20000 });
+  expect((await request(config, '/rest/v1/rpc/read_club', { body: { scope_id: 'world' } })).data.items.filter(row => row.username === publicAlias)).toEqual([]);
   await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));
   await page.screenshot({ path: '../../tracking/evidence/t14-sharing-web.png', fullPage: true });
   await page.getByRole('button', { name: 'Back', exact: true }).click();
