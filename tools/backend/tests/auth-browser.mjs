@@ -100,7 +100,7 @@ try {
   await page.getByRole('button', { name: 'Alias and public sharing', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Sharing choice: off', exact: true })).toBeVisible();
   await page.context().setOffline(false);
-  await page.getByRole('button', { name: 'Retry sharing change', exact: true }).click();
+  // Reconnection can acknowledge the request before a retry button click; wait for the confirmed state.
   await expect(page.getByText(/Last confirmed sharing: off\. Only future eligible/)).toBeVisible({ timeout: 20000 });
   expect((await request(config, '/rest/v1/rpc/read_club', { body: { scope_id: 'world' } })).data.items.filter(row => row.username === publicAlias)).toEqual([]);
   await page.evaluate(() => document.querySelectorAll('*').forEach(element => { if (element.scrollTop) element.scrollTop = 0; }));

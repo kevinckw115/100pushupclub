@@ -1,8 +1,15 @@
 diff --git a/node_modules/expo-sqlite/web/WorkerChannel.ts b/node_modules/expo-sqlite/web/WorkerChannel.ts
-index 7fba380..80b8af9 100644
 --- a/node_modules/expo-sqlite/web/WorkerChannel.ts
 +++ b/node_modules/expo-sqlite/web/WorkerChannel.ts
-@@ -40,7 +40,7 @@ export function sendWorkerResult({
+@@ -13,6 +13,7 @@ let messageId = 0;
+ const deferredMap = new Map<number, Deferred>();
+ const PENDING = 1;
+ const RESOLVED = 2;
++const completedSyncBuffers = new WeakMap<Worker, { lockBuffer: SharedArrayBuffer; resultBuffer: SharedArrayBuffer }>();
+ 
+ let hasWarnedSync = false;
+ 
+@@ -40,7 +41,7 @@ export function sendWorkerResult({
      const resultJson = error != null ? serialize({ error }) : serialize({ result });
      const resultBytes = new TextEncoder().encode(resultJson);
      const length = resultBytes.length;
@@ -11,7 +18,21 @@ index 7fba380..80b8af9 100644
      resultArray.set(resultBytes, 4);
      Atomics.store(lock, 0, RESOLVED);
    } else {
-@@ -117,23 +117,16 @@ export function invokeWorkerSync<T extends SQLiteWorkerMessageType & keyof Resul
+@@ -101,9 +102,11 @@ export function invokeWorkerSync<T extends SQLiteWorkerMessageType & keyof Resul
+   }
+ 
+   const id = messageId++;
+-  const lockBuffer = new SharedArrayBuffer(4);
++  const completed = completedSyncBuffers.get(worker);
++  completedSyncBuffers.delete(worker);
++  const lockBuffer = completed?.lockBuffer ?? new SharedArrayBuffer(4);
+   const lock = new Int32Array(lockBuffer);
+-  const resultBuffer = new SharedArrayBuffer(1024 * 1024);
++  const resultBuffer = completed?.resultBuffer ?? new SharedArrayBuffer(1024 * 1024);
+   const resultArray = new Uint8Array(resultBuffer);
+ 
+   Atomics.store(lock, 0, PENDING);
+@@ -117,29 +120,24 @@ export function invokeWorkerSync<T extends SQLiteWorkerMessageType & keyof Resul
    });
  
    let i = 0;
@@ -39,3 +60,11 @@ index 7fba380..80b8af9 100644
      }
    }
  
+   const length = new Uint32Array(resultArray.buffer, 0, 1)[0];
+   const resultCopy = new Uint8Array(length);
+   resultCopy.set(new Uint8Array(resultArray.buffer, 4, length));
++  // Only a resolved request may return buffers to the pool. A timed-out worker can still write later.
++  completedSyncBuffers.set(worker, { lockBuffer, resultBuffer });
+   const resultJson = new TextDecoder().decode(resultCopy);
+   const { result, error } = deserialize<{ result: ResultTypeMap[T]; error?: string }>(resultJson);
+   if (error) throw new Error(error);
