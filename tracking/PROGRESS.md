@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T13 region directory is in progress on task/t13-region-directory: checked GeoNames snapshot, generated hierarchy/ancestors, bounded public search/resolve RPCs, manual cached picker and attribution. T12 verified at4292735 with real import/collision/restart/browser tests and full native/web exports; SDK57 compatibility alignment passed. T11 sync tests also reran successfully. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T13 backend/browser evidence, then T14 consent/public queries on a new branch.
+T13 region directory verified at227a217: checked GeoNames hierarchy, bounded public RPCs, manual cached picker and attribution passed backend/browser/native-export CI. T12 verified at4292735; T11 sync checks also reran successfully. Native secure storage, lifecycle, accessibility and hosted OTP still need device/development setup. No hosted backend deployed. Next: T14 consent/public queries on a new branch; enforce epoch invalidation, sanitized opaque projections, thresholds and current eligibility across pages.
 
 ## Fixed direction
 

@@ -220,7 +220,7 @@
       "depends_on": [
         "T08"
       ],
-      "status": "in_progress",
+      "status": "verified",
       "evidence": [
         "tracking/evidence/T13.md"
       ],
