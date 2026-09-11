@@ -32,7 +32,9 @@ export class HttpSyncTransport implements SyncTransport {
         try { value = JSON.parse(text); } catch { throw new SyncFailure(response.status >= 500 ? 'SERVER_RETRY' : 'PROTOCOL', { status: response.status, retryable: response.status >= 500 }); }
         if (!value || typeof value !== 'object' || Array.isArray(value)) throw new SyncFailure('PROTOCOL');
         if (response.ok) return value;
-        const code = response.status === 401 ? 'UNAUTHENTICATED' : response.status === 403 ? 'ACCOUNT_UNAVAILABLE' : typeof value.code === 'string' && /^[A-Z_]{1,50}$/.test(value.code) ? value.code : 'SERVER_RETRY';
+        const suppliedCode = typeof value.code === 'string' && /^[A-Z_]{1,50}$/.test(value.code) ? value.code : null;
+        if (!suppliedCode && response.status < 500 && ![401, 403, 429].includes(response.status)) throw new SyncFailure('PROTOCOL');
+        const code = response.status === 401 ? 'UNAUTHENTICATED' : response.status === 403 ? 'ACCOUNT_UNAVAILABLE' : suppliedCode ?? 'SERVER_RETRY';
         const retryAfter = response.headers.get('retry-after');
         const retryAfterMs = retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) * 1000 : 0;
         if (!Number.isFinite(retryAfterMs) || retryAfterMs > 2147483647) throw new SyncFailure('PROTOCOL');

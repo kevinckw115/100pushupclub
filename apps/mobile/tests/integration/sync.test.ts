@@ -151,3 +151,41 @@ test('response parser preserves large revision strings and rejects malformed pag
   assert.throws(() => ownCheckin({ ...record, source: 'import', public_epoch: '1' }));
   assert.equal(ownCheckin({ ...record, id: record.id.toUpperCase() }).id, record.id);
 });
+
+test('foreground pause leaves sending work durable and rapid resume coalesces requests', async () => {
+  const f = fixture(); let calls = 0, inFlight = 0, maximum = 0;
+  let started!: () => void; const ready = new Promise<void>(resolve => { started = resolve; });
+  const row = f.create();
+  const engine = new SyncEngine({ repo: f.sync, valid: () => true, clock, transport: {
+    pull: async () => page(),
+    mutate: async (_input, signal) => {
+      calls++; inFlight++; maximum = Math.max(maximum, inFlight);
+      try {
+        if (calls === 1) { started(); await new Promise<void>((_resolve, reject) => signal.addEventListener('abort', () => reject(new SyncFailure('STALE_SCOPE')), { once: true })); }
+        return result(snapshot(row.id));
+      } finally { inFlight--; }
+    },
+  } });
+  try {
+    const pending = engine.sync(); await ready;
+    for (let n = 0; n < 10; n++) void engine.sync();
+    engine.setForeground(false); await pending;
+    assert.equal(f.local.unsynced(f.id), 1); assert.equal(calls, 1);
+    engine.setForeground(true); await engine.sync();
+    assert.equal(calls, 2); assert.equal(maximum, 1); assert.equal(f.local.unsynced(f.id), 0);
+  } finally { engine.stop(); f.db.close(); }
+});
+
+test('v2 acknowledged requests retain dependency versions during upgrade', () => {
+  const db = openTestDatabase(':memory:');
+  try {
+    migrate(db, 2); const local = new LocalRepository(db, randomUUID), id = randomUUID();
+    local.activateAccount(id, now);
+    const row = local.create(id, { id: randomUUID(), mutationId: randomUUID(), quantity: 20, occurredAt: now, timezone: 'UTC' });
+    db.exec("UPDATE outbox SET status='acknowledged';");
+    db.run('UPDATE local_checkins SET server_version=1 WHERE id=?', row.id);
+    local.edit(id, row.id, 30); db.exec("UPDATE outbox SET status='acknowledged';");
+    migrate(db);
+    assert.deepEqual(db.all<{ acknowledged_version: number }>('SELECT acknowledged_version FROM outbox ORDER BY sequence').map(r => r.acknowledged_version), [1, 2]);
+  } finally { db.close(); }
+});

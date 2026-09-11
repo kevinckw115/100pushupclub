@@ -42,13 +42,21 @@ try {
   await page.getByRole('button', { name: 'Verify code', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Log pushups', exact: true })).toBeVisible();
   await expect(page.getByText('100 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await page.context().setOffline(true);
+  await page.getByRole('button', { name: 'Log pushups', exact: true }).click();
+  await page.getByRole('button', { name: 'Add pushups', exact: true }).click();
+  await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await expect(page.getByText('1 check-ins haven\u2019t synced yet.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await page.context().setOffline(false);
+  await page.getByRole('button', { name: 'Retry sync', exact: true }).click();
+  await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible({ timeout: 20000 });
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
   await page.goto('http://127.0.0.1:8081');
   await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   expect(errors).toEqual([]);
-  console.log('PASS: real Auth OTP request, invalid code/retry, profile bootstrap, partition isolation, guest restoration.');
+  console.log('PASS: real Auth OTP, invalid code/retry, partition isolation, offline account save, reconnect synchronization, guest restoration.');
 } catch (error) {
   const body = await page?.locator('body').innerText().catch(() => 'unavailable');
   console.error('Browser diagnostic:', JSON.stringify({ errors, screen: body?.replace(/[^\s@]+@[^\s@]+/g, '[email]').replace(/\b\d{6,10}\b/g, '[code]').slice(0, 1000) }));

@@ -132,7 +132,8 @@ export class SyncRepository {
   details(id: string) { return this.issue(id); }
   retryIssue(id: string) {
     this.local.db.transaction(() => {
-      this.issue(id);
+      const { code } = this.issue(id);
+      if (['VERSION_CONFLICT', 'ENTITY_EXISTS'].includes(code)) throw new SyncFailure('CHOICE_REQUIRED');
       this.local.db.run('DELETE FROM sync_issues WHERE partition_id=? AND entity_id=?', this.partitionId, id);
       this.local.db.run("UPDATE outbox SET status='sending',next_retry_at=NULL WHERE partition_id=? AND entity_id=? AND status IN ('rejected','conflict')", this.partitionId, id);
       this.project(id);
