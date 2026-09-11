@@ -7,10 +7,13 @@ import { parseReminderTime } from '../src/domain/reminders';
 import { readReminderSettings, refreshReminders, remindersSupported, requestReminderPermission } from '../src/services/reminders';
 import { theme, typography } from '../src/theme/theme';
 import { useAuth } from '../src/services/auth-context';
+import { useSync } from '../src/services/sync-context';
+import { SyncNotice } from '../src/features/logging/SyncNotice';
 export default function Settings() {
   const router = useRouter();
   const { repo, partition, refresh, reminderStatus } = useLocal();
   const auth = useAuth();
+  const sync = useSync();
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -38,12 +41,12 @@ export default function Settings() {
   return <AppScreen><Header /><Copy variant="title">Settings</Copy><Copy>Your check-ins are saved privately on this phone.</Copy>
     <Section title="Account">
       {partition?.kind !== 'account' ? <Button secondary label="Sign in or recover account" onPress={() => router.push('/auth')} /> : <>
-        <Notice>{auth.status === 'ready' ? 'Signed in. Cloud check-in synchronization is not available yet.' : 'Sign-in needs attention. Local check-ins are safe.'}</Notice>
+        <SyncNotice />
         <Button secondary label="Reconnect account" onPress={() => router.push('/auth')} />
         {confirmSignOut ? <>
           <Notice>{repo.unsynced(partition.id)} check-ins haven’t synced. Discarding removes this account’s local records from this phone. Guest check-ins remain.</Notice>
-          <Button secondary label="Retry account connection" onPress={() => { void auth.recover().then(() => setMessage('Cloud synchronization is not available yet. Keep these check-ins here to avoid losing them.')).catch(() => setMessage('Could not reconnect.')); }} />
-          <Button label="Discard and sign out" onPress={() => { void auth.signOut(true).catch(() => setMessage('Sign-out cleanup failed. Please retry.')); }} />
+          <Button secondary label="Retry account connection" onPress={() => { if (auth.connection) sync.retry(); else void auth.recover().catch(() => setMessage('Could not reconnect.')); }} />
+          <Button label={repo.unsynced(partition.id) ? 'Discard and sign out' : 'Sign out'} onPress={() => { void auth.signOut(repo.unsynced(partition.id) > 0).catch(() => setMessage('Sign-out cleanup failed. Please retry.')); }} />
           <Button secondary label="Keep my check-ins" onPress={() => setConfirmSignOut(false)} />
         </> : <Button secondary label="Sign out on this phone" onPress={() => {
           if (repo.unsynced(partition.id)) setConfirmSignOut(true);

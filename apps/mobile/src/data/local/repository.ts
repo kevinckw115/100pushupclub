@@ -52,6 +52,7 @@ export class LocalRepository {
     return this.db.transaction(() => {
       if (this.partition(userId).kind !== 'account') throw new Error('An account partition is required.');
       if (!discard && this.unsynced(userId)) throw new Error('Unsynced check-ins need your decision.');
+      this.db.run('DELETE FROM sync_issues WHERE partition_id=?', userId);
       this.db.run('DELETE FROM outbox WHERE partition_id=?', userId);
       this.db.run('DELETE FROM local_checkins WHERE partition_id=?', userId);
       this.db.run('DELETE FROM sync_cursors WHERE partition_id=?', userId);

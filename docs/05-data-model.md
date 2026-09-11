@@ -73,3 +73,6 @@ Blocks suppress both directions of member/activity rows for that viewer, but do 
 SQLite writes use bound parameters and transactions. Maintain the accepted server snapshot separately from optimistic projection so a pull cannot erase a pending edit. Personal totals sum only visible nondeleted projections for the active partition and date. An uncertain sent request is never overwritten by editing its body.
 
 Tombstones/receipts/change snapshots persist for account lifetime in V1; retention optimization requires a full-resync protocol first. Account deletion removes them. Guest local history persists until explicit discard/import cleanup or app removal. Provide export before destructive local actions.
+# Client reconciliation storage (T11)
+
+SQLite migration3 adds `outbox.acknowledged_version`, `retry_delay_ms`, retry/entity indexes and owner-partitioned `sync_issues`. The acknowledgment version belongs to that exact request, not the newest pulled entity. Issues retain the rejected mutation and owner snapshot until an explicit choice. Accepted snapshots plus the page cursor commit in one transaction. The display projection retains unsynced intent separately from accepted JSON. Cancelling an optimistic deletion may restore an accepted live value; an accepted tombstone or deleted guest record cannot be resurrected.

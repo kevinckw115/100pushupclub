@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T10 verified by real backend CI atfa74bff. Next: T11 client synchronization on its own branch. T09 automated CI passed at4f13591; native secure storage and hosted OTP need device/development setup. T08 backend verified. No hosted backend deployed.
+T11 client synchronization implemented on task/t11-client-sync; eight new real SQLite failure/reconciliation checks pass. Full local checks and disposable two-client backend CI are being completed. T10 verified atfa74bff. Native secure storage, lifecycle and hosted OTP still need device/development setup. No hosted backend deployed. Next: finish T11 evidence, then T12 guest import on a new branch.
 
 ## Fixed direction
 

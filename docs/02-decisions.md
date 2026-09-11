@@ -40,6 +40,10 @@ Owner-controlled developer organization and store seller name; available reverse
 
 ## ADR change template
 
+### 2026-09-10 / ADR-004 / Durable client reconciliation
+
+T11 records acknowledged parent versions, retry delays and unresolved sync issues in SQLite migration3. Dependent edits use the exact parent acknowledgment version even if a newer snapshot has arrived; they never silently overwrite that newer version. Accepted snapshots and pull cursors commit together while local intent remains visible. An unaccepted optimistic deletion may be cancelled explicitly; guest deletions and accepted server tombstones remain permanent. Replacement check-ins use a fresh ID and current recorded time with no public consent epoch. Client and initial server mutation UUID validation now agree on versions1-8 and RFC variant bits, preventing accepted but unreadable records. There is no deployed database to migrate. Data/API/sync contracts and failure/concurrent-client tests accompany this change.
+
 ### 2026-09-10 / ADR-001 / Profile bootstrap transport and operation receipts
 
 The API already required idempotency for non-check-in writes but left their receipt storage and profile envelope implicit. T08 defines separate operation_receipts, typed own-profile envelopes with request IDs, and an informational bootstrap revision. Replays recheck live account availability. A bootstrap revision never initializes a pull cursor, preventing a new device from skipping existing history. No product visibility or ownership rule changes. API, data, sync and TypeScript contracts updated together; real JWT, receipt-replay and concurrency tests added. Initial schema only, so no existing production data migration is needed.

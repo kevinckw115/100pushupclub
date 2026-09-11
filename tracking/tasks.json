@@ -182,8 +182,10 @@
         "T09",
         "T10"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "in_progress",
+      "evidence": [
+        "tracking/evidence/T11.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A06",

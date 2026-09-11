@@ -38,6 +38,7 @@ export default function Auth() {
       {sent && !busy && <Button secondary label="Use a different email" onPress={() => { setSent(false); setCode(''); }} />}
     </>}
     {(message || auth.message) && <Notice>{message ?? auth.message}</Notice>}
+    {sent && auth.message && <Button secondary label="Retry account connection" busy={busy} onPress={() => { void auth.recover().then(ok => { if (ok) router.replace('/(tabs)/today'); }).catch(() => setMessage('Could not reconnect. Your local check-ins are safe.')); }} />}
     <Button secondary label="Cancel sign-in" onPress={() => { void auth.cancel().then(() => router.replace('/(tabs)/today')).catch(() => setMessage('Could not close sign-in storage. Please try again.')); }} />
   </AppScreen>;
 }

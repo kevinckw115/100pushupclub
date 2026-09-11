@@ -7,6 +7,7 @@ import { CheckinEditor } from '../../src/features/logging/CheckinEditor';
 import type { LocalCheckin } from '../../src/data/local/repository';
 import { theme } from '../../src/theme/theme';
 import { CheckinList } from '../../src/features/history/CheckinList';
+import { SyncNotice } from '../../src/features/logging/SyncNotice';
 
 export default function Today() {
   const { repo, partition, date, refresh } = useLocal();
@@ -44,6 +45,7 @@ export default function Today() {
     {undoError && <Notice error>Could not undo. Open the check-in to try deleting it again.</Notice>}
     <CheckinList key={date} date={date} onEdit={setEditor} />
     <Notice>{partition.kind === 'guest' ? 'Saved on this phone. Your check-ins are private.' : 'Your personal check-ins'}</Notice>
+    <SyncNotice />
     {editor && <CheckinEditor record={editor === 'new' ? undefined : editor} onClose={() => setEditor(null)} onSaved={saved} />}
   </AppScreen>;
 }

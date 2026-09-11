@@ -78,8 +78,8 @@ begin
     when 'update' then array['kind','mutation_id','checkin_id','quantity','expected_version']
     when 'delete' then array['kind','mutation_id','checkin_id','expected_version'] end;
   if required is null or not (envelope ?& required) or (envelope-required)<>'{}'::jsonb then return app_private.api_error('INVALID_REQUEST',400); end if;
-  if coalesce(envelope->>'mutation_id','') !~* '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$'
-    or coalesce(envelope->>'checkin_id','') !~* '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$' then return app_private.api_error('INVALID_REQUEST',400); end if;
+  if coalesce(envelope->>'mutation_id','') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    or coalesce(envelope->>'checkin_id','') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' then return app_private.api_error('INVALID_REQUEST',400); end if;
   mutation_key := (envelope->>'mutation_id')::uuid; entity_id := (envelope->>'checkin_id')::uuid;
   canonical := jsonb_build_object('kind',kind,'mutation_id',mutation_key,'checkin_id',entity_id);
   if kind in ('create','update') then

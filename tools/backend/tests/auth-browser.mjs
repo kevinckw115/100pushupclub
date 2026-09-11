@@ -43,7 +43,7 @@ try {
   await expect(page.getByRole('button', { name: 'Log pushups', exact: true })).toBeVisible();
   await expect(page.getByText('100 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await expect(page.getByText('Signed in. Cloud check-in synchronization is not available yet.', { exact: true }).filter({ visible: true })).toBeVisible();
+  await expect(page.getByText('All check-ins synced.', { exact: true }).filter({ visible: true })).toBeVisible();
   await page.getByRole('button', { name: 'Sign out on this phone', exact: true }).click();
   await page.goto('http://127.0.0.1:8081');
   await expect(page.getByText('90 to go. Take your time.', { exact: true }).filter({ visible: true })).toBeVisible();

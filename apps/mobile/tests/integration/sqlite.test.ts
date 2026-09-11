@@ -92,7 +92,7 @@ test('constraints reject invalid quantities, time edits, resurrection and sent r
       assert.throws(() => f.db.run('UPDATE local_checkins SET quantity=? WHERE id=?', count, record.id));
     }
     assert.throws(() => f.db.run("UPDATE local_checkins SET local_date='2026-09-11' WHERE id=?", record.id));
-    f.db.run('UPDATE local_checkins SET deleted=1 WHERE id=?', record.id);
+    f.db.run('UPDATE local_checkins SET deleted=1,accepted_json=? WHERE id=?', JSON.stringify({ deleted_at: now }), record.id);
     assert.throws(() => f.db.run('UPDATE local_checkins SET deleted=0 WHERE id=?', record.id));
     f.db.exec("UPDATE outbox SET status='sending';");
     assert.throws(() => f.db.exec("UPDATE outbox SET request_json='{}';"));
@@ -111,7 +111,7 @@ test('v1 database upgrades transactionally without losing records or queued work
     migrate(db);
     assert.equal(repo.get(account, record.id)?.quantity, 20);
     assert.equal(db.all('SELECT * FROM outbox').length, 1);
-    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 2);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 3);
   } finally { db.close(); }
 });
 
@@ -125,7 +125,7 @@ test('failed migration rolls back schema changes and version marker together', (
     assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 1);
     db.exec('DROP INDEX outbox_ready;');
     migrate(db);
-    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 2);
+    assert.equal(db.all('SELECT * FROM local_schema_migrations').length, 3);
   } finally { db.close(); }
 });
 

@@ -42,6 +42,22 @@ export const migrations = [
   CREATE TABLE cached_queries (identity TEXT NOT NULL, scope TEXT NOT NULL, request_key TEXT NOT NULL, payload TEXT NOT NULL, fetched_at TEXT NOT NULL, expiry TEXT NOT NULL, PRIMARY KEY(identity,scope,request_key));`,
   `CREATE INDEX checkins_by_day ON local_checkins(partition_id,local_date,occurred_at DESC,id);
    CREATE INDEX outbox_ready ON outbox(partition_id,status,sequence);`,
+  `CREATE INDEX outbox_entity ON outbox(partition_id,entity_id,sequence);
+   ALTER TABLE outbox ADD COLUMN acknowledged_version INTEGER CHECK(acknowledged_version>=1);
+   ALTER TABLE outbox ADD COLUMN retry_delay_ms INTEGER NOT NULL DEFAULT 0 CHECK(retry_delay_ms>=0);
+   CREATE INDEX outbox_retry ON outbox(partition_id,next_retry_at) WHERE status IN ('pending','sending') AND next_retry_at IS NOT NULL;
+   UPDATE outbox SET acknowledged_version=CASE WHEN operation='create' THEN 1 ELSE json_extract(request_json,'$.expected_version')+1 END WHERE status='acknowledged';
+   CREATE TABLE sync_issues (
+     partition_id TEXT NOT NULL, entity_id TEXT NOT NULL, mutation_id TEXT NOT NULL,
+     code TEXT NOT NULL, current_record TEXT,
+     PRIMARY KEY(partition_id,entity_id),
+     FOREIGN KEY(partition_id,entity_id) REFERENCES local_checkins(partition_id,id)
+   );
+   DROP TRIGGER no_resurrection;
+   CREATE TRIGGER no_resurrection BEFORE UPDATE OF deleted ON local_checkins
+   WHEN OLD.deleted=1 AND NEW.deleted=0 AND
+     (OLD.state='local' OR json_extract(OLD.accepted_json,'$.deleted_at') IS NOT NULL)
+   BEGIN SELECT RAISE(ABORT,'Deleted record cannot be restored'); END;`,
 ];
 
 export function migrate(db: SqlDriver, target = migrations.length) {

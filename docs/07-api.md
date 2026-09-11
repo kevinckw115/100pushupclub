@@ -73,3 +73,6 @@ Authenticated check-in mutations: 120/minute/account; public feed: 30/minute/ses
 The check-in RPC enforces a fixed UTC minute budget including receipt replays and validated error requests. Usage saturates at121 and resets on a new minute. RATE_LIMITED returns HTTP429 and Retry-After seconds. A transient rolled-back transaction does not retain budget state or any partial accepted record. The RPC bounds its parsed envelope at32KB; deployment ingress limits must also bound raw HTTP bodies. Profile/record lock waits are bounded at5seconds and requests at10seconds. Import transport batching/queue limits remain a T12 concern.
 
 Guest feed endpoint needs gateway limits; a mobile publishable API key is not a secret or proof of a unique person. Do not solve abuse by embedding a privileged secret in the app.
+# Client protocol validation (T11)
+
+Mutation and check-in UUIDs use versions1-8 with RFC variant bits, case-insensitively accepted and normalized lowercase. Accepted record revisions are positive decimal int64 strings; pull cursor0 represents a fresh client. Clients validate bounded, strictly ordered pages and retain precision beyond JavaScript safe integers. Imported records cannot have public epoch/region metadata. Authentication is attached as a verified bearer session; no user ID is submitted in mutation or pull bodies.
