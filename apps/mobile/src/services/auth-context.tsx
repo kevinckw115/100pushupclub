@@ -174,7 +174,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (!repo) return;
     const account = repo.activePartition();
     if (account?.kind !== 'account') return;
-    if (!discard && repo.unsynced(account.id)) throw new Error('Unsynced check-ins need your decision.');
+    if (!discard && (repo.unsynced(account.id) || repo.preference(account.id, 'pending_profile'))) throw new Error('Unsynced account changes need your decision.');
     repo.setPreference('device', 'pending_logout', JSON.stringify({ id: account.id, discard }));
     generation.next();
     automaticRecovery.current = false;

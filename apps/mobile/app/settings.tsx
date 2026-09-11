@@ -23,6 +23,7 @@ export default function Settings() {
   const preferences = readReminderSettings(repo);
   const time = draft ?? `${String(preferences.hour).padStart(2, '0')}:${String(preferences.minute).padStart(2, '0')}`;
   const haptics = repo.preference('device', 'haptics') !== 'off';
+  const pendingProfile = partition?.kind === 'account' && !!repo.preference(partition.id, 'pending_profile');
   const changeReminder = async (enabled: boolean, request = false) => {
     if (pending.current) return;
     pending.current = true;
@@ -42,15 +43,17 @@ export default function Settings() {
     <Section title="Account">
       {partition?.kind !== 'account' ? <Button secondary label="Sign in or recover account" onPress={() => router.push('/auth')} /> : <>
         <SyncNotice />
+        <Button secondary label="Alias and public sharing" onPress={() => router.push('/sharing')} />
         <Button secondary label="Import guest check-ins" onPress={() => router.push('/guest-import')} />
         <Button secondary label="Reconnect account" onPress={() => router.push('/auth')} />
         {confirmSignOut ? <>
           <Notice>{repo.unsynced(partition.id)} check-ins haven’t synced. Discarding removes this account’s local records from this phone. Guest check-ins remain.</Notice>
+          {pendingProfile && <Notice>A sharing change is unconfirmed. Signing out stops its retries; sharing may still be on at the server.</Notice>}
           <Button secondary label="Retry account connection" onPress={() => { if (auth.connection) sync.retry(); else void auth.recover().catch(() => setMessage('Could not reconnect.')); }} />
-          <Button label={repo.unsynced(partition.id) ? 'Discard and sign out' : 'Sign out'} onPress={() => { void auth.signOut(repo.unsynced(partition.id) > 0).catch(() => setMessage('Sign-out cleanup failed. Please retry.')); }} />
+          <Button label={repo.unsynced(partition.id) || pendingProfile ? 'Discard and sign out' : 'Sign out'} onPress={() => { void auth.signOut(repo.unsynced(partition.id) > 0 || pendingProfile).catch(() => setMessage('Sign-out cleanup failed. Please retry.')); }} />
           <Button secondary label="Keep my check-ins" onPress={() => setConfirmSignOut(false)} />
         </> : <Button secondary label="Sign out on this phone" onPress={() => {
-          if (repo.unsynced(partition.id)) setConfirmSignOut(true);
+          if (repo.unsynced(partition.id) || pendingProfile) setConfirmSignOut(true);
           else void auth.signOut(false).catch(() => setMessage('Sign-out cleanup failed. Please retry.'));
         }} />}
       </>}

@@ -27,7 +27,7 @@ export class SyncEngine {
   retry() {
     if (!this.current()) return Promise.resolve();
     this.blocked = false;
-    if (this.lastCode === 'NETWORK') { this.notBefore = 0; this.repo.clearRetry(); }
+    if (this.lastCode === 'NETWORK') { this.notBefore = 0; this.repo.clearRetry(); this.repo.profile.clearRetry(); }
     return this.sync();
   }
   private wake(delay: number) {
@@ -55,12 +55,41 @@ export class SyncEngine {
       more = page.has_more;
     }
   }
+  private async syncProfile(): Promise<boolean> {
+    if (!this.transport.getProfile || !this.transport.updateProfile) return true;
+    const profile = this.repo.profile, pending = profile.pending();
+    if (pending && pending.state !== 'rejected') {
+      const delay = profile.retryDelay(this.clock.now());
+      if (delay > 0) { this.report({ state: 'retrying' }); this.requested = false; this.wake(delay); return false; }
+      profile.sending(pending.request.operation_id);
+      try {
+        await this.transport.updateProfile(pending.request, this.controller.signal);
+      } catch (error) {
+        if (!this.active()) return false;
+        if (error instanceof SyncFailure && error.code !== 'IDEMPOTENCY_KEY_REUSED' && !error.retryable && [400, 409].includes(error.status)) {
+          profile.reject(pending.request.operation_id, error.code, error.profile); this.changed(); return true;
+        }
+        throw error;
+      }
+      if (!this.active()) return false;
+      // A replayed receipt can describe an older consent epoch. Confirm the current account state.
+      const latest = await this.transport.getProfile(this.controller.signal);
+      if (!this.active()) return false;
+      profile.accept(pending.request.operation_id, latest); this.changed();
+    } else {
+      const latest = await this.transport.getProfile(this.controller.signal);
+      if (!this.active()) return false;
+      if (profile.store(latest)) this.changed();
+    }
+    return true;
+  }
   private async loop() {
     this.controller = new AbortController();
     while (this.requested && this.active()) {
       this.requested = false; let row: QueuedMutation | null = null;
       this.report({ state: 'syncing' });
       try {
+        if (!await this.syncProfile()) return;
         await this.pull();
         if (!this.active()) return;
         while (this.active() && (row = this.repo.beginNext(new Date(this.clock.now()).toISOString()))) {
@@ -97,7 +126,7 @@ export class SyncEngine {
           const delay = Math.max(failure.retryAfterMs, Math.min(60000, 1000 * 2 ** Math.min(6, this.failures - 1)) * (0.75 + this.clock.random() * 0.25));
           this.notBefore = this.clock.now() + delay;
           this.lastDelay = delay;
-          try { if (row) this.repo.defer(row.mutation_id, new Date(this.notBefore).toISOString(), delay); }
+          try { if (row) this.repo.defer(row.mutation_id, new Date(this.notBefore).toISOString(), delay); else this.repo.profile.defer(this.clock.now(), delay); }
           catch { this.blocked = true; this.report({ state: 'blocked', code: 'LOCAL_STORAGE' }); return; }
           this.report({ state: 'retrying', code: failure.code }); this.wake(delay);
         } else { this.blocked = true; this.report({ state: 'blocked', code: failure.code }); }

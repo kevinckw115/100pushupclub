@@ -3,6 +3,7 @@ import { instant, localDate, quantity, uuid } from '../../domain/checkin.ts';
 import { ownCheckin, SyncFailure } from './protocol.ts';
 import type { CheckinMutation, OwnCheckin, MutationAccepted, PullPage } from './protocol.ts';
 import { ImportRepository } from '../local/imports.ts';
+import { ProfileRepository } from '../local/profile.ts';
 
 export interface QueuedMutation {
   sequence: number; partition_id: string; mutation_id: string; entity_id: string;
@@ -14,8 +15,8 @@ export interface QueuedMutation {
 export interface SyncIssue { entity_id: string; mutation_id: string; code: string; current_record: string | null }
 
 export class SyncRepository {
-  readonly local: LocalRepository; readonly partitionId: string; readonly imports: ImportRepository;
-  constructor(local: LocalRepository, partitionId: string) { this.local = local; this.partitionId = partitionId; this.imports = new ImportRepository(local, partitionId); }
+  readonly local: LocalRepository; readonly partitionId: string; readonly imports: ImportRepository; readonly profile: ProfileRepository;
+  constructor(local: LocalRepository, partitionId: string) { this.local = local; this.partitionId = partitionId; this.imports = new ImportRepository(local, partitionId); this.profile = new ProfileRepository(local, partitionId); }
   private active() {
     const active = this.local.activePartition();
     if (active?.id !== this.partitionId || active.kind !== 'account') throw new SyncFailure('STALE_SCOPE');

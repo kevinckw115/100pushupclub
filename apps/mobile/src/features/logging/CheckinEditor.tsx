@@ -5,6 +5,7 @@ import { quantity } from '../../domain/checkin';
 import { deviceTimezone, useLocal } from '../../services/local-context';
 import type { LocalCheckin } from '../../data/local/repository';
 import { confirmLocalCommit } from '../../services/haptics';
+import { ProfileRepository } from '../../data/local/profile';
 
 export function CheckinEditor({ record, onClose, onSaved }: { record?: LocalCheckin; onClose: () => void; onSaved: (result: LocalCheckin, created: boolean) => void }) {
   const { repo, partition, date } = useLocal();
@@ -26,7 +27,7 @@ export function CheckinEditor({ record, onClose, onSaved }: { record?: LocalChec
     setError(null);
     let saved: LocalCheckin;
     try {
-      saved = remove && record ? repo.delete(partition.id, record.id) : record ? repo.edit(partition.id, record.id, count) : repo.create(partition.id, { ...ids, quantity: count, occurredAt: new Date().toISOString(), timezone: deviceTimezone() });
+      saved = remove && record ? repo.delete(partition.id, record.id) : record ? repo.edit(partition.id, record.id, count) : repo.create(partition.id, { ...ids, quantity: count, occurredAt: new Date().toISOString(), timezone: deviceTimezone(), publicEpoch: partition.kind === 'account' ? new ProfileRepository(repo, partition.id).publicEpoch() : null });
     } catch {
       lock.current = false;
       setSaving(false);

@@ -1,9 +1,12 @@
-import { accepted, ownCheckin, pullPage, SyncFailure } from './protocol.ts';
+import { accepted, ownCheckin, ownProfile, pullPage, SyncFailure } from './protocol.ts';
 import type { CheckinMutation, MutationAccepted, PullPage } from './protocol.ts';
+import type { OwnProfile, ProfileMutation } from '../../../../../contracts/domain.ts';
 
 export interface SyncTransport {
   mutate(input: CheckinMutation, signal: AbortSignal): Promise<MutationAccepted>;
   pull(after: string, signal: AbortSignal): Promise<PullPage>;
+  getProfile?(signal: AbortSignal): Promise<OwnProfile>;
+  updateProfile?(input: ProfileMutation, signal: AbortSignal): Promise<OwnProfile>;
 }
 export interface AccountLease {
   userId: string;
@@ -38,10 +41,10 @@ export class HttpSyncTransport implements SyncTransport {
         const retryAfter = response.headers.get('retry-after');
         const retryAfterMs = retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) * 1000 : 0;
         if (!Number.isFinite(retryAfterMs) || retryAfterMs > 2147483647) throw new SyncFailure('PROTOCOL');
-        let record;
-        try { record = value.current_record ? ownCheckin(value.current_record) : undefined; } catch { throw new SyncFailure('PROTOCOL'); }
+        let record, profile;
+        try { record = value.current_record ? ownCheckin(value.current_record) : undefined; profile = value.profile ? ownProfile(value.profile) : undefined; } catch { throw new SyncFailure('PROTOCOL'); }
         if (['VERSION_CONFLICT', 'ENTITY_EXISTS'].includes(code) && !record) throw new SyncFailure('PROTOCOL');
-        throw new SyncFailure(code, { status: response.status, retryable: response.status === 429 || response.status >= 500, record,
+        throw new SyncFailure(code, { status: response.status, retryable: response.status === 429 || response.status >= 500, record, profile,
           retryAfterMs });
       } catch (error) {
         if (error instanceof SyncFailure) throw error;
@@ -58,5 +61,18 @@ export class HttpSyncTransport implements SyncTransport {
   async pull(after: string, signal: AbortSignal): Promise<PullPage> {
     const data = await this.post('pull_changes', { after_revision: after, limit: 100 }, signal);
     try { return pullPage(data, after); } catch { throw new SyncFailure('PROTOCOL'); }
+  }
+  async getProfile(signal: AbortSignal): Promise<OwnProfile> {
+    const data = await this.post('get_profile', {}, signal) as { profile: unknown };
+    try { return ownProfile(data.profile); } catch { throw new SyncFailure('PROTOCOL'); }
+  }
+  async updateProfile(input: ProfileMutation, signal: AbortSignal): Promise<OwnProfile> {
+    const data = await this.post('update_profile', { envelope: input }, signal) as { profile: unknown };
+    try {
+      const profile = ownProfile(data.profile);
+      if ((input.alias !== undefined && profile.alias !== input.alias.trim()) || (input.public_enabled !== undefined && profile.public_enabled !== input.public_enabled)
+        || (input.region_id !== undefined && profile.region_id !== (input.region_id === 'world' ? null : input.region_id))) throw new Error('Unexpected profile receipt.');
+      return profile;
+    } catch { throw new SyncFailure('PROTOCOL'); }
   }
 }

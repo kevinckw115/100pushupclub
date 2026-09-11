@@ -1,10 +1,17 @@
 import { instant, localDate, quantity, uuid } from '../../domain/checkin.ts';
-import type { OwnCheckin, MutationAccepted, PullPage } from '../../../../../contracts/domain.ts';
+import type { OwnCheckin, OwnProfile, MutationAccepted, PullPage } from '../../../../../contracts/domain.ts';
 export type { OwnCheckin, MutationAccepted, PullPage, CheckinMutation } from '../../../../../contracts/domain.ts';
 
 export function decimal(value: unknown): string {
   if (typeof value !== 'string' || !/^(0|[1-9]\d{0,18})$/.test(value) || BigInt(value) > 9223372036854775807n) throw new Error('Invalid revision.');
   return value;
+}
+export function ownProfile(value: unknown): OwnProfile {
+  const row = object(value);
+  if (typeof row.alias !== 'string' || !/^[A-Za-z0-9_]{3,20}$/.test(row.alias) || typeof row.public_enabled !== 'boolean'
+    || (row.region_id !== null && (typeof row.region_id !== 'string' || !/^gn:[1-9]\d{0,18}$/.test(row.region_id)))
+    || !['active', 'deleting', 'suspended'].includes(String(row.status))) throw new Error('Invalid account profile.');
+  return { alias: row.alias, region_id: row.region_id as string | null, public_enabled: row.public_enabled, consent_epoch: decimal(row.consent_epoch), status: row.status as OwnProfile['status'] };
 }
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid response.');
@@ -46,8 +53,10 @@ export function pullPage(value: unknown, after: string): PullPage {
 export class SyncFailure extends Error {
   readonly code: string; readonly status: number; readonly retryable: boolean;
   readonly record?: OwnCheckin; readonly retryAfterMs: number;
-  constructor(code: string, options: { status?: number; retryable?: boolean; record?: OwnCheckin; retryAfterMs?: number } = {}) {
+  readonly profile?: OwnProfile;
+  constructor(code: string, options: { status?: number; retryable?: boolean; record?: OwnCheckin; retryAfterMs?: number; profile?: OwnProfile } = {}) {
     super(code); this.code = code; this.status = options.status ?? 0; this.retryable = options.retryable ?? false;
     this.record = options.record; this.retryAfterMs = options.retryAfterMs ?? 0;
+    this.profile = options.profile;
   }
 }

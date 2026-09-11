@@ -51,7 +51,7 @@ export class LocalRepository {
   signOutAccount(userId: string, now: string, discard: boolean) {
     return this.db.transaction(() => {
       if (this.partition(userId).kind !== 'account') throw new Error('An account partition is required.');
-      if (!discard && this.unsynced(userId)) throw new Error('Unsynced check-ins need your decision.');
+      if (!discard && (this.unsynced(userId) || this.preference(userId, 'pending_profile'))) throw new Error('Unsynced account changes need your decision.');
       this.db.run("UPDATE guest_imports SET state='paused' WHERE account_partition=? AND state IN ('pending','conflict')", userId);
       this.db.run('UPDATE guest_imports SET remote_json=NULL WHERE account_partition=?', userId);
       this.db.run('DELETE FROM sync_issues WHERE partition_id=?', userId);

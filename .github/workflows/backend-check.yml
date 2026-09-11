@@ -39,6 +39,7 @@ jobs:
           path: |
             tracking/evidence/t12-import-web.png
             tracking/evidence/t13-region-web.png
+            tracking/evidence/t14-sharing-web.png
           if-no-files-found: error
       - name: Stop disposable stack
         if: always()

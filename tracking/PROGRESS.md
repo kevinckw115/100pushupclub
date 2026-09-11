@@ -6,7 +6,7 @@ T01-T07 implemented on separate task branches. Local tracker has automated domai
 
 ## Current task
 
-T13 region directory verified at227a217: checked GeoNames hierarchy, bounded public RPCs, manual cached picker and attribution passed backend/browser/native-export CI. T12 verified at4292735; T11 sync checks also reran successfully. Native secure storage, lifecycle, accessibility and hosted OTP still need device/development setup. No hosted backend deployed. Next: T14 consent/public queries on a new branch; enforce epoch invalidation, sanitized opaque projections, thresholds and current eligibility across pages.
+T14 consent/public queries is in progress on task/t14-consent-public-queries. Backend 1ab8b80 passed real Postgres/Auth, public privacy/race/pagination and mobile CI. Durable client sharing controls and four SQLite failure/replay tests are implemented; integration 38/38 and lint passed. Next: verify connected consent UI and full exports, then start T15 Club interface on a new branch. T13 region directory verified at227a217 and T12 at4292735. Native secure storage, lifecycle, accessibility and hosted OTP still need device/development setup. No hosted backend deployed.
 
 ## Fixed direction
 
