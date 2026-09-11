@@ -408,9 +408,11 @@
       "depends_on": [
         "T22"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T23.md"
+      ],
+      "blocker": "A37 and one-week mixed-platform beta require signed builds, iOS/Android devices, hosted OTP/support/deletion operations and consenting participants. Review packet and empty findings ledger prepared; no native/beta evidence fabricated.",
       "acceptance_ids": [
         "A37"
       ]
