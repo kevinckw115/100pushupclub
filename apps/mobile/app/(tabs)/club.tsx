@@ -26,7 +26,7 @@ export default function Club() {
   const state = useSyncExternalStore(reader?.subscribe ?? emptySubscribe, reader?.snapshot ?? emptySnapshot, emptySnapshot);
   let browsing = world;
   try { const saved = repo?.preference(identity ?? 'device', 'browse_region'); if (saved) browsing = region(JSON.parse(saved)); } catch { /* Invalid local selection falls back to World. */ }
-  const selected = repo?.preference(identity ?? 'device', 'club_scope') === 'region' ? browsing.id : 'world';
+  const selected = repo?.preference(identity ?? 'device', 'club_scope') === 'world' ? 'world' : browsing.id;
   const pendingSafety = account && !!repo && !!identity && new SafetyRepository(repo, identity).all().some(p => p.request.operation !== 'report_subject');
   const privacyVersion = account ? `${repo?.preference(identity ?? '', 'account_profile')}:${repo?.preference(identity ?? '', 'pending_safety')}:${repo?.preference(identity ?? '', 'safety_receipt')}` : '';
   useEffect(() => { reader?.setScope(selected); }, [reader, selected]);
