@@ -5,6 +5,16 @@ import { readEnvironment } from '../src/config/environment.ts';
 test('development starts offline without service credentials', () => {
   assert.equal(readEnvironment({}).connected, false);
 });
+test('preview cannot silently become offline and privileged keys never enter client config', () => {
+  const url = { EXPO_PUBLIC_SUPABASE_URL: 'https://project.supabase.co' };
+  assert.throws(() => readEnvironment({ EXPO_PUBLIC_APP_ENV: 'preview' }));
+  for (const role of ['service_role', 'authenticated']) {
+    const key = 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify({ role })).toString('base64url') + '.test';
+    assert.throws(() => readEnvironment({ ...url, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key }), /anon/);
+  }
+  assert.throws(() => readEnvironment({ ...url, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_secret_test' }), /Server/);
+  assert.equal(readEnvironment({ ...url, EXPO_PUBLIC_APP_ENV: 'preview', EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test' }).connected, true);
+});
 test('invalid and incomplete service configuration fails explicitly', () => {
   for (const values of [
     { EXPO_PUBLIC_APP_ENV: 'typo' },

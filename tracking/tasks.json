@@ -392,9 +392,11 @@
         "T20",
         "T21"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T22.md"
+      ],
+      "blocker": "Signed beta/production configuration requires owner Expo project, bundle IDs, signing accounts, support domain/contact, hosted backend and native T20/T21 evidence. Independent config audit and operations handoff implemented; CI pending.",
       "acceptance_ids": [
         "A35"
       ]
