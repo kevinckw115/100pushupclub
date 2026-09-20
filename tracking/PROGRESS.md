@@ -20,6 +20,12 @@ Native build target, development Supabase and OTP delivery, region dataset, prod
 
 Date / task / files changed / exact checks / evidence paths / implemented vs verified / blocker if any / next action. Preserve previous entries beneath the current summary.
 
+## 2026-09-19: PR #1 Expo dependency validation fix
+
+Updated apps/mobile/package.json and package-lock.json for Expo, notifications, sharing and Router patch compatibility. The lockfile resolves Expo57.0.24, notifications57.0.20, sharing57.0.21 and Router57.0.22; current Doctor also required the Router update. Existing expo-sqlite57.0.3 patch remains applied.
+
+Automated verification on Windows with Node24.19.0: clean npm ci --ignore-scripts=false passed before the final Router update; final dependency tree passed node node_modules/expo-doctor/build/index.js (21/21), node node_modules/eslint/bin/eslint.js ., node node_modules/typescript/bin/tsc --noEmit, node --test --test-reporter=dot tests/*.test.ts (23), node --test --test-reporter=dot tests/integration/*.test.ts (56), and node scripts/export.mjs (web/iOS/Android plus bundle audits). Commands run from apps/mobile. No native-device testing performed; existing release gates remain open. Next action: verify GitHub validation on the pushed PR commit.
+
 ## 2026-09-10: T01
 
 Branch task/t01-toolchain-bootstrap. App scaffold, Router, lockfile, dev/preview configs, CI and check scripts implemented. See [exact evidence](evidence/T01.md). Commands from apps/mobile: npm.cmd ci; npm.cmd run lint; npm.cmd run typecheck; npm.cmd test; npm.cmd run test:integration; npm.cmd run doctor; node node_modules/expo/bin/cli export --platform web. Full export blocked by Hermes spawn EPERM. Native target and Python unavailable. Next: T02 components, then T03 real SQLite; independent missing-gate exception documented in T01 evidence. Each task gets a new branch stacked on the prior task commit.
