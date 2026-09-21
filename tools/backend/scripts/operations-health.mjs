@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 const project = 'ggeyfolfedercmfvwsqx';
 export function validateHostedOperations(env) {
   if (env.DELETION_API_URL !== `https://${project}.supabase.co`) throw new Error('OPERATIONS_TARGET_INVALID');

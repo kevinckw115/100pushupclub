@@ -1,47 +1,80 @@
-# Hosted deletion and monitoring setup
+﻿# Supabase scheduled cleanup and monitoring
 
-This is a reviewable staging deployment plan, not evidence that a schedule or alert is running. Vercel serves the standalone website. The existing Node/PostgreSQL deletion worker needs scheduled execution separately. The prepared Render Blueprint runs cleanup and aggregate diagnostics every minute in one job, avoiding a second monitoring service. No paid resource has been created.
+The staging website uses Vercel. Scheduled cleanup uses the existing Supabase project, with no Render account or paid worker host. The owner selected this approach to avoid another paid service. These files prepare deployment; no hosted function, schedule, alert or backup has been configured automatically.
 
-## Cost and account
+## Free-tier boundaries
 
-Render cron has a minimum charge of US$1 per month per service, with additional usage-based compute billing. This is a minimum, not an estimate or a cap. Review the current plan and projected usage before creating it. If a paid service is unsuitable, do not deploy this Blueprint; select another scheduler and preserve the one-minute execution and monitoring requirements. A sporadic manual run does not satisfy the deletion completion commitment.
+Supabase supports pg_cron plus pg_net to invoke an Edge Function every minute. A31-day month uses44,640 scheduled invocations, plus tests/retries, which must fit the project's current Edge Function quota along with other usage. Free projects can pause, have runtime limits and do not provide the paid daily-backup guarantee. Check the actual plan and quotas before enabling this. No automatic paid upgrade is authorized.
 
-## Browser setup
+The function reuses the existing deletion worker and aggregate metrics, takes a database advisory lock to prevent overlapping runs, requires a separate256-bit scheduler secret, and rejects public/anonymous calls. Existing users' JWTs and publishable keys do not authorize it. Only the configured staging database/API are accepted. A successful HTTP response contains only an operations code. Logs contain aggregate counts, never user records, proof tokens, email addresses or secrets.
 
-1. Merge task/hosted-deletion-operations after its checks pass. It is stacked on task/public-support-site and Expo linkage. Review the full main comparison before merging.
-2. Create/sign in to Render, connect GitHub, and authorize access only to this repository as needed.
-3. Choose New > Blueprint, select the repository/main and render.yaml. Confirm one cron job only, `100pushupclub-staging-operations`, the quoted price, and schedule `* * * * *` (UTC). Choose a region near the Supabase project before creation.
-4. Supply the two server-only secrets below in Render's form. They must never go in Vercel site settings, Expo settings, source code or chat.
-5. Review the resulting service and deploy when ready. The first deployment starts scheduled execution against staging and may process existing accepted deletion jobs. Future source updates are manual because autoDeployTrigger is off.
+## 1. Merge the reviewed code
 
-| Setting | Where to obtain it |
+After all checks pass, merge task/supabase-scheduled-operations into main. It includes the earlier Expo linkage, standalone website and operations work. Do not merge or deploy the superseded Render branch separately. The final tree removes render.yaml and the Render runner.
+
+GitHub's Operations Edge runtime checks resolve the pinned pg dependency in Deno and verify an unauthenticated POST is rejected. The backend suite verifies the same HTTP handler with real Auth/PostgreSQL cleanup, wrong-secret rejection and concurrent lock exclusion. Hosted Edge connectivity still requires verification after deployment.
+
+## 2. Create the scheduler secret in Supabase
+
+In the approved project ggeyfolfedercmfvwsqx, open SQL Editor and run this once:
+
+```sql
+select vault.create_secret(
+  encode(extensions.gen_random_bytes(32), 'hex'),
+  'operations_cron_secret'
+);
+```
+
+This generates the value inside the database; the query result is the Vault record ID. If that named secret already exists, reuse it rather than creating a duplicate. In Vault, reveal/copy that value into the function secret below. Never put it in chat, the repository, Expo or Vercel.
+
+## 3. Configure Edge Function secrets
+
+Supabase > Edge Functions > Secrets:
+
+| Name | Value/source |
 |---|---|
-| DELETION_DATABASE_URL | Supabase project > Connect > Session pooler. Copy the actual URI, replace the password placeholder with your percent-encoded DB password, and set `sslmode=verify-full` in its query string. Expected pooled username is `postgres.ggeyfolfedercmfvwsqx`. Keep certificate verification enabled. |
-| DELETION_ADMIN_KEY | Supabase project settings > API Keys > Legacy keys > service_role. This existing worker uses an Auth-admin JWT; the publishable key and Supabase account access token are not substitutes. |
+| DELETION_API_URL | https://ggeyfolfedercmfvwsqx.supabase.co |
+| DELETION_DATABASE_URL | Supabase Connect > Session pooler URI. Replace the password placeholder with the percent-encoded DB password and set sslmode=verify-full in the query string. Pooled username must be postgres.ggeyfolfedercmfvwsqx. Use session mode on5432, not transaction mode, because the overlap lock lasts for a session. |
+| OPERATIONS_CRON_SECRET | The64-character hexadecimal value from Vault above |
+| OPERATIONS_HEARTBEAT_URL | Optional initially; the private HTTPS success-ping URL from the monitoring step below |
 
-The guard restricts the API, database project and service-role JWT reference to staging. It checks configuration, not the JWT signature; Supabase authenticates the real key. Session pooler supports IPv4 and avoids assuming the direct database address is reachable. If certificate validation fails, diagnose the provider CA/connection settings instead of turning verification off. This staging worker uses the privileged postgres connection required by the current worker contract; production should review narrowly scoped worker credentials separately.
+Supabase provides SUPABASE_SERVICE_ROLE_KEY to its own Edge runtime; do not copy it into any client. This staging worker checks its service_role JWT project reference. If the provider no longer exposes a legacy JWT for this project, stop and adapt the server configuration; a public key is not a substitute. Do not disable certificate validation if the pooler fails TLS verification. The current worker uses a privileged database connection; narrowly scoped production worker credentials remain a separate review.
 
-## Validate scheduled cleanup
+## 4. Deploy through GitHub, then enable the schedule
 
-1. Open Render Runs and wait for a scheduled run to finish. Success logs contain only counts and four aggregate metrics. Empty backlog is a connectivity check, not a completed deletion test.
-2. Create a consenting disposable staging account through the app and ensure profile creation completes. Request deletion on the staged website using a fresh email code.
-3. Confirm access stops immediately, then wait for a scheduled worker run and check status in the original browser. It should report primary cleanup complete. Verify the test Auth user is absent in Supabase and an unrelated account remains usable.
-4. Record deployment commit, run timestamp and outcome without email addresses, tokens or deletion proofs. Do not use your only account or delete any other user's account as a test.
+1. On GitHub main, copy the full40-character commit SHA you reviewed.
+2. Actions > Deploy staging operations function > Run workflow. Select main and paste the SHA into reviewed_sha.
+3. This deploys only staging-operations, using the existing GitHub staging access token. It does not apply migrations, change SMTP or create the schedule.
+4. Confirm the function appears in Supabase. Its gateway JWT check is intentionally off because it authenticates its own dedicated scheduler secret. Never remove that header check or put the secret in a mobile app.
+5. Open supabase/operations/enable-staging-schedule.sql in GitHub and copy the whole reviewed file into the staging project's SQL Editor. Check the project selection before running it. It enables pg_cron/pg_net and schedules one named job every minute; repeated runs update that named schedule.
+6. In Integrations > Cron, confirm the job exists and is active. Inspect the function's Invocations/Logs for HTTP200 and OPERATIONS_OK.
 
-## Failure and missing-run alerts
+The cron SQL succeeding only confirms the HTTP request was queued. Verify the Edge response separately; pg_net does not turn an HTTP503 into a failed cron SQL job. This read-only query can inspect recent HTTP outcomes:
 
-The operations wrapper exits nonzero for worker failures, invalid configuration, failed metrics queries, any failed deletion, or pending deletion age of at least one day. Runs have a55-second process deadline. Render's single-run guarantee prevents concurrent cron executions. Database cleanup phases remain retryable after termination.
+```sql
+select id, status_code, timed_out
+from net._http_response
+order by id desc
+limit 20;
+```
 
-In Render workspace > Integrations > Notifications, select Email and Only failure notifications. Check the cron service's override inherits that setting. A failed cron execution supports email alerts. To test the route without touching data, temporarily set DELETION_API_URL to an invalid target, run once and verify the generic target failure alert arrives, then restore the approved URL immediately and verify success. This is an operator test; do not leave the scheduler intentionally broken.
+Never select/decode header secrets in shared screenshots. A job that reports success with an empty backlog verifies connectivity, not account cleanup. Complete a disposable-account deletion from the website, then wait for a scheduled run and confirm status becomes complete and the Auth user is absent. Do not use the owner's only account. Check an unrelated account still works.
 
-Failure notifications do not prove detection of a scheduler that never runs. Configure a separate dead-man/heartbeat check with your chosen monitoring provider: expected interval1minute and grace5minutes; set its HTTPS ping URL as the Render-only secret OPERATIONS_HEARTBEAT_URL. The wrapper sends an empty POST only after cleanup and metrics are healthy. Verify provider email delivery and a missed-heartbeat alert by temporarily removing the heartbeat setting, then restore it. Never publish the secret ping URL. No heartbeat provider or email notification has been configured by this code change.
+## 5. Add free-tier heartbeat monitoring
 
-## Backups, retention, spend and public exposure
+A separate monitor is necessary to detect the whole Supabase project or scheduler stopping. Healthchecks.io has a free tier suitable for a single heartbeat check; verify the current limits before selecting it. Create a check named100pushupclub-staging-operations, Period1minute, Grace5minutes, and enable an email integration to your confirmed operator inbox.
 
-- In Supabase Database > Backups, record the actual plan, available backups and retention window. The free tier must not be described as having the paid daily-backup guarantee. Before valuable production data, choose managed backups or an encrypted off-site backup workflow, then restore into an isolated project and verify data and deletion-job handling. Never put plaintext database dumps in GitHub artifacts.
-- Decide and implement moderation-audit retention before publishing a final privacy notice. The current audit is append-only and no timed purge is implemented; do not invent a retention period in website copy.
-- Review Supabase, Vercel, Resend and Render billing/usage pages; enable available spending notifications/limits and choose recipient and budget. A notification is not necessarily a hard cap. Verify plan-specific behavior in each provider dashboard.
-- Inspect Resend failed deliveries and Supabase Auth/API errors. Define baseline alert thresholds after staging traffic exists. Test OTP expiry/retry and rate limits. Anonymous API endpoints still require source/gateway abuse controls; website protection alone does not cover direct Supabase API access.
-- Keep staging private and visibly labeled. Public root-domain rollout requires final support/retention policies, production configuration and an end-to-end deletion test.
+Copy its secret HTTPS ping URL into OPERATIONS_HEARTBEAT_URL in Supabase Edge secrets. The function sends an empty POST only after successful cleanup and healthy metrics. Any failed deletion, a pending deletion at least one day old, API/DB failure or missed function execution stops success pings. No check-in data or account identifier is sent to the monitor. Error status reaches the threshold well before the seven-day primary-cleanup target.
 
-Sources: [Render cron pricing and scheduling](https://render.com/docs/cronjobs), [Render email notifications](https://render.com/docs/notifications), [Supabase connections](https://supabase.com/docs/guides/database/connecting-to-postgres), [Supabase backups](https://supabase.com/docs/guides/platform/backups).
+Wait for the check to become Up. To test actual alert delivery, temporarily deactivate the Cron job in Supabase, wait beyond the grace window, confirm the Down email, then reactivate and confirm recovery. Keep the test short and record completion. Do not leave deletion scheduling paused. The monitor cannot provide evidence until this delivery test passes.
+
+## Support, backups, retention and costs still needing owner action
+
+- Namecheap forwarding destination is the owner's confirmed Gmail inbox. Set alias support and test it from another mailbox. Forwarding receives mail only; Gmail replies normally use the Gmail sender. A branded outgoing mailbox remains a separate choice.
+- In Supabase Database > Backups, record the actual plan, available backups and retention. Free-tier data needs a separately designed encrypted off-site backup process if it becomes valuable. No free managed daily backup is assumed or prepared by this task. Before production, verify a restore into an isolated project and preserve/reapply deletion jobs. Do not upload plaintext database dumps to GitHub artifacts.
+- Moderation audits are currently append-only. Choose and implement a retention policy before the final privacy notice; the staging site explicitly says this is pending. No automatic purge or invented retention period is claimed.
+- Review Supabase, Vercel and Resend usage/billing pages and available alerts. Choose budgets and recipients; alerts are not necessarily hard spending caps. Stay on current free tiers unless the owner chooses otherwise.
+- Verify Resend failed deliveries, Supabase Auth/API error rates, OTP expiry/retry and gateway/source limits. Limiting Vercel website traffic alone does not protect direct anonymous Supabase API requests.
+- Public root-domain rollout remains blocked by support delivery, final policy/retention, production configuration and hosted deletion evidence. Use the Vercel staging URL first.
+
+Sources: [Supabase scheduling](https://supabase.com/docs/guides/functions/schedule-functions), [Edge limits](https://supabase.com/docs/guides/functions/limits), [database connections](https://supabase.com/docs/guides/database/connecting-to-postgres), [backup coverage](https://supabase.com/docs/guides/platform/backups), [Healthchecks documentation](https://healthchecks.io/docs/).

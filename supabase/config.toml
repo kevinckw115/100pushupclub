@@ -49,3 +49,7 @@ content_path = "./supabase/templates/email-code.html"
 
 [analytics]
 enabled = false
+
+[functions.staging-operations]
+# Authenticated with a separate random scheduler secret, never a client API key.
+verify_jwt = false
