@@ -2,6 +2,12 @@
   "expo": {
     "name": "100pushupclub",
     "slug": "100pushupclub",
+    "owner": "foodib115",
+    "extra": {
+      "eas": {
+        "projectId": "8509924c-03cc-4a2f-81e8-98ed695ba7e6"
+      }
+    },
     "version": "0.1.0",
     "scheme": "pushupclub-dev",
     "userInterfaceStyle": "light",
