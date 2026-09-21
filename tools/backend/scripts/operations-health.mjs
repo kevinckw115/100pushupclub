@@ -7,6 +7,7 @@ export function validateHostedOperations(env) {
   const direct = db.hostname === `db.${project}.supabase.co` && decodeURIComponent(db.username) === 'postgres';
   const pooled = db.hostname.endsWith('.pooler.supabase.com') && decodeURIComponent(db.username) === `postgres.${project}`;
   if (!['postgres:', 'postgresql:'].includes(db.protocol) || (!direct && !pooled) || !db.password ||
+      (db.port && db.port !== '5432') || db.pathname !== '/postgres' ||
       db.searchParams.get('sslmode') !== 'verify-full') throw new Error('OPERATIONS_DATABASE_INVALID');
   let claims;
   try { claims = JSON.parse(Buffer.from(env.DELETION_ADMIN_KEY.split('.')[1], 'base64url').toString()); } catch { throw new Error('OPERATIONS_ADMIN_KEY_INVALID'); }

@@ -8,6 +8,7 @@ test('hosted operations reject wrong project, public key and unverified database
   for (const override of [
     { DELETION_API_URL: 'https://other.supabase.co' },
     { DELETION_DATABASE_URL: env.DELETION_DATABASE_URL.replace('verify-full', 'disable') },
+    { DELETION_DATABASE_URL: env.DELETION_DATABASE_URL.replace(':5432/', ':6543/') },
     { DELETION_DATABASE_URL: env.DELETION_DATABASE_URL.replace('postgres.ggeyfolfedercmfvwsqx', 'postgres.other') },
     { DELETION_ADMIN_KEY: key({ role: 'anon', ref: 'ggeyfolfedercmfvwsqx' }) },
     { DELETION_ADMIN_KEY: key({ role: 'service_role', ref: 'other' }) },
