@@ -27,6 +27,6 @@ Forwarding is inbound only. Replies from Gmail normally show the Gmail address. 
 
 ## Verification
 
-Local: `node apps/site/build.mjs`, `node --test tests/site-recovery.test.mjs`, then `node apps/site/serve.mjs` for localhost8082. Browser review covers all four pages at390px. GitHub backend CI runs tools/backend/tests/site-browser.mjs against disposable local Auth/PostgreSQL, including a suspended account, fresh OTP, confirmation, offline retry, status after reload, actual worker cleanup and peer isolation. This does not certify deployed headers, DNS, mailbox, gateway limits or production retention.
+Local: `node apps/site/build.mjs`, `node --test tests/site-recovery.test.mjs`, then `node apps/site/serve.mjs` for localhost:8082. Browser review covers all four pages at 390px. GitHub backend CI runs tools/backend/tests/site-browser.mjs against disposable local Auth/PostgreSQL, including a suspended account, fresh OTP, confirmation, offline retry, status after reload, actual worker cleanup and peer isolation. This does not certify deployed headers, DNS, mailbox, gateway limits or production retention.
 
 Sources: [Vercel project configuration](https://vercel.com/docs/project-configuration), [Namecheap email forwarding](https://www.namecheap.com/support/knowledgebase/article.aspx/308/2214/how-to-set-up-free-email-forwarding/).
