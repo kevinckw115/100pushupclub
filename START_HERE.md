@@ -2,6 +2,8 @@
 
 ## For Kevin
 
+Implementation is now present on the stacked task branches. For this existing checkout, follow [current progress](tracking/PROGRESS.md) and the [beta setup checklist](docs/13-beta-review.md); do not scaffold over apps/mobile again. The original package-start instructions below describe the initial handoff.
+
 1. Extract this entire folder into a new project directory. Keep the design image and all supporting files together.
 2. Open that directory in Codex. A GitHub repository is recommended for durable version history; creating it is separate from extracting the package.
 3. Give Codex the contents of [the kickoff prompt](prompts/KICKOFF.md).

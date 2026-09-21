@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "notice": "Product tasks are pending. Package tests do not count as product implementation.",
+  "notice": "Implementation started; task evidence distinguishes automated and native gates.",
   "allowed_statuses": [
     "pending",
     "in_progress",
@@ -14,9 +14,11 @@
       "milestone": "M0",
       "title": "Toolchain/bootstrap",
       "depends_on": [],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T01.md"
+      ],
+      "blocker": "Native target unavailable. Full Hermes export and Python package validation passed in GitHub Actions; local Windows executable restrictions remain.",
       "acceptance_ids": []
     },
     {
@@ -26,9 +28,11 @@
       "depends_on": [
         "T01"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T02.md"
+      ],
+      "blocker": "Native screenshots, 200% system text, VoiceOver/TalkBack remain unverified; native target unavailable.",
       "acceptance_ids": []
     },
     {
@@ -38,8 +42,10 @@
       "depends_on": [
         "T01"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T03.md"
+      ],
       "blocker": null,
       "acceptance_ids": []
     },
@@ -51,9 +57,11 @@
         "T02",
         "T03"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T04.md"
+      ],
+      "blocker": "Native first-launch offline gate unavailable; populated Today states passed browser review in T05.",
       "acceptance_ids": [
         "A01"
       ]
@@ -65,9 +73,11 @@
       "depends_on": [
         "T04"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T05.md"
+      ],
+      "blocker": "Native offline/restart and screen-reader/haptic gates need a development build and device.",
       "acceptance_ids": [
         "A01",
         "A02",
@@ -83,9 +93,11 @@
       "depends_on": [
         "T05"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T06.md"
+      ],
+      "blocker": "Native foreground/midnight and travel behavior not device-verified.",
       "acceptance_ids": [
         "A07",
         "A08",
@@ -99,9 +111,11 @@
       "depends_on": [
         "T05"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T07.md"
+      ],
+      "blocker": "Native notification permission, delivery, goal cancellation and haptic behavior require an installed development build on iOS/Android.",
       "acceptance_ids": [
         "A33"
       ]
@@ -113,8 +127,10 @@
       "depends_on": [
         "T03"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T08.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A18"
@@ -128,9 +144,11 @@
         "T04",
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T09.md"
+      ],
+      "blocker": "Native Keychain/Keystore rotation/reinstall and hosted OTP delivery on a phone remain unverified. Disposable real Auth and connected browser gates pass.",
       "acceptance_ids": [
         "A16"
       ]
@@ -142,8 +160,10 @@
       "depends_on": [
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T10.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A03",
@@ -162,9 +182,11 @@
         "T09",
         "T10"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T11.md"
+      ],
+      "blocker": "Native lifecycle/network and secure-storage gates require a development build; real backend and native exports passed.",
       "acceptance_ids": [
         "A06",
         "A10",
@@ -182,8 +204,10 @@
         "T09",
         "T11"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T12.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A17"
@@ -196,8 +220,10 @@
       "depends_on": [
         "T08"
       ],
-      "status": "pending",
-      "evidence": [],
+      "status": "verified",
+      "evidence": [
+        "tracking/evidence/T13.md"
+      ],
       "blocker": null,
       "acceptance_ids": [
         "A21"
@@ -211,9 +237,11 @@
         "T10",
         "T13"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T14.md"
+      ],
+      "blocker": "Native consent/lifecycle checks and anonymous gateway rate enforcement require device/deployment setup. Connected CI passed.",
       "acceptance_ids": [
         "A19",
         "A20",
@@ -231,9 +259,11 @@
         "T09",
         "T14"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T15.md"
+      ],
+      "blocker": "Native A25 lifecycle/accessibility/scroll checks require a device. Connected two-account browser and full native exports passed.",
       "acceptance_ids": [
         "A22",
         "A25"
@@ -247,9 +277,11 @@
         "T09",
         "T14"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T16.md"
+      ],
+      "blocker": "Native accessibility/lifecycle and hosted staff/support setup remain unverified; connected browser, real backend and mobile CI passed at9289ac3.",
       "acceptance_ids": [
         "A19",
         "A24",
@@ -264,9 +296,11 @@
         "T10",
         "T16"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T17.md"
+      ],
+      "blocker": "Real backend and mobile CI passed3270912. Native/realtime socket verification unavailable; checked polling is the implemented fallback.",
       "acceptance_ids": [
         "A26",
         "A27"
@@ -281,9 +315,11 @@
         "T09",
         "T17"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T18.md"
+      ],
+      "blocker": "All connected/backend/mobile CI passed877e64e. Native share, accessibility and device lifecycle checks remain unverified.",
       "acceptance_ids": [
         "A28",
         "A29"
@@ -298,9 +334,11 @@
         "T16",
         "T18"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T19.md"
+      ],
+      "blocker": "All CI passed0f4c930: actual export/deletion browser, real Auth/cleanup, full mobile exports and package checks. Native file-sharing/accessibility and hosted deletion schedule/support/domain/retention remain unverified.",
       "acceptance_ids": [
         "A31",
         "A32"
@@ -317,9 +355,11 @@
         "T18",
         "T19"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T20.md"
+      ],
+      "blocker": "A34 requires named iOS/Android devices and a current development build. adb/Java/Maestro are absent. Compact browser keyboard, headings, target sizing and reduced-motion preference checks passed; native screen readers/system text200% remain unverified.",
       "acceptance_ids": [
         "A34"
       ]
@@ -334,9 +374,11 @@
         "T18",
         "T19"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "implemented",
+      "evidence": [
+        "tracking/evidence/T21.md"
+      ],
+      "blocker": "Real backend100k-record/100-client load, populated PostgreSQL upgrade, abrupt SQLite process termination and all CI passed9b06540. Representative native-device and deployed-region timings remain unverified.",
       "acceptance_ids": [
         "A36"
       ]
@@ -350,9 +392,11 @@
         "T20",
         "T21"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T22.md"
+      ],
+      "blocker": "Configuration/bundle audits and server aggregate diagnostics passed all CI9b06540. Signed builds and release require owner Expo/project/application IDs, signing access, hosted support/OTP/deletion operations and native T20/T21 evidence.",
       "acceptance_ids": [
         "A35"
       ]
@@ -364,9 +408,11 @@
       "depends_on": [
         "T22"
       ],
-      "status": "pending",
-      "evidence": [],
-      "blocker": null,
+      "status": "blocked",
+      "evidence": [
+        "tracking/evidence/T23.md"
+      ],
+      "blocker": "A37 and one-week mixed-platform beta require signed builds, iOS/Android devices, hosted OTP/support/deletion operations and consenting participants. Review packet and empty findings ledger prepared; no native/beta evidence fabricated.",
       "acceptance_ids": [
         "A37"
       ]

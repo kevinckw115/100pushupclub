@@ -1,0 +1,71 @@
+name: Backend authorization checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.12.0'
+          cache: npm
+          cache-dependency-path: tools/backend/package-lock.json
+      - run: npm ci
+        working-directory: tools/backend
+      - name: Start disposable Supabase
+        run: node tools/backend/scripts/cli.mjs start -x studio,imgproxy,storage-api,edge-runtime,logflare,vector,supavisor
+      - name: Fresh migration reset
+        run: node tools/backend/scripts/cli.mjs db reset --local
+      - name: SQL grants and RLS
+        run: node tools/backend/scripts/cli.mjs test db
+      - name: Real JWT and concurrent PostgreSQL tests
+        run: npm test
+        working-directory: tools/backend
+      - name: Install mobile browser test dependencies
+        run: npm ci
+        working-directory: apps/mobile
+      - name: Real OTP browser flow
+        run: node tests/auth-browser.mjs
+        working-directory: tools/backend
+      - name: Two-account Club browser flow
+        run: node tests/club-browser.mjs
+        working-directory: tools/backend
+      - name: Browser review evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: connected-browser-review
+          path: |
+            tracking/evidence/t12-import-web.png
+            tracking/evidence/t13-region-web.png
+            tracking/evidence/t14-sharing-web.png
+            tracking/evidence/t15-club-web.png
+            tracking/evidence/t16-blocked-web.png
+            tracking/evidence/t16-feed-web.png
+          if-no-files-found: error
+      - name: Real private circle browser flow
+        run: node tests/circle-browser.mjs
+        working-directory: tools/backend
+      - name: Circle browser evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: circle-browser-review
+          path: tracking/evidence/t18-circle-web.png
+          if-no-files-found: error
+      - name: Real export and deletion browser flow
+        run: node tests/privacy-browser.mjs
+        working-directory: tools/backend
+      - name: Privacy browser evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-browser-review
+          path: tracking/evidence/t19-deletion-web.png
+          if-no-files-found: error
+      - name: Stop disposable stack
+        if: always()
+        run: node tools/backend/scripts/cli.mjs stop --no-backup

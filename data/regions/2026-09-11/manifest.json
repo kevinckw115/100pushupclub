@@ -1,0 +1,39 @@
+{
+  "version": "geonames-2026-09-11",
+  "downloaded_at": "2026-09-11T14:42:58.808Z",
+  "license": "CC-BY-4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Geographical data from GeoNames, modified for the 100pushupclub broad-region directory.",
+  "source": "https://www.geonames.org/",
+  "coverage": {
+    "countries": "current source country directory",
+    "admin1": "source first-level areas",
+    "locality": "US counties and county equivalents only; elsewhere use admin1 or country"
+  },
+  "files": [
+    {
+      "name": "countryInfo.txt",
+      "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+      "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512",
+      "bytes": 31678
+    },
+    {
+      "name": "admin1CodesASCII.txt",
+      "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+      "sha256": "590651498043f674accda2b7f46d21286cda0e290b02f8561c5005eee9a5448c",
+      "bytes": 151536
+    },
+    {
+      "name": "admin2Codes.txt",
+      "url": "https://download.geonames.org/export/dump/admin2Codes.txt",
+      "sha256": "c3833297969c8cd487624763628a3a165387bcc15f3708d6a1e24eac05a78ceb",
+      "bytes": 2373043
+    },
+    {
+      "name": "readme.txt",
+      "url": "https://download.geonames.org/export/dump/readme.txt",
+      "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5",
+      "bytes": 8843
+    }
+  ]
+}

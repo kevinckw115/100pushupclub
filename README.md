@@ -2,7 +2,9 @@
 
 Version 1.0 · September 10, 2026 · Target: iPhone and Android
 
-**Start with [START_HERE.md](START_HERE.md).** This is a detailed implementation handoff, not an already-built app. It contains agreed product direction, architect-selected defaults, contracts, a small executable reference model, and staged acceptance gates. The app, backend migrations, integrations, and device tests remain to be implemented.
+**Start with [current progress](tracking/PROGRESS.md).** The [Expo mobile app](apps/mobile/README.md) now includes durable logging, account synchronization, opt-in Club activity, private circles, safety controls, export and account deletion. Work is committed on separate stacked task branches; `task/t23-beta-review` contains the combined implementation. Native device, hosted operations and beta gates remain open; this is not a release-ready app.
+
+For local guest use, run `npm ci` then `npm run web` from `apps/mobile` with Node24.12+. Use `npm.cmd` on Windows if PowerShell blocks npm.ps1. Connected testing uses a disposable Supabase stack in CI; an owner-configured development backend and OTP delivery are needed on phones. See the [operations runbook](docs/12-operations-runbook.md), [beta review packet](docs/13-beta-review.md) and [source candidate record](tracking/review-candidate.json).
 
 The target is a quiet, encouraging pushup tracker: accumulate 100 in a day, log any set size, and see others showing up. No posts, photos, likes, comments, followers, or rankings. Option 5, Cream & Brick, is the approved visual direction.
 

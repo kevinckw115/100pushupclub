@@ -1,0 +1,23 @@
+{
+  "kind": "source-review-only",
+  "source_commit": "9b06540",
+  "branch": "task/t23-beta-review",
+  "mobile_lockfile_sha256": "3e9d3814d0fb4002b2381df805de1d24804e4887ff639d07557556ccefa3becc",
+  "database_migration_head": "20260911001000_utc_validation_fast_path.sql",
+  "mobile_version": "0.1.0",
+  "expo_sdk": "57",
+  "node_ci": "24.12.0",
+  "mobile_ci_run": 34623108995,
+  "package_ci_run": 34623108976,
+  "backend_ci_run": 34623108975,
+  "signed_ios_artifact": null,
+  "signed_android_artifact": null,
+  "hosted_environment": null,
+  "support_domain": null,
+  "support_email": null,
+  "native_evidence": [],
+  "beta_participants": 0,
+  "beta_executed": false,
+  "published": false,
+  "notes": "Source and CI review candidate only. Signed artifacts, deployed operations, native validation and actual beta are required before release. Browser evidence is in tracking/evidence."
+}

@@ -1,10 +1,24 @@
 # Offline sync contract
 
+T19 deletion is online and requires recent authentication plus deliberate confirmation. Persist operation ID and random status capability before sending. After uncertain delivery, check status with that capability instead of creating a new account or new deletion intent. Ordinary sync stops once deletion is pending; after acknowledgment, clear account data/session/caches and notifications while preserving the separate guest partition. A persisted local cleanup marker must survive interruption. Completed status means primary account/Auth cleanup finished, not instant removal from provider backups. Exports are separate own/guest snapshots; server pagination restarts explicitly on EXPORT_CHANGED and never merges peers into an export.
+
+T17 circle writes use stable operation IDs and semantic receipt hashes. Create/join responses are historical acknowledgments: fetch current list/detail before presenting current role, name or totals. Replaying a prior join after leave/removal/rejoin cannot recreate the old interval and returns MEMBERSHIP_CHANGED. Management receipt replay never reapplies a past removal or transfer. Invite creation can replay the same derived code only while the current owner/invitation remain eligible; raw codes never enter receipts. Every read requires current membership. Until checked realtime authorization is available, foreground polling is the T18 fallback; blur, sign-out, account switch and membership/safety changes clear private group views.
+
 ## Guarantees and limits
+
+Profile changes use a durable stable operation_id and immutable submitted fields until the response is known. Replaying an accepted change returns its original receipt after live account checks; a subsequent get_profile refreshes current state. Consent conflicts require a fresh user choice and new operation. Only a confirmed enabled profile epoch may accompany new native logs; a pending privacy change forces new logs private. UI cannot claim sharing stopped until server acknowledgment.
+
+T16 participation acceptance travels with the same immutable profile operation and is shown only after current-profile confirmation. Public logging also requires the current accepted terms and no alias-change requirement. Safety mutations use separate durable pending operations; retries preserve operation ID and body. A block request immediately clears public views while awaiting confirmation; no server success is claimed before a validated receipt. Sign-out warns before discarding uncertain safety work, and identity changes fence late responses. Staff action retries similarly keep their original operation ID and private reason.
+
+The local safety queue holds at most one report and one block/unblock request. Block changes take priority; a delayed report cannot prevent blocking or personal check-in sync. A receipt for an in-flight report removes only that report, preserving a block queued meanwhile. Deadlines survive restart/clock rollback. Rejected requests require explicit dismissal, while uncertain requests retain their exact envelopes.
+
+The public geographic directory is independently versioned and does not advance private check-in cursors. Its page cursor binds normalized search, parent and snapshot version; stale/mismatched cursors fail. Cached directory pages can be shown offline with an explicit saved-page notice. Local browsing selection changes no public consent epoch; account region/sharing changes still use the T14 checked profile operation.
 
 Guarantee at-most-one accepted effect per (account, mutation_id), even if a network response is lost. Guarantee local save and queue insertion commit together. A new intentional tap after the first completes is a new check-in; idempotency does not collapse legitimate identical sets. Prevent double taps while the same local save is in progress.
 
 Cross-device conflicting quantity edits are explicit, not last-write-wins. V1 sync occurs on foreground, reconnect, after local mutation, and manual retry; background execution is opportunistic and never a correctness dependency.
+
+After verified login, profile bootstrap must complete before account synchronization. The bootstrap response revision does not acknowledge downloaded records: a new client starts its durable pull cursor at zero, and only a committed pull transaction advances it. Non-check-in operations use separate operation receipts, with live authorization checked again on replay.
 
 ## Mutation envelope
 
@@ -24,6 +38,8 @@ Do not commit a receipt separately from its change. Version-conflict results may
 
 ## Client worker
 
+The PostgreSQL transport calls `mutate_checkin` with `{envelope: mutation}` and `pull_changes` with `{after_revision, limit}`. Accepted mutation/pull envelopes include request_id. Checked RPC errors return the common JSON error body with an HTTP error status; SERVER_RETRY preserves the exact request for retry. Gateway/authentication rejections can happen before RPC execution and must also be handled by the transport. Receipt replay preserves the original accepted response including request_id. Pull holds a shared profile lock while constructing one consistent bounded page, so it cannot skip a revision still held by an earlier writer.
+
 - One active worker per partition. The worker selects pending mutations whose dependencies are resolved and sends at most one at a time initially.
 - Mark sending durably before transport. Once a request might have left the device, never modify its ID or payload. If response is uncertain, resend the exact request.
 - On acceptance, atomically store accepted snapshot, mark acknowledged, and rebuild visible projection from remaining local intents. Then pull server changes.
@@ -42,6 +58,8 @@ This protocol deliberately avoids `updated_at > last_seen_time`, which can miss 
 
 ## Guest import
 
+The client accepts a selected batch of1-50 entries in one local transaction and sends independent existing CREATE RPCs. Import jobs retain an immutable guest snapshot. Incomplete imports pause on explicit account signout; resuming is a new explicit user choice and preserves the same envelope for uncertain requests. Imported account copies remain uneditable until acceptance. Another-owner collisions automatically remap at most3 times before requiring a choice. Cleanup requires all chosen jobs to finish or be cancelled and a matching currently accepted account copy; changed guest content stays local. No cleanup runs automatically.
+
 Guest mode has no cloud account/outbox transmission. Guest records have stable UUIDs. On consent to import, snapshot selected nondeleted guest entries and create durable per-record import jobs in the target account partition with stable mutation IDs. Each CREATE source=import, public epoch=null. Import can batch transport but uses independent per-record receipts/results.
 
 After each accepted record, mark import acknowledged. Restart resumes unfinished jobs. On ENTITY_EXISTS for the same owner and identical imported content, count as already imported; mismatch creates a visible import conflict rather than overwriting. Another owner's UUID collision uses a newly generated destination UUID persisted in the import mapping. Guest records remain unchanged until all selected records are verified and the user chooses cleanup. Do not import the same guest partition automatically into a second account.
@@ -49,3 +67,6 @@ After each accepted record, mark import acknowledged. Restart resumes unfinished
 ## Required failure scenarios
 
 Transport accepted but response dropped; crash after local commit; crash after server accept before local ACK; crash during pull before cursor commit; create followed immediately by edit/undo while offline; two devices edit version 1; edit races deletion; same mutation ID with changed quantity; server timestamps tie; a long transaction followed by another write; consent disabled during offline queue; account switched during in-flight response; import restarted twice. Assign real SQLite/Postgres tests, not only reference-model tests.
+# Client worker implementation (T11)
+
+One worker runs per verified account lease, coalescing foreground/connectivity/local-write triggers. Generation invalidation and active-partition checks fence late responses. Sending envelopes survive restart unchanged. Retry deadlines and original delays persist; bounded exponential jitter respects Retry-After and recovers from a backwards wall-clock change. A dependent request freezes its parent's acknowledged version, never a newer pulled version. Conflicts stop that entity while unrelated work proceeds. Explicit choices accept the account snapshot, send a fresh mutation against the shown version, or create a private replacement recorded now. Cursor and snapshots are atomic; UI reports pending/offline/issues without claiming cloud success after only a local commit.

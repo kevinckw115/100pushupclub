@@ -1,0 +1,21 @@
+appId: dev.local.pushupclub
+---
+- launchApp:
+    clearState: true
+- tapOn: "Get started"
+- tapOn: "Log pushups"
+- tapOn:
+    id: "quantity"
+- eraseText
+- inputText: "20"
+- tapOn: "Add pushups"
+- tapOn: "Log pushups"
+- tapOn:
+    id: "quantity"
+- eraseText
+- inputText: "15"
+- tapOn: "Add pushups"
+- assertVisible: "35 pushups today, goal 100."
+- stopApp
+- launchApp
+- assertVisible: "35 pushups today, goal 100."
