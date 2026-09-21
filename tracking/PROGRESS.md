@@ -2,11 +2,11 @@
 
 ## Current state
 
-T01-T19 implementation is on separate stacked task branches; T20-T23 independent review, resilience and operations work is prepared. Native and hosted release gates remain open. Use the latest task branch, not the initial main scaffold.
+PR #1 is merged into main at a05484a8efddfbe80ac3a9491b899c82f0c6dee6; backend, mobile and package CI all passed that commit. T01-T19 implementation and T20-T23 independent work are present. Native and hosted release gates remain open.
 
 ## Current task
 
-Current branch: task/t23-beta-review. T19 deletion-status retry fix0f4c930 passed all CI, including actual export/deletion/cleanup browser flow; screenshot inspected. T21 forced-exit,100k local records,100k backend/100-client load and populated upgrades passed. Combined source9b06540 passed backend34623108975, mobile34623108995 and package34623108976; backend load p95=50ms on disposable CI localhost. T22 preview/credential guards, bundle audit and aggregate operations diagnostics are implemented. T20 native accessibility and T22/T23 signed-build/device/beta gates are blocked by missing owner/native/hosted setup. See docs/12-operations-runbook.md and docs/13-beta-review.md.
+Current branch: task/staging-deployment-workflow. Preparing manual staging migration preview/apply and browser instructions in docs/14-staging-deployment.md. No hosted migrations have been applied by this task. Historical implementation evidence follows: T19 deletion-status retry fix0f4c930 passed all CI, including actual export/deletion/cleanup browser flow; screenshot inspected. T21 forced-exit,100k local records,100k backend/100-client load and populated upgrades passed. Combined source9b06540 passed backend34623108975, mobile34623108995 and package34623108976; backend load p95=50ms on disposable CI localhost. T22 preview/credential guards, bundle audit and aggregate operations diagnostics are implemented. T20 native accessibility and T22/T23 signed-build/device/beta gates are blocked by missing owner/native/hosted setup. See docs/12-operations-runbook.md and docs/13-beta-review.md.
 
 ## Fixed direction
 
@@ -19,6 +19,10 @@ Native build target, development Supabase and OTP delivery, region dataset, prod
 ## Session update template
 
 Date / task / files changed / exact checks / evidence paths / implemented vs verified / blocker if any / next action. Preserve previous entries beneath the current summary.
+
+## 2026-09-21: Browser-operated staging migrations
+
+Branch task/staging-deployment-workflow, based on merged main a05484a. Added manual preview/apply workflow, staging target and reviewed-commit validation, negative guard tests and docs/14-staging-deployment.md. Updated stale branch guidance. Local verification: node --test tests/*.test.mjs passed33/33; workflow parsed with installed yaml package; git diff --check passed. Main backend/mobile/package CI success verified through GitHub API. No local Supabase CLI execution or hosted migration attempted because of ThreatLocker; no native testing. Owner confirms GitHub staging settings and Expo account; environment metadata inspection returned403. Next: merge reviewed workflow after CI, run preview from GitHub Actions on main, inspect migration list, then explicitly apply with reviewed SHA. Expo owner/project identity remains required for cloud builds.
 
 ## 2026-09-19: PR #1 Expo dependency validation fix
 
