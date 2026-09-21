@@ -1,6 +1,6 @@
 # Operational handoff
 
-Status: implementation is merged into main. The owner confirmed Resend domain verification, saved Supabase SMTP settings and receipt of a sign-in code. Hosted app migrations, deletion schedule, signed builds and release remain unverified. Follow [browser-operated staging deployment](14-staging-deployment.md) and tracking/PROGRESS.md for current evidence.
+Status: core implementation is merged into main. Resend and SMTP delivery are confirmed; all12 staging migrations applied in run35639437161 and the hosted region API returned200. The standalone website and scheduled operations configuration are prepared on task branches. Hosted deletion schedule, signed builds and release remain unverified. Follow [website setup](15-website-operations.md), [scheduled operations](16-hosted-operations.md) and tracking/PROGRESS.md for current evidence.
 
 ## Build and environments
 
@@ -18,7 +18,7 @@ Use a separate nonproduction Supabase project and real OTP delivery. Verify the 
 
 The upgrade test rebuilds the baseline inside one PostgreSQL transaction and always rolls it back on a disposable localhost database. It checks preservation of records, receipts, revisions and memberships through all migrations. This is not a hosted backup restore drill. Before live migration, restore a recent backup into an isolated project, reconcile counts/revisions and deletion jobs, measure migration duration and check old-client compatibility. Record the backup ID and recovery point; do not expose a restored deleted account while jobs are reapplied. Roll forward with a reviewed migration where possible. Restoring production can discard accepted writes since the recovery point and needs an explicit incident decision.
 
-Deploy the deletion worker only in a server environment following tools/backend/DELETION.md. Schedule every minute, verify a test account completes and alert well before the seven-day target. Set justified moderation audit and provider backup retention and publish those actual values before beta. Supply an owner support email and HTTPS domain; publish /policies, /support and /delete-account with SPA fallback, COOP/COEP and TLS. Verify account deletion from a clean browser, including suspended accounts, without creating a replacement account.
+Deploy the deletion worker only in a server environment following tools/backend/DELETION.md. Schedule every minute, verify a test account completes and alert well before the seven-day target. Set justified moderation audit and provider backup retention and publish those actual values before beta. Supply an owner support email and HTTPS domain; publish the standalone apps/site policy, support and deletion pages with TLS and the committed security headers. Verify account deletion from a clean browser, including suspended accounts, without creating a replacement account.
 
 ## Signals and redaction
 

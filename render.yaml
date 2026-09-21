@@ -1,0 +1,19 @@
+services:
+  - type: cron
+    name: 100pushupclub-staging-operations
+    runtime: node
+    plan: 0.5c-512mb
+    branch: main
+    autoDeployTrigger: off
+    schedule: '* * * * *'
+    buildCommand: npm ci --prefix tools/backend --include=dev --ignore-scripts
+    startCommand: node tools/backend/scripts/operations-cycle.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: 24.12.0
+      - key: DELETION_API_URL
+        value: https://ggeyfolfedercmfvwsqx.supabase.co
+      - key: DELETION_DATABASE_URL
+        sync: false
+      - key: DELETION_ADMIN_KEY
+        sync: false
