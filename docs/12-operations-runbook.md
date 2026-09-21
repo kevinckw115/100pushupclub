@@ -1,6 +1,6 @@
 # Operational handoff
 
-Status: local/CI implementation; no hosted service, schedule, signed build or release has been provisioned. Use the final task branch, not the initial main scaffold. See tracking/PROGRESS.md for the current commit and evidence.
+Status: implementation is merged into main. The owner confirmed Resend domain verification, saved Supabase SMTP settings and receipt of a sign-in code. Hosted app migrations, deletion schedule, signed builds and release remain unverified. Follow [browser-operated staging deployment](14-staging-deployment.md) and tracking/PROGRESS.md for current evidence.
 
 ## Build and environments
 
