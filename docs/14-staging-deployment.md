@@ -6,10 +6,10 @@ GitHub Actions runs the pinned Supabase CLI on an Ubuntu runner. The approved st
 
 1. Open repository Settings > Environments > staging.
 2. Under environment **secrets**, add `SUPABASE_ACCESS_TOKEN` (Supabase account access token) and `SUPABASE_DB_PASSWORD` (this project's database password).
-3. Under environment **variables**, add `SUPABASE_PROJECT_ID` = `ggeyfolfedercmfvwsqx`.
+3. The workflow already pins the public project reference to `ggeyfolfedercmfvwsqx`. No `SUPABASE_PROJECT_ID` variable is required; an existing variable can remain but is not used.
 4. Merge the reviewed staging-workflow PR after its checks pass. Manual workflows must exist on the default branch before GitHub displays Run workflow.
 
-Do not paste tokens or passwords into chat. An environment variable and an environment secret are different GitHub settings; use the sections above exactly.
+Do not paste tokens or passwords into chat. The two credentials must be environment secrets. The project reference is public configuration committed with the workflow and independently checked by the deployment guard.
 
 ## Preview first
 
