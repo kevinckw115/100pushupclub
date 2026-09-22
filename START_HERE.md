@@ -12,6 +12,8 @@ Implementation is now merged into main via PR #1. For this existing checkout, fo
 
 No service accounts are needed to begin the local tracker. Before connected testing, provide access to your Expo project and a development Supabase project through the development environment. Email delivery needs configuration before a public beta. Store distribution will also need your Apple and Google developer accounts. Never paste secret service credentials into chat or into mobile source files.
 
+For completed setup and remaining dashboard actions, use the [operator checklist](tracking/OPERATOR_STATUS.md).
+
 ## What this package decides
 
 - Expo / React Native / TypeScript, Supabase, and SQLite.
