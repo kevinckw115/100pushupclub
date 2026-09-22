@@ -8,7 +8,7 @@ PR #4 remains open at0d8f24e; package, mobile, backend/browser and Edge runtime 
 
 ## Current task
 
-Branch task/operator-status-checklist, stacked on PR #4. Documentation-only reconciliation of completed, prepared, unconfirmed and deferred operator actions. Next operator actions: merge PR #4, verify support forwarding, import the Vercel staging website, then configure Supabase scheduled cleanup and heartbeat monitoring using docs15/16. See the checklist for owners, order and completion evidence. Earlier session entries below are historical and may describe superseded plans or then-pending checks.
+Branch task/operator-setup-history, stacked on the operator checklist and PR #4. Documentation-only reconciliation of completed, prepared, unconfirmed and deferred operator actions, including detailed owner-performed setup from chat history. Next operator actions: merge PR #4, verify support forwarding, import the Vercel staging website, then configure Supabase scheduled cleanup and heartbeat monitoring using docs15/16. See the checklist for owners, order and completion evidence. Earlier session entries below are historical and may describe superseded plans or then-pending checks.
 
 ## Fixed direction
 
@@ -101,3 +101,7 @@ Standalone website source f239197 passed complete backend CI35649726100, includi
 ## 2026-09-22: Operator status reconciliation
 
 Created tracking/OPERATOR_STATUS.md with completed setup, PR #4 green-CI evidence, ordered O01-O14 actions, owners and evidence requirements. Updated current progress and entry-point links. Read-only GitHub API confirmed main425c348, PR #4 open/unmerged, and all four checks successful at0d8f24e (runs35664821351/352/353 and35664821551). Unreported dashboard actions remain unconfirmed. Verification: relative Markdown link existence and git diff --check; no runtime tests repeated for this documentation-only change. No infrastructure, billing, DNS, mailbox or hosted data changed. Next: owner merge/review and O01-O03.
+
+## 2026-09-22: Completed dashboard setup from conversation history
+
+Expanded OPERATOR_STATUS.md with the Namecheap purchase and saved DKIM/CNAME/DMARC record inventory, preserved root MX records, verified Resend sending domain, Supabase project/public settings and saved SMTP/sender configuration, received OTP, GitHub environment and successful preview/apply runs, Expo account/project/Preview variables, Vercel account, and support/no-paid-host decisions. Distinguished owner confirmations, prior API/DNS/CI checks, assistant-side configuration and unconfirmed work. SMTP secrets and long key values are omitted. Support forwarding, website DNS, Edge/Cron/alerts, backups and native testing remain incomplete unless subsequently reported. Verified Markdown links and git diff --check; no runtime changes or provider mutations. Next actions remain O01-O03 in the operator checklist.
