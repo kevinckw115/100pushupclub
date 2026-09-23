@@ -1,16 +1,20 @@
 import pg from 'pg';
+import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 
 /** Server-only bounded worker. Its credentials never enter the app or output. */
-export async function runDeletionWorker({ dbUrl, apiUrl, adminKey, steps = 25 }) {
+export async function runDeletionWorker({ dbUrl, apiUrl, adminKey, steps = 25, maxRuntimeMs = 40000 }) {
   if (!dbUrl || !apiUrl || !adminKey || !Number.isInteger(steps) || steps < 1 || steps > 100) throw new Error('Configure worker database/API/admin credentials and1–100 steps.');
   const endpoint = new URL(apiUrl);
   if ((endpoint.protocol !== 'https:' && !(endpoint.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(endpoint.hostname))) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) throw new Error('Worker API requires a clean HTTPS project URL or disposable localhost.');
-  const db = new pg.Client({ connectionString: dbUrl, connectionTimeoutMillis: 5000 });
+  if (!Number.isInteger(maxRuntimeMs) || maxRuntimeMs < 1000 || maxRuntimeMs > 60000) throw new Error('Invalid worker time budget');
+  const deadline = Date.now() + maxRuntimeMs;
+  const db = new pg.Client({ connectionString: dbUrl, connectionTimeoutMillis: 5000, query_timeout: 15000, statement_timeout: 10000 });
   const counts = { advanced: 0, completed: 0, failed: 0 };
   await db.connect();
   try {
     for (let i = 0; i < steps; i++) {
+      if (Date.now() >= deadline) break;
       const jobs = await db.query("select user_id from app_private.deletion_jobs where status<>'complete' and (status<>'failed' or last_attempt_at<now()-interval '1 minute') order by last_attempt_at nulls first,requested_at limit 1");
       if (!jobs.rowCount) break;
       const actor = jobs.rows[0].user_id;

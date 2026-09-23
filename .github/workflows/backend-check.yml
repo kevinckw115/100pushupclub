@@ -66,6 +66,15 @@ jobs:
           name: privacy-browser-review
           path: tracking/evidence/t19-deletion-web.png
           if-no-files-found: error
+      - name: Standalone support site real deletion flow
+        run: node tests/site-browser.mjs
+        working-directory: tools/backend
+      - name: Standalone site evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-site-review
+          path: tracking/evidence/public-site-deletion.png
+          if-no-files-found: error
       - name: Stop disposable stack
         if: always()
         run: node tools/backend/scripts/cli.mjs stop --no-backup

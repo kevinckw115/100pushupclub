@@ -396,7 +396,7 @@
       "evidence": [
         "tracking/evidence/T22.md"
       ],
-      "blocker": "Configuration/bundle audits and server aggregate diagnostics passed all CI9b06540. Signed builds and release require owner Expo/project/application IDs, signing access, hosted support/OTP/deletion operations and native T20/T21 evidence.",
+      "blocker": "Staging migrations and OTP delivery verified; Expo owner/project and preview variables supplied. Standalone website and Supabase scheduled operations prepared on task branches. Hosted website/worker/heartbeat/support delivery, backup restore/retention, signed Android build and native T20/T21 evidence remain unverified.",
       "acceptance_ids": [
         "A35"
       ]
@@ -412,7 +412,7 @@
       "evidence": [
         "tracking/evidence/T23.md"
       ],
-      "blocker": "A37 and one-week mixed-platform beta require signed builds, iOS/Android devices, hosted OTP/support/deletion operations and consenting participants. Review packet and empty findings ledger prepared; no native/beta evidence fabricated.",
+      "blocker": "A37 and mixed-platform beta require signed builds, actual iOS/Android devices, end-to-end hosted sign-in/sync/deletion, verified support and consenting participants. Staging migrations and email delivery are verified; no native/beta evidence claimed.",
       "acceptance_ids": [
         "A37"
       ]

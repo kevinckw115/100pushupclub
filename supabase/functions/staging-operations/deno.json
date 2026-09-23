@@ -1,0 +1,5 @@
+{
+  "imports": { "pg": "npm:pg@8.23.0" },
+  "nodeModulesDir": "none",
+  "compilerOptions": { "checkJs": false }
+}

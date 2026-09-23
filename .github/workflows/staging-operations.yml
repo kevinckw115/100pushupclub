@@ -1,0 +1,39 @@
+name: Deploy staging operations function
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Full main commit SHA reviewed for function deployment
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: staging-operations-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ggeyfolfedercmfvwsqx
+      SUPABASE_TELEMETRY_DISABLED: '1'
+      DEPLOY_MODE: apply
+      REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.12.0'
+          cache: npm
+          cache-dependency-path: tools/backend/package-lock.json
+      - run: node scripts/staging-guard.mjs
+      - run: npm ci --prefix tools/backend
+      - name: Deploy authenticated operations endpoint only
+        run: node tools/backend/scripts/cli.mjs functions deploy staging-operations --project-ref "$SUPABASE_PROJECT_ID" --use-api

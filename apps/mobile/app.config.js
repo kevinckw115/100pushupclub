@@ -5,5 +5,5 @@ module.exports = ({ config }) => {
   if (environment.name === 'production') {
     throw new Error('Production identity and EAS ownership must be configured before release.');
   }
-  return { ...config, extra: { appEnvironment: environment.name } };
+  return { ...config, extra: { ...config.extra, appEnvironment: environment.name } };
 };

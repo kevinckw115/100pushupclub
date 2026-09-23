@@ -8,6 +8,8 @@ For local guest use, run `npm ci` then `npm run web` from `apps/mobile` with Nod
 
 The target is a quiet, encouraging pushup tracker: accumulate 100 in a day, log any set size, and see others showing up. No posts, photos, likes, comments, followers, or rankings. Option 5, Cream & Brick, is the approved visual direction.
 
+For completed setup and remaining dashboard actions, use the [operator checklist](tracking/OPERATOR_STATUS.md).
+
 ## Read in this order
 
 1. [Agent operating instructions](AGENTS.md)

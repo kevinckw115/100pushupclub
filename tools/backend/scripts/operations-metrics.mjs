@@ -1,4 +1,5 @@
 import pg from 'pg';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 /** Privileged server process only. No identifiers, proof, text, or credentials in output. */

@@ -1,0 +1,31 @@
+name: Operations Edge runtime checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  edge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.5.6
+      - name: Check Edge entrypoint and npm dependencies
+        working-directory: supabase/functions/staging-operations
+        run: deno check index.ts
+      - name: Verify Edge runtime rejects unauthenticated requests
+        working-directory: supabase/functions/staging-operations
+        shell: bash
+        run: |
+          export OPERATIONS_CRON_SECRET=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          deno run --allow-net --allow-env --allow-read index.ts > /tmp/operations-edge.log 2>&1 &
+          edge_pid=$!
+          trap 'kill "$edge_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..40}; do
+            if curl --silent --output /dev/null http://127.0.0.1:8000; then break; fi
+            sleep 1
+          done
+          status=$(curl --silent --output /tmp/operations-response.json --write-out '%{http_code}' -X POST http://127.0.0.1:8000)
+          if [ "$status" != '401' ]; then cat /tmp/operations-edge.log; exit 1; fi
+          grep -q 'UNAUTHORIZED' /tmp/operations-response.json

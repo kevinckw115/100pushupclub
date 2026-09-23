@@ -2,11 +2,13 @@
 
 ## Current state
 
-PR #1 is merged into main at a05484a8efddfbe80ac3a9491b899c82f0c6dee6; backend, mobile and package CI all passed that commit. T01-T19 implementation and T20-T23 independent work are present. Native and hosted release gates remain open.
+**Operator checklist: [OPERATOR_STATUS.md](OPERATOR_STATUS.md)** (reconciled2026-09-22). PRs #1-#3 are merged; main is425c348. Staging migrations and hosted region API were verified, SMTP code delivery confirmed, and Expo account/project/preview variables supplied. These completed steps must not be requested again.
+
+PR #4 remains open at0d8f24e; package, mobile, backend/browser and Edge runtime checks all passed. Its website, Expo linkage and scheduled cleanup code are prepared but not merged/deployed. Support forwarding destination is approved, not yet confirmed configured. Vercel project, hosted Edge/Cron, heartbeat delivery, backup/retention and native-device gates remain open. Android emulator testing on the home laptop is the next device path; Apple enrollment is deferred.
 
 ## Current task
 
-Current branch: task/fix-staging-project-target. Preparing manual staging migration preview/apply and browser instructions in docs/14-staging-deployment.md. No hosted migrations have been applied by this task. Historical implementation evidence follows: T19 deletion-status retry fix0f4c930 passed all CI, including actual export/deletion/cleanup browser flow; screenshot inspected. T21 forced-exit,100k local records,100k backend/100-client load and populated upgrades passed. Combined source9b06540 passed backend34623108975, mobile34623108995 and package34623108976; backend load p95=50ms on disposable CI localhost. T22 preview/credential guards, bundle audit and aggregate operations diagnostics are implemented. T20 native accessibility and T22/T23 signed-build/device/beta gates are blocked by missing owner/native/hosted setup. See docs/12-operations-runbook.md and docs/13-beta-review.md.
+Branch task/operator-setup-history, stacked on the operator checklist and PR #4. Documentation-only reconciliation of completed, prepared, unconfirmed and deferred operator actions, including detailed owner-performed setup from chat history. Next operator actions: merge PR #4, verify support forwarding, import the Vercel staging website, then configure Supabase scheduled cleanup and heartbeat monitoring using docs15/16. See the checklist for owners, order and completion evidence. Earlier session entries below are historical and may describe superseded plans or then-pending checks.
 
 ## Fixed direction
 
@@ -14,7 +16,7 @@ Option5 Cream & Brick; local guest; email OTP account; offline-first personal lo
 
 ## External dependencies
 
-Native build target, development Supabase and OTP delivery, region dataset, production/store ownership. None prevents beginning local implementation.
+Hosted website/worker/monitor setup, support delivery, Android cloud-build credentials and home-laptop emulator, backup/retention decisions, and later production/store ownership. Staging Supabase, region data and OTP delivery are already provisioned.
 
 ## Session update template
 
@@ -75,3 +77,31 @@ Next action: supply owner Expo/project/signing identifiers, a native iOS and And
 ## Staging target configuration correction
 
 User preview log showed an empty SUPABASE_PROJECT_ID while both secrets were available. The exact GitHub variable-resolution cause is unverified. Pinned the public staging reference directly in the workflow, retaining the independent target guard; no operator variable is now required. Updated browser runbook. Verification: node --test tests/staging-guard.test.mjs passed3/3; parsed actual workflow YAML and passed its target into validateStaging with test credentials successfully; git diff --check passed. No hosted changes applied. Next: merge this task branch and start a fresh main/preview workflow run (rerunning an old job uses old workflow code).
+
+## Expo project linkage and hosted staging verification
+
+Owner foodib115 supplied project8509924c-03cc-4a2f-81e8-98ed695ba7e6 and selected iPhone testing. Added owner and extra.eas.projectId to app.json; dynamic config now preserves static extra fields. Verified actual Expo public config via node node_modules/expo/bin/cli config --type public --json and assertions on owner/project/environment; ESLint app.config.js passed. No dependency changes, signed builds or native verification. Hosted apply run35639437161 verified12 matching migrations and region RPC200. Owner has only a regular Apple ID; paid Apple Developer enrollment/signing, device registration, build credentials and cloud build automation remain next steps. Production guard and temporary application identifiers remain pending signing setup.
+
+## Standalone support website
+
+Prepared apps/site and Vercel config on task/public-support-site, stacked on Expo linkage. Restricted staging-only home/support/privacy/deletion surface replaces the proposal to publish the entire mobile web export. Actual Expo public config is unchanged. Local site build and3 recovery tests passed; all4 pages rendered in headless Chrome at390px with no overflow, screenshot visually inspected. Added real disposable Auth/PostgreSQL browser deletion test to backend CI; hosted execution pending. Support address remains unset until owner confirms destination and tests delivery. Owner has Vercel; no project/deployment yet. Next: verify CI, merge reviewed branch, import root repo into Vercel using docs/15-website-operations.md, then review staging URL. No website or email sent/published by this task.
+
+## Hosted operations preparation
+
+Added one-minute Render cron Blueprint and operations-cycle wrapper, staging API/DB/admin-key/TLS guards, one-day deletion backlog/failure exit codes, optional empty-POST heartbeat and55-second deadline. No paid service or alert was activated. Browser runbooks cover Vercel, support forwarding/reply identity, scheduled credentials, notification and missed-run drills, backups/retention and spend controls. Local38 package tests passed, including target/TLS/key rejection and alert boundary tests; Render YAML parsed; syntax and diff checks passed. Site branch f239197 mobile and package CI passed; real standalone backend/browser CI still running. Owner has Vercel and Expo preview variables, will test Android later; support destination and Render billing acceptance not supplied. Next: finish CI, merge reviewed stack, operator import Vercel staging project and review Render pricing/secrets. Hosted worker, actual email alert delivery, heartbeat, restore drill, final retention and native testing remain unverified.
+
+## No-paid-host operations revision
+
+Owner confirmed support forwarding to their Gmail and requested a no-paid-host alternative. Removed the Render Blueprint/runner from the final tree. Added Supabase Edge entrypoint reusing the existing worker, fixed staging guards, dedicated scheduler-secret authentication, advisory-lock overlap protection, worker per-query/time budgets, manual GitHub function deployment, reviewed Cron/Vault SQL, Deno runtime CI and real backend handler tests. Updated docs/16-hosted-operations.md to Supabase plus optional free-tier heartbeat monitoring; backup restore/retention remain explicitly unresolved. Local38 package tests passed. Hosted deployment and new CI remain pending. Next: verify full CI, merge this combined branch only, import Vercel site and configure Supabase Edge secrets/Cron using the runbook. No billing, external service, DNS or live schedule was changed.
+
+## Verification update for operator handoff
+
+Standalone website source f239197 passed complete backend CI35649726100, including the new real suspended-account OTP/deletion/offline-retry/reload/cleanup/peer-isolation browser test, and mobile/package checks. Supabase operations source b985d5e passed its real backend test step, including the new HTTP authorization/overlap-lock/cleanup test; remaining browser steps are running. Source2f8a638 passed package35650721792, Edge runtime35650721607 and mobile35650721625; backend35650721671 remains in progress. The final session-pool port guard also passed local focused tests. No hosted deployment/alert/backup evidence is claimed. Current next action is owner review of the combined branch, then Vercel import and Supabase secrets/Cron setup following docs15/16 once checks finish.
+
+## 2026-09-22: Operator status reconciliation
+
+Created tracking/OPERATOR_STATUS.md with completed setup, PR #4 green-CI evidence, ordered O01-O14 actions, owners and evidence requirements. Updated current progress and entry-point links. Read-only GitHub API confirmed main425c348, PR #4 open/unmerged, and all four checks successful at0d8f24e (runs35664821351/352/353 and35664821551). Unreported dashboard actions remain unconfirmed. Verification: relative Markdown link existence and git diff --check; no runtime tests repeated for this documentation-only change. No infrastructure, billing, DNS, mailbox or hosted data changed. Next: owner merge/review and O01-O03.
+
+## 2026-09-22: Completed dashboard setup from conversation history
+
+Expanded OPERATOR_STATUS.md with the Namecheap purchase and saved DKIM/CNAME/DMARC record inventory, preserved root MX records, verified Resend sending domain, Supabase project/public settings and saved SMTP/sender configuration, received OTP, GitHub environment and successful preview/apply runs, Expo account/project/Preview variables, Vercel account, and support/no-paid-host decisions. Distinguished owner confirmations, prior API/DNS/CI checks, assistant-side configuration and unconfirmed work. SMTP secrets and long key values are omitted. Support forwarding, website DNS, Edge/Cron/alerts, backups and native testing remain incomplete unless subsequently reported. Verified Markdown links and git diff --check; no runtime changes or provider mutations. Next actions remain O01-O03 in the operator checklist.
