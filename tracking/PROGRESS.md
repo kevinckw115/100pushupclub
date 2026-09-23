@@ -2,13 +2,13 @@
 
 ## Current state
 
-**Operator checklist: [OPERATOR_STATUS.md](OPERATOR_STATUS.md)** (reconciled2026-09-22). PRs #1-#3 are merged; main is425c348. Staging migrations and hosted region API were verified, SMTP code delivery confirmed, and Expo account/project/preview variables supplied. These completed steps must not be requested again.
+**Operator checklist: [OPERATOR_STATUS.md](OPERATOR_STATUS.md)** (reconciled 2026-09-23). PRs #1-#5 are merged; latest checked main is 48b15a824b7020453926e77023d2a3985c010bd2. All four main CI workflows passed. Staging migrations and hosted region API were verified earlier, SMTP code delivery confirmed, and Expo account/project/preview variables supplied. These completed steps must not be requested again.
 
-PR #4 remains open at0d8f24e; package, mobile, backend/browser and Edge runtime checks all passed. Its website, Expo linkage and scheduled cleanup code are prepared but not merged/deployed. Support forwarding destination is approved, not yet confirmed configured. Vercel project, hosted Edge/Cron, heartbeat delivery, backup/retention and native-device gates remain open. Android emulator testing on the home laptop is the next device path; Apple enrollment is deferred.
+Website, Expo linkage and scheduled cleanup code are merged. Hosted website, support forwarding, Edge/Cron and heartbeat delivery remain unconfirmed. No Android preview APK or native test evidence yet. The owner now has the home laptop available; Android testing is the next priority. Backup/retention and production/store gates remain open.
 
 ## Current task
 
-Branch task/operator-setup-history, stacked on the operator checklist and PR #4. Documentation-only reconciliation of completed, prepared, unconfirmed and deferred operator actions, including detailed owner-performed setup from chat history. Next operator actions: merge PR #4, verify support forwarding, import the Vercel staging website, then configure Supabase scheduled cleanup and heartbeat monitoring using docs15/16. See the checklist for owners, order and completion evidence. Earlier session entries below are historical and may describe superseded plans or then-pending checks.
+Branch task/operator-reassessment-20260923. Documentation-only reassessment against GitHub main and the owner's latest availability. Next: confirm home laptop OS/emulator availability, finish Android build configuration/access, create a preview APK and execute native logging/offline/sign-in tests. Support forwarding, Vercel and scheduled operations can proceed independently using docs15/16. Earlier entries below are historical.
 
 ## Fixed direction
 
@@ -105,3 +105,7 @@ Created tracking/OPERATOR_STATUS.md with completed setup, PR #4 green-CI evidenc
 ## 2026-09-22: Completed dashboard setup from conversation history
 
 Expanded OPERATOR_STATUS.md with the Namecheap purchase and saved DKIM/CNAME/DMARC record inventory, preserved root MX records, verified Resend sending domain, Supabase project/public settings and saved SMTP/sender configuration, received OTP, GitHub environment and successful preview/apply runs, Expo account/project/Preview variables, Vercel account, and support/no-paid-host decisions. Distinguished owner confirmations, prior API/DNS/CI checks, assistant-side configuration and unconfirmed work. SMTP secrets and long key values are omitted. Support forwarding, website DNS, Edge/Cron/alerts, backups and native testing remain incomplete unless subsequently reported. Verified Markdown links and git diff --check; no runtime changes or provider mutations. Next actions remain O01-O03 in the operator checklist.
+
+## 2026-09-23: Main and operator reassessment
+
+Fetched origin/main and checked GitHub PR/workflow status: PRs #4/#5 merged; backend authorization, development package, operations Edge runtime and mobile checks succeeded at 48b15a8. Inspected merged Expo linkage, preview build profile and workflows; no actual APK/build evidence. Reconciled checklist and task blocker text. Verification: git diff --check and task JSON parsing. No hosted mutation or native test performed. Next action: home laptop OS/emulator setup and Android preview build; hosted deployment/alerts remain operator tasks.

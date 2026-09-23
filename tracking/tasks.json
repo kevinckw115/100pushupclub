@@ -396,7 +396,7 @@
       "evidence": [
         "tracking/evidence/T22.md"
       ],
-      "blocker": "Staging migrations and OTP delivery verified; Expo owner/project and preview variables supplied. Standalone website and Supabase scheduled operations prepared on task branches. Hosted website/worker/heartbeat/support delivery, backup restore/retention, signed Android build and native T20/T21 evidence remain unverified.",
+      "blocker": "Staging migrations and OTP delivery verified; Expo owner/project and preview variables supplied. Standalone website, Expo linkage and Supabase scheduled operations merged to main; all four CI workflows passed at 48b15a8. Home laptop is now available for Android testing. Hosted website/worker/heartbeat/support delivery, backup restore/retention, signed Android build and native T20/T21 evidence remain unverified.",
       "acceptance_ids": [
         "A35"
       ]
